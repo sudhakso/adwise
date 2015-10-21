@@ -6,6 +6,7 @@ from userapp import views
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^docs/', include('rest_framework_swagger.urls')),
     url(r'^users/', views.UserViewSet.as_view({'get': 'get', 'post': 'post', 'put': 'post'})),
     url(r'^users/(?P<username>[0-9a-zA-Z]/$',\
         views.UserSummaryViewSet),

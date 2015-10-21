@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'rest_framework',
     'rest_framework_mongoengine',
+    'rest_framework_swagger',
     'userapp' 
 )
 
