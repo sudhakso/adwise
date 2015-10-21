@@ -1,6 +1,7 @@
 Django==1.6.11
 argparse==1.2.1
 django-mongodb-engine==0.6.0
+django-rest-framework-mongoengine==2.1.0
 djangorestframework==3.2.4
 djangotoolbox==1.8.0
 mongoengine==0.10.0

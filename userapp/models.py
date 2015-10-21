@@ -4,14 +4,26 @@ from mongoengine.fields import GeoPointField, DictField, ListField,\
     DateTimeField, StringField, EmailField
 from datetime import datetime
 from mongoengine.document import Document
+from mongoengine import connect
+from atlas_ws.settings import _MONGODB_NAME
+
+connect(_MONGODB_NAME, alias='default')
 
 # Create your models here.
 class MediaUser(Document):
+    # Identity
     username = StringField(verbose_name='username', required=True, max_length=30)
     password = StringField(verbose_name='password', required=True, max_length=30)
+    # e-correspondence
     phone_number = StringField(verbose_name='phone_number', required=True, max_length=30)
     email = EmailField()
-    address = GeoPointField()
+    # correspondence
+    address = StringField(verbose_name='address', required=True, max_length=256)
+    city = StringField(verbose_name='city', required=True, max_length=80)
+    state = StringField(verbose_name='state', required=True, max_length=80)
+    # location field
+    point = GeoPointField()
+    # records
     date_joined = DateTimeField(default=datetime.now())
     last_updated = DateTimeField(default=datetime.now())
     last_activity = DateTimeField(default=datetime.now())

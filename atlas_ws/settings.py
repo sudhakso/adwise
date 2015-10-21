@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'rest_framework',
+    'rest_framework_mongoengine',
     'userapp' 
 )
 
@@ -56,6 +57,7 @@ ROOT_URLCONF = 'atlas_ws.urls'
 
 WSGI_APPLICATION = 'atlas_ws.wsgi.application'
 
+_MONGODB_NAME = 'my_database'
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
@@ -92,3 +94,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+#    'DEFAULT_PERMISSION_CLASSES': [
+#        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+#    ]
+     'DEFAULT_PARSER_CLASSES': (
+    'rest_framework.parsers.JSONParser',
+     )
+}
