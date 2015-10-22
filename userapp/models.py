@@ -1,11 +1,13 @@
 from django.db import models
 from django.db.models.fields.related import ForeignKey
 from mongoengine.fields import GeoPointField, DictField, ListField,\
-    DateTimeField, StringField, EmailField
+    DateTimeField, StringField, EmailField, URLField
 from datetime import datetime
 from mongoengine.document import Document
 from mongoengine import connect
 from atlas_ws.settings import _MONGODB_NAME
+from rest_framework.fields import Field
+from rest_framework import fields
 
 connect(_MONGODB_NAME, alias='default')
 
@@ -27,6 +29,8 @@ class MediaUser(Document):
     date_joined = DateTimeField(default=datetime.now())
     last_updated = DateTimeField(default=datetime.now())
     last_activity = DateTimeField(default=datetime.now())
+    #reference - DRF field
+    url = fields.URLField(source='get_absolute_url', read_only=False)
     
     def do_update(self, password=None, phone_number=None, email=None, address=None):
         if password:
