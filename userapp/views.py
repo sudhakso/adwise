@@ -10,13 +10,13 @@ from rest_framework.parsers import JSONParser
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
     HTTP_500_INTERNAL_SERVER_ERROR
 from userapp.JSONFormatter import JSONResponse
+from rest_framework.views import APIView
+from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.renderers import JSONRenderer
 
 
-
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """    
+class UserViewSet(APIView):
+    """ User resource """    
     def get(self, request, *args, **kwargs):
         # Request Get, all users
         if request.method == 'GET':

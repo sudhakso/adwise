@@ -38,6 +38,9 @@ class MediaUser(Document):
                     
         self.last_updated = datetime.now();
     
+    def get_absolute_url(self):
+        return "/users/%i/" % self.id
+    
 class PreferenceCategory(Document):
 #   ['Arts and Entertainment', 'Food', 'Sports', 'Travel', 'shop', 'outdoor', 'Home', 
 #    'work', 'others'...]

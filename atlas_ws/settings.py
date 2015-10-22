@@ -51,7 +51,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 ROOT_URLCONF = 'atlas_ws.urls'
@@ -105,4 +105,17 @@ REST_FRAMEWORK = {
      'DEFAULT_PARSER_CLASSES': (
     'rest_framework.parsers.JSONParser',
      )
+}
+
+SWAGGER_SETTINGS = {
+    "exclude_namespaces": [],    # List URL namespaces to ignore
+    "api_version": '0.1.10',  # Specify your API's version (optional)
+    "enabled_methods": [  # Methods to enable in UI
+        'get',
+        'post',
+        'put',
+        'patch',
+        'delete'
+    ],
+    "is_authenticated": True
 }
