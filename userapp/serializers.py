@@ -3,7 +3,6 @@ from rest_framework_mongoengine import serializers
 from rest_framework import fields
 
 class UserSerializer(serializers.DocumentSerializer):
-#     url = fields.URLField(source='get_absolute_url', read_only=True)
     class Meta:
         model = MediaUser
         geo_point = "point"

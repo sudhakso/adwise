@@ -18,12 +18,15 @@ from rest_framework.renderers import JSONRenderer
 class UserViewSet(APIView):
     
     """ User resource """
-  
+      
     serializer_class = UserSerializer
     model = MediaUser
     
     def get(self, request, *args, **kwargs):
-        """ Returns a list of users  """
+        """ Returns a list of users
+         ---
+         response_serializer: UserSerializer
+        """  
         # Request Get, all users
         if request.method == 'GET':
             usrs = MediaUser.objects.all()
@@ -31,6 +34,11 @@ class UserViewSet(APIView):
             return JSONResponse(serializer.data)
     
     def post(self, request, *args, **kwargs):
+        """ Creates a user
+         ---
+         request_serializer: UserSerializer         
+         response_serializer: UserSerializer
+        """  
         # Request Post, create user
         if request.method == 'POST':
             try: 
