@@ -1,5 +1,7 @@
 from django.test import TestCase
 from models import MediaUser
+from io import BytesIO
+from rest_framework.parsers import JSONParser
 
 from mongoengine import connect
 
@@ -7,6 +9,12 @@ _MOCK_ATTR_X1 = -123.0208
 _MOCK_ATTR_X2 = 44.0464
 _MOCK_ATTR_Y1 = 54.0000
 _MOCK_ATTR_Y2 = 0.0
+_API_SERVER_URL = 'http://127.0.0.1:8000'
+
+def parseJSON(response):
+    stream = BytesIO(response.content)
+    json = JSONParser().parse(stream)
+    return json
 
 # Create your tests here.
 class MediaUserTestCase(TestCase):
@@ -63,5 +71,15 @@ class MediaUserTestCase(TestCase):
         self.assertTrue(infolion[0] == _MOCK_ATTR_X1)
         self.assertTrue(infolion[1] == _MOCK_ATTR_Y1)
       
-        
+
+class SwaggerIntegrationTestCase(TestCase):
+    def test_no_permission(self):
+        response = self.client.get('%s/%s' %(_API_SERVER_URL,''))
+        self.assertEqual(response.status_code, 200)
+
+    def test_user_serializer(self):
+        response = self.client.get('%s/%s' %(_API_SERVER_URL, 'api-docs/users'))
+        self.assertEqual(response.status_code, 200)
+        json = parseJSON(response)
+        self.assertTrue('UserSerializer' in json['models'])
         
