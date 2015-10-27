@@ -42,7 +42,8 @@ INSTALLED_APPS = (
     'rest_framework',
     'rest_framework_mongoengine',
     'rest_framework_swagger',
-    'userapp' 
+    'userapp',
+    'mediacontentapp' 
 )
 
 MIDDLEWARE_CLASSES = (
