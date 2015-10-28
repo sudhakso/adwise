@@ -6,5 +6,6 @@ from mediacontentapp import views
 urlpatterns = [
     # Media
     url(r'^ads/$', views.AdViewSet.as_view()),
-    url(r'^ads/textads/', views.TextAdViewSet.as_view())
+    url(r'^ads/textads/', views.TextAdViewSet.as_view()),
+    url(r'^ads/callads/', views.CallOnlyAdViewSet.as_view())
 ]
