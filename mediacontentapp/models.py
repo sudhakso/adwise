@@ -1,13 +1,101 @@
 from django.db import models
 from mongoengine.fields import GeoPointField, DictField, ListField,\
-    StringField, URLField, LongField, BooleanField
+    StringField, URLField, LongField, BooleanField, DateTimeField
 from mongoengine.document import Document
 from rest_framework import fields
 from rest_framework.fields import IntegerField
+from mongoengine.base.common import ALLOW_INHERITANCE
+from django.db.models.fields.related import ForeignKey
 
 
 # Create your models here.
+class SourceAdDetails:
+    """
+    Monikers for the source of Ad. Example, the promoter details.
+    (Angadi Silks, kent.co.in etc.)
+    """
+    pass
+
+
+class MediaSource(Document):
+    """
+    Different types of media we integrate our solution with.
+    """
+    type = StringField()
+    content = models.ManyToManyField('SourceAdDetails', through='Playing')
+
+    meta = {'allow_inheritance': True}
+
+    class Meta:
+        abstract = True
+
+    def get_absolute_url(self):
+        return "/media/mediasource/%i/" % self.id
+
+
+class OOHMediaSource(MediaSource):
+    """
+    Out of house advertising media type.
+    """
+    type = 'ooh'
+    point = GeoPointField()
+
+    def get_absolute_url(self):
+        return "/media/mediasource/ooh/%i/" % self.id
+
+
+class DigitalMediaSource(MediaSource):
+    """
+    Digital media inside home advertising media type.
+    For example, Televisions, DTH etc.
+    """
+    type = 'digital'
+
+    def get_absolute_url(self):
+        return "/media/mediasource/digital/%i/" % self.id
+
+
+class VODMediaSource(MediaSource):
+    """
+    Digital media inside home but IP based advertising media type.
+    For example, VoD service from sky etc.
+    """
+    type = 'vod'
+
+    def get_absolute_url(self):
+        return "/media/mediasource/vod/%i/" % self.id
+
+
+class RadioMediaSource(MediaSource):
+    """
+    Advertising media type using Radio waves technology.
+    For example, FM radio, AM radio etc.
+    """
+    type = 'radio'
+
+    def get_absolute_url(self):
+        return "/media/mediasource/radio/%i/" % self.id
+
+
+class Playing(Document):
+    """
+    At a given time, a media source plays an advertisement
+    for a sourceAdDetail. The time is captured as start and end,
+    where the relationship is valid.
+    This class realizes such relationship.
+    """
+
+    media_source = models.ForeignKey('MediaSource')
+    media_content = models.ForeignKey('SourceAdDetails')
+    media_type = StringField()
+    start_date = DateTimeField()
+    end_date = DateTimeField()
+
+
 class Period(Document):
+    """
+    Information to capture period of operation.
+    """
     openDay = StringField()
     openTime = StringField()
     closeTime = StringField()
@@ -15,6 +103,13 @@ class Period(Document):
 
 
 class AdExtension(Document):
+    """
+    Each Advertisement impression can be supplemented using
+    different extension types. And it is purely based on the
+    intended type of Ad.
+    For example, adding a location or call details in a Ad
+    impression.
+    """
     ex_name = StringField()
     ex_type = StringField()
     # meta
@@ -25,7 +120,11 @@ class AdExtension(Document):
 
 
 class Ad(Document):
-
+    """
+    Advertisement impression on Users mobile device.
+    Represents the base class for possible advertisement
+    impression types.
+    """
     url = URLField()
     display_url = URLField()
 
@@ -65,6 +164,11 @@ or promotion of your product or service.
 
 
 class TextAd(Ad):
+    """
+    The standard type of Ad.
+    Includes a link to your website and a description
+    or promotion of your product or service.
+    """
 
     headline = StringField(max_length=2048)
     description1 = StringField()
@@ -77,15 +181,14 @@ class TextAd(Ad):
     def get_absolute_url(self):
         return "/mediacontent/textads/%i/" % self.id
 
-"""
-A product ad based on product data 
-of a Shopping campaign's associated Merchant Center
-account.
-"""
-
 
 class ProductAd(Ad):
 
+    """
+    A product ad based on product data
+    of a Shopping campaign's associated Merchant Center
+    account.
+    """
     # Promotional line for this ad.
     # This text will be displayed in addition to the products.
     promotionLine = StringField()
@@ -97,13 +200,12 @@ class ProductAd(Ad):
     def get_absolute_url(self):
         return "/mediacontent/productads/%i/" % self.id
 
-"""
-Dynamically generated search ads based on the content
-of a web site.
-"""
-
 
 class DynamicSearchAd(Ad):
+    """
+    Dynamically generated search ads based on the content
+    of a web site.
+    """
     # All fields are filled dynamically.
     # Simple variation of base class 'Ad'.
     ad_type = StringField(default='DynamicSearchAd')
@@ -114,13 +216,10 @@ class DynamicSearchAd(Ad):
         return "/mediacontent/dynamicsearchads/%i/" % self.id
 
 
-"""
-An ad for a Click to Call Only Campaign.
-"""
-
-
 class CallOnlyAd(Ad):
-
+    """
+    An ad for a Click to Call Only Campaign.
+    """
     # Call'able parameters
     countryCode = StringField()
     phone_number = StringField()
@@ -138,13 +237,11 @@ class CallOnlyAd(Ad):
         return "/mediacontent/callonlyads/%i/" % self.id
 
 
-"""
-An ad that includes a graphic to promote 
-your business.
-"""
-
-
 class ImageAd(Ad):
+    """
+    An ad that includes a graphic to promote
+    your business.
+    """
 
     ad_type = StringField(default='ImageAd')
 
@@ -152,24 +249,21 @@ class ImageAd(Ad):
         return "/mediacontent/imageads/%i/" % self.id
 
 
-"""
-Contains a click-to-call phone number, 
-a link to a website, or both.
-"""
-
-
 class MobileAd(Ad):
+    """
+    Contains a click-to-call phone number,
+    a link to a website, or both.
+    """
     ad_type = StringField(default='MobileAd')
 
     def get_absolute_url(self):
         return "/mediacontent/mobileads/%i/" % self.id
 
-"""
-An ad based on a predefined template.
-"""
-
 
 class TemplateAd(Ad):
+    """
+    An ad based on a predefined template.
+    """
     ad_type = StringField(default='TemplateAd')
 
     def get_absolute_url(self):
@@ -177,7 +271,10 @@ class TemplateAd(Ad):
 
 
 class LocationExtension(AdExtension):
-
+    """
+    This extension add locations to the advertisement
+    impression.
+    """
     locationName = StringField()
     locationCode = StringField()
     locationPrimaryPhone = StringField()
@@ -196,7 +293,10 @@ class LocationExtension(AdExtension):
 
 
 class BusinessHoursExtension(AdExtension):
-
+    """
+    This extension adds business working hours to the
+    advertisement impression.
+    """
     periods = ListField<Period>()
     days = ListField()
 
@@ -205,6 +305,10 @@ class BusinessHoursExtension(AdExtension):
 
 
 class ReviewExtension(AdExtension):
+    """
+    This extension adds user review extension to the
+    advertisement impression.
+    """
     pass
 
 
@@ -213,8 +317,16 @@ class SiteLinkExtension(AdExtension):
 
 
 class AppExtension(AdExtension):
+    """
+    This extension adds mobile app to the
+    advertisement impression.
+    """
     pass
 
 
 class OfferExtension(AdExtension):
+    """
+    This extension adds coupons and offers extension to the
+    advertisement impression.
+    """
     pass
