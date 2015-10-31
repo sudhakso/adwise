@@ -30,7 +30,7 @@ class MediaSource(Document):
         abstract = True
 
     def get_absolute_url(self):
-        return "/media/mediasource/%i/" % self.id
+        return "/mediasource/%i/" % self.id
 
 
 class OOHMediaSource(MediaSource):
@@ -41,7 +41,7 @@ class OOHMediaSource(MediaSource):
     point = GeoPointField()
 
     def get_absolute_url(self):
-        return "/media/mediasource/ooh/%i/" % self.id
+        return "/mediasource/ooh/%i/" % self.id
 
 
 class DigitalMediaSource(MediaSource):
@@ -52,7 +52,7 @@ class DigitalMediaSource(MediaSource):
     type = 'digital'
 
     def get_absolute_url(self):
-        return "/media/mediasource/digital/%i/" % self.id
+        return "/mediasource/digital/%i/" % self.id
 
 
 class VODMediaSource(MediaSource):
@@ -63,7 +63,7 @@ class VODMediaSource(MediaSource):
     type = 'vod'
 
     def get_absolute_url(self):
-        return "/media/mediasource/vod/%i/" % self.id
+        return "/mediasource/vod/%i/" % self.id
 
 
 class RadioMediaSource(MediaSource):
@@ -74,7 +74,7 @@ class RadioMediaSource(MediaSource):
     type = 'radio'
 
     def get_absolute_url(self):
-        return "/media/mediasource/radio/%i/" % self.id
+        return "/mediasource/radio/%i/" % self.id
 
 
 class Playing(Document):
@@ -179,7 +179,7 @@ class TextAd(Ad):
     url = fields.URLField(source='get_absolute_url', read_only=False)
 
     def get_absolute_url(self):
-        return "/mediacontent/textads/%i/" % self.id
+        return "/mediacontent/ads/textads/%i/" % self.id
 
 
 class ProductAd(Ad):
@@ -198,7 +198,7 @@ class ProductAd(Ad):
     url = fields.URLField(source='get_absolute_url', read_only=False)
 
     def get_absolute_url(self):
-        return "/mediacontent/productads/%i/" % self.id
+        return "/mediacontent/ads/productads/%i/" % self.id
 
 
 class DynamicSearchAd(Ad):
@@ -213,7 +213,7 @@ class DynamicSearchAd(Ad):
     url = fields.URLField(source='get_absolute_url', read_only=False)
 
     def get_absolute_url(self):
-        return "/mediacontent/dynamicsearchads/%i/" % self.id
+        return "/mediacontent/ads/dynamicsearchads/%i/" % self.id
 
 
 class CallOnlyAd(Ad):
@@ -234,7 +234,7 @@ class CallOnlyAd(Ad):
     ad_type = StringField(default='CallOnlyAd')
 
     def get_absolute_url(self):
-        return "/mediacontent/callonlyads/%i/" % self.id
+        return "/mediacontent/ads/callonlyads/%i/" % self.id
 
 
 class ImageAd(Ad):
@@ -246,7 +246,7 @@ class ImageAd(Ad):
     ad_type = StringField(default='ImageAd')
 
     def get_absolute_url(self):
-        return "/mediacontent/imageads/%i/" % self.id
+        return "/mediacontent/ads/imageads/%i/" % self.id
 
 
 class MobileAd(Ad):
@@ -257,7 +257,7 @@ class MobileAd(Ad):
     ad_type = StringField(default='MobileAd')
 
     def get_absolute_url(self):
-        return "/mediacontent/mobileads/%i/" % self.id
+        return "/mediacontent/ads/mobileads/%i/" % self.id
 
 
 class TemplateAd(Ad):
@@ -267,7 +267,7 @@ class TemplateAd(Ad):
     ad_type = StringField(default='TemplateAd')
 
     def get_absolute_url(self):
-        return "/mediacontent/templateads/%i/" % self.id
+        return "/mediacontent/ads/templateads/%i/" % self.id
 
 
 class LocationExtension(AdExtension):
@@ -289,7 +289,7 @@ class LocationExtension(AdExtension):
     locationcode = GeoPointField()
 
     def get_absolute_url(self):
-        return "/mediacontent/locationextensions/%i/" % self.id
+        return "/mediacontent/ext/locationextensions/%i/" % self.id
 
 
 class BusinessHoursExtension(AdExtension):
@@ -301,7 +301,7 @@ class BusinessHoursExtension(AdExtension):
     days = ListField()
 
     def get_absolute_url(self):
-        return "/mediacontent/businesshoursextensions/%i/" % self.id
+        return "/mediacontent/ext/businesshoursextensions/%i/" % self.id
 
 
 class ReviewExtension(AdExtension):
