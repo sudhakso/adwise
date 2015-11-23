@@ -88,7 +88,8 @@ class PreferenceCategory(Document):
 
 
 class PreferenceSubCategory(Document):
-
+    # e.g Food as Category
+    # name = Cuisine, values = 'Italian, Indian'
     name = StringField(max_length=30)
     values = ListField()
     category_ref = ForeignKey('PreferenceCategory')

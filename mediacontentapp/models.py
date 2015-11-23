@@ -1,15 +1,14 @@
 from django.db import models
 from mongoengine.fields import GeoPointField, DictField, ListField,\
-    StringField, URLField, LongField, BooleanField, DateTimeField
+    StringField, URLField, LongField, BooleanField, DateTimeField, FloatField,\
+    DecimalField
 from mongoengine.document import Document
 from rest_framework import fields
 from rest_framework.fields import IntegerField
-from mongoengine.base.common import ALLOW_INHERITANCE
-from django.db.models.fields.related import ForeignKey
 
 
 # Create your models here.
-class SourceAdDetails:
+class SourceAdDetails(Document):
     """
     Monikers for the source of Ad. Example, the promoter details.
     (Angadi Silks, kent.co.in etc.)
@@ -21,8 +20,14 @@ class MediaSource(Document):
     """
     Different types of media we integrate our solution with.
     """
+    name = StringField()
+    description = StringField()
     type = StringField()
-    content = models.ManyToManyField('SourceAdDetails', through='Playing')
+    active = BooleanField()
+    date_joined = DateTimeField()
+    leased_by = StringField()
+    leased_to = StringField()
+    last_activity = DateTimeField()
 
     meta = {'allow_inheritance': True}
 
@@ -39,6 +44,15 @@ class OOHMediaSource(MediaSource):
     """
     type = 'ooh'
     point = GeoPointField()
+    min_viewing_distance = FloatField()
+    avg_viewership = DecimalField()
+    street_name = StringField()
+    city = StringField()
+    state = StringField()
+    country = StringField()
+    pin = StringField()
+
+    content = models.ManyToManyField('SourceAdDetails', through='Playing')
 
     def get_absolute_url(self):
         return "/mediasource/ooh/%i/" % self.id
@@ -50,6 +64,13 @@ class DigitalMediaSource(MediaSource):
     For example, Televisions, DTH etc.
     """
     type = 'digital'
+    # DTH:Aritel
+    broadcaster_name = StringField()
+    tune_number = DecimalField()
+    tune_name = StringField()
+    broadcaster_url = URLField()
+    broadcaster_api_url = URLField()
+    broadcaster_api_key = StringField()
 
     def get_absolute_url(self):
         return "/mediasource/digital/%i/" % self.id
