@@ -8,10 +8,10 @@ urlpatterns = [
     url(r'^ads/$', views.AdViewSet.as_view()),
     url(r'^ads/textads/', views.TextAdViewSet.as_view()),
     url(r'^ads/callads/', views.CallOnlyAdViewSet.as_view()),
-    url(r'^mediasource/', views.CallOnlyAdViewSet.as_view()),
+    url(r'^mediasource/', sourceviews.MediaSourceSet.as_view()),
     url(r'^mediasource/ooh/', sourceviews.OOHMediaSourceViewSet.as_view()),
     url(r'^mediasource/digital/',
         sourceviews.DigitalMediaSourceViewSet.as_view()),
     url(r'^mediasource/vod/', sourceviews.VODMediaSourceViewSet.as_view()),
-    url(r'^mediasource/radio/', sourceviews.RadioMediaSourceViewSet.as_view()),
+    url(r'^mediasource/radio/', sourceviews.RadioMediaSourceViewSet.as_view())
 ]

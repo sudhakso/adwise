@@ -1,7 +1,8 @@
 from django.db import models
-from django.db.models.fields.related import ForeignKey
+from django.db.models.fields.related import ForeignKey, ManyToManyField
 from mongoengine.fields import GeoPointField, DictField, ListField,\
-    DateTimeField, StringField, EmailField, URLField
+    DateTimeField, StringField, EmailField, URLField, BooleanField,\
+    ReferenceField
 from datetime import datetime
 from mongoengine.document import Document
 from mongoengine import connect
@@ -96,13 +97,13 @@ class PreferenceSubCategory(Document):
 
 
 class UserPersonalPref(Document):
-    preferences = models.ManyToManyField('PreferenceSubCategory')
+    preferences = ListField(ReferenceField('PreferenceSubCategory'))
     user_ref = ForeignKey('MediaUser')
 
 
 class UserDevicePref(Document):
-    device_tag = models.CharField(max_length=30)
-    device_type = models.CharField(max_length=30)
+    device_tag = StringField(max_length=30)
+    device_type = StringField(max_length=30)
     # Device specific data
     device_info = DictField()
     # Primary user who owns device
@@ -110,9 +111,26 @@ class UserDevicePref(Document):
 
 
 class UserMediaPref(Document):
-    media_tag = models.CharField(max_length=30)
-    media_type = models.CharField(max_length=30)
+    media_tag = StringField(max_length=30)
+    media_type = StringField(max_length=30)
     # Device specific data
     media_info = DictField()
     # Primary user who owns device
     user_ref = ForeignKey('MediaUser')
+
+
+class UserService(Document):
+    service_friendly_name = StringField(max_length=30)
+    service_id = StringField()
+    service_driver = StringField()
+    enabled = BooleanField()
+    last_report_time = DateTimeField()
+    auto_restart = BooleanField()
+
+
+class UserSession(Document):
+    session_id = StringField()
+    # Session for the user.
+    user_ref = ForeignKey('MediaUser')
+    # services included in session
+    services = ListField(ReferenceField('UserService'))

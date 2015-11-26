@@ -3,8 +3,12 @@ from mongoengine.fields import GeoPointField, DictField, ListField,\
     StringField, URLField, LongField, BooleanField, DateTimeField, FloatField,\
     DecimalField
 from mongoengine.document import Document
+from mongoengine import connect
+from atlas_ws.settings import _MONGODB_NAME
 from rest_framework import fields
 from rest_framework.fields import IntegerField
+
+connect(_MONGODB_NAME, alias='default')
 
 
 # Create your models here.
@@ -45,7 +49,7 @@ class OOHMediaSource(MediaSource):
     type = 'ooh'
     point = GeoPointField()
     min_viewing_distance = FloatField()
-    avg_viewership = DecimalField()
+    avg_viewership = FloatField()
     street_name = StringField()
     city = StringField()
     state = StringField()
@@ -66,7 +70,7 @@ class DigitalMediaSource(MediaSource):
     type = 'digital'
     # DTH:Aritel
     broadcaster_name = StringField()
-    tune_number = DecimalField()
+    tune_number = FloatField()
     tune_name = StringField()
     broadcaster_url = URLField()
     broadcaster_api_url = URLField()
