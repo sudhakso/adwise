@@ -7,6 +7,8 @@ from mongoengine import connect
 from atlas_ws.settings import _MONGODB_NAME
 from rest_framework import fields
 from rest_framework.fields import IntegerField
+from django.db.models.fields.related import ForeignKey
+from djangotoolbox.fields import EmbeddedModelField
 
 connect(_MONGODB_NAME, alias='default')
 
@@ -154,9 +156,9 @@ class Ad(Document):
     display_url = URLField()
 
     # Collection of product urls
-    final_urls = ListField<URLField>()
-    mobile_urls = ListField<URLField>()
-    app_urls = ListField<URLField>()
+    final_urls = ListField(EmbeddedModelField('URLField'))
+    mobile_urls = ListField(EmbeddedModelField('URLField'))
+    app_urls = ListField(EmbeddedModelField('URLField'))
 
     # Lead for grabbing customer info
     tracking_url = URLField()
@@ -167,7 +169,7 @@ class Ad(Document):
     device_preference = IntegerField()
 
     # List of extension
-    extenstions = models.ManyToManyField('AdExtension')
+    extenstions = ListField(EmbeddedModelField('AdExtension'))
 
     # reference - DRF field
     url = fields.URLField(source='get_absolute_url', read_only=False)
