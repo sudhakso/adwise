@@ -1,13 +1,12 @@
 from django.db import models
-from django.db.models.fields.related import ForeignKey, ManyToManyField
+from django.db.models.fields.related import ForeignKey
 from mongoengine.fields import GeoPointField, DictField, ListField,\
-    DateTimeField, StringField, EmailField, URLField, BooleanField,\
+    DateTimeField, StringField, EmailField, BooleanField,\
     ReferenceField
 from datetime import datetime
 from mongoengine.document import Document
 from mongoengine import connect
 from atlas_ws.settings import _MONGODB_NAME
-from rest_framework.fields import Field
 from rest_framework import fields
 
 connect(_MONGODB_NAME, alias='default')
@@ -83,7 +82,8 @@ class MediaUser(Document):
 
 
 class PreferenceCategory(Document):
-    # ['Arts and Entertainment', 'Food', 'Sports', 'Travel', 'shop', 'outdoor', 'Home',
+    # ['Arts and Entertainment', 'Food', 'Sports',
+    # 'Travel', 'shop', 'outdoor', 'Home',
     # 'work', 'others'...]
     name = StringField(max_length=30)
 
@@ -120,17 +120,43 @@ class UserMediaPref(Document):
 
 
 class UserService(Document):
-    service_friendly_name = StringField(max_length=30)
-    service_id = StringField()
-    service_driver = StringField()
+    user_ref = ReferenceField('MediaUser')
+    user_session = ReferenceField('UserSession')
+    service_id = ReferenceField('Service')
     enabled = BooleanField()
     last_report_time = DateTimeField()
     auto_restart = BooleanField()
 
 
+class Service(Document):
+    service_friendly_name = StringField(max_length=30)
+    service_id = StringField()
+    service_provider = StringField()
+    service_driver = StringField()
+
+
 class UserSession(Document):
     session_id = StringField()
     # Session for the user.
-    user_ref = ForeignKey('MediaUser')
+    user_ref = ReferenceField('MediaUser')
     # services included in session
     services = ListField(ReferenceField('UserService'))
+
+
+class ServiceRequest(Document):
+
+    target_service_name = StringField(max_length=30)
+    request_time = DateTimeField()
+    target_service_id = ReferenceField('Service')
+    requesting_user_id = ReferenceField('MediaUser')
+    # unknown data, delegated to driver.
+    service_meta = StringField()
+
+
+class Location(Document):
+    service_key = StringField()
+    point = GeoPointField()
+
+
+class Meter(Document):
+    service_key = StringField()

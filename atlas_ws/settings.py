@@ -13,7 +13,8 @@ import os
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-
+USERAPP_DIR = "%s/%s/" % (BASE_DIR, 'userapp')
+MEDIAAPP_DIR = "%s/%s/" % (BASE_DIR, 'mediacontentapp')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -43,7 +44,7 @@ INSTALLED_APPS = (
     'rest_framework_mongoengine',
     'rest_framework_swagger',
     'userapp',
-    'mediacontentapp' 
+    'mediacontentapp'
 )
 
 MIDDLEWARE_CLASSES = (
