@@ -45,7 +45,7 @@ class Advertiser(Document):
 class MediaUser(Document):
     # Identity
     username = StringField(verbose_name='username', required=True,
-                           max_length=30)
+                           max_length=30, primary_key=True)
     password = StringField(verbose_name='password', required=True,
                            max_length=30)
     # e-correspondence

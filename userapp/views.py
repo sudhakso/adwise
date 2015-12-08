@@ -88,7 +88,8 @@ class UserServiceViewSet(APIView):
                     if serializer.is_valid():
                         serializer.save(request_time=tm,
                                         target_service_id=svc,
-                                        requesting_user_id=user)
+                                        requesting_user_id=user,
+                                        target_service_name=service_name)
                         # Prepare the service for the User
                         created_svc = session_mgr.prepare_service(
                                                     user_id=user,

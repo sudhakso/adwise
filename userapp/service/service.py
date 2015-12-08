@@ -62,7 +62,7 @@ class UserLocationService(BaseService):
         super(UserLocationService, self).teardown_service(service_id)
 
     def handle_service_request(self, key, service_data):
-        print 'Handling userlocationservice request...'
+        print 'Handling userlocationservice request...(%s)' % service_data
         super(UserLocationService, self).handle_service_request(key, service_data)
 
 
