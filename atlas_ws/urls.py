@@ -1,4 +1,5 @@
 from django.conf.urls import url, include
+from django.conf.urls import include, url
 from userapp import views
 
 # Wire up our API using automatic URL routing.
@@ -11,5 +12,7 @@ urlpatterns = [
     # User
     url(r'^users/', include('userapp.urls')),
     # Documentation engine
-    url(r'^', include('rest_framework_swagger.urls'))
+    url(r'^', include('rest_framework_swagger.urls')),
+    #django-gcm
+    url(r'', include('gcm.urls'))
 ]
