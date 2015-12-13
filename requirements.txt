@@ -9,3 +9,8 @@ djangotoolbox==1.8.0
 mongoengine==0.10.0
 pymongo==3.0.3
 wsgiref==0.1.2
+
+####
+# Additional dependencies, not covered in PIP
+# (1) MONGODB  
+# (2) sudo apt-get install libjpeg8-dev

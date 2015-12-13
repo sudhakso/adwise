@@ -1,19 +1,36 @@
-from django.db import models
 from mongoengine.fields import GeoPointField, DictField, ListField,\
-    StringField, URLField, LongField, BooleanField, DateTimeField, FloatField,\
-    DecimalField
+    StringField, URLField, BooleanField, DateTimeField, FloatField,\
+    ReferenceField, ImageField, FileField
+# from django_mongodb_engine.fields import GridFSField
 from mongoengine.document import Document
 from mongoengine import connect
 from atlas_ws.settings import _MONGODB_NAME
 from rest_framework import fields
 from rest_framework.fields import IntegerField
-from django.db.models.fields.related import ForeignKey
-from djangotoolbox.fields import EmbeddedModelField
+from datetime import datetime
+from django_mongodb_engine.storage import GridFSStorage
 
 connect(_MONGODB_NAME, alias='default')
+# gridfs = GridFSStorage(location='/uploads')
 
 
 # Create your models here.
+class Campaign(Document):
+    """
+    Campaign resource
+    """
+    name = StringField()
+    description = StringField()
+    # TBD (FixMe): Media Agency user should be added different
+    creator = ReferenceField('MediaUser')
+    creation_time = DateTimeField(default=datetime.now())
+    launched_at = DateTimeField()
+    end_at = DateTimeField()
+
+    def get_absolute_url(self):
+        return "/campaign/%i/" % self.id
+
+
 class SourceAdDetails(Document):
     """
     Monikers for the source of Ad. Example, the promoter details.
@@ -58,7 +75,7 @@ class OOHMediaSource(MediaSource):
     country = StringField()
     pin = StringField()
 
-    content = models.ManyToManyField('SourceAdDetails', through='Playing')
+    content = ListField(ReferenceField('Playing'))
 
     def get_absolute_url(self):
         return "/mediasource/ooh/%i/" % self.id
@@ -112,8 +129,8 @@ class Playing(Document):
     This class realizes such relationship.
     """
 
-    media_source = models.ForeignKey('MediaSource')
-    media_content = models.ForeignKey('SourceAdDetails')
+    media_source = ReferenceField('MediaSource')
+    media_content = ReferenceField('Ad')
     media_type = StringField()
     start_date = DateTimeField()
     end_date = DateTimeField()
@@ -156,20 +173,25 @@ class Ad(Document):
     display_url = URLField()
 
     # Collection of product urls
-    final_urls = ListField(EmbeddedModelField('URLField'))
-    mobile_urls = ListField(EmbeddedModelField('URLField'))
-    app_urls = ListField(EmbeddedModelField('URLField'))
+    final_urls = ListField()
+    mobile_urls = ListField()
+    app_urls = ListField()
 
-    # Lead for grabbing customer info
-    tracking_url = URLField()
+    # Customer trusted tracking
+    thirdparty_tracking_url = URLField()
+
+    # AdWise tracking
+    adwise_tracking_url = URLField()
 
     # Meta
     ad_type = StringField()
     custom_parameters = DictField()
     device_preference = IntegerField()
 
+    # Campaign this Ad refers to.
+    campaign = ReferenceField(Campaign)
     # List of extension
-    extenstions = ListField(EmbeddedModelField('AdExtension'))
+    extenstions = ListField(ReferenceField('AdExtension'))
 
     # reference - DRF field
     url = fields.URLField(source='get_absolute_url', read_only=False)
@@ -271,9 +293,11 @@ class ImageAd(Ad):
     """
 
     ad_type = StringField(default='ImageAd')
+    image = ImageField()
 
     def get_absolute_url(self):
-        return "/mediacontent/ads/imageads/%i/" % self.id
+        return "/mediacontent/ads/imageads/%i/%i/" % (
+                                        self.campaign.id, self.id)
 
 
 class MobileAd(Ad):
@@ -324,7 +348,7 @@ class BusinessHoursExtension(AdExtension):
     This extension adds business working hours to the
     advertisement impression.
     """
-    periods = ListField<Period>()
+    periods = ListField(ReferenceField(Period))
     days = ListField()
 
     def get_absolute_url(self):

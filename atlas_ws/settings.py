@@ -10,11 +10,12 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-
+from django.conf.global_settings import MEDIA_ROOT
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 USERAPP_DIR = "%s/%s/" % (BASE_DIR, 'userapp')
 MEDIAAPP_DIR = "%s/%s/" % (BASE_DIR, 'mediacontentapp')
+MEDIA_ROOT = os.path.dirname(os.path.dirname(__file__))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
