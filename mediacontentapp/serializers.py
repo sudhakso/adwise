@@ -1,8 +1,21 @@
-from mediacontentapp.models import Ad, TextAd, ProductAd, DynamicSearchAd
-from mediacontentapp.models import CallOnlyAd, ImageAd,MobileAd, TemplateAd
+from mediacontentapp.models import Ad, TextAd, ProductAd, DynamicSearchAd,\
+    Campaign
+from mediacontentapp.models import CallOnlyAd, ImageAd
 from mediacontentapp.models import LocationExtension, BusinessHoursExtension
 from rest_framework_mongoengine import serializers
-from rest_framework import fields
+
+
+class CampaignSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = Campaign
+        fields = ('id', 'name', 'description', 'creation_time', 'launched_at',
+                  'end_at')
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
 
 
 class AdSerializer(serializers.DocumentSerializer):
@@ -60,17 +73,6 @@ class ImageAdSerializer(serializers.DocumentSerializer):
         return self.get_field_names(*args, **kwargs)
 
 
-class MobileAdSerializer(serializers.DocumentSerializer):
-    class Meta:
-        model = MobileAd
-
-    def _include_additional_options(self, *args, **kwargs):
-        return self.get_extra_kwargs()
-
-    def _get_default_field_names(self, *args, **kwargs):
-        return self.get_field_names(*args, **kwargs)
-
-
 class DynamicSearchAdSerializer(serializers.DocumentSerializer):
     class Meta:
         model = DynamicSearchAd
@@ -102,4 +104,3 @@ class BusinessHoursExtensionSerializer(serializers.DocumentSerializer):
 
     def _get_default_field_names(self, *args, **kwargs):
         return self.get_field_names(*args, **kwargs)
-
