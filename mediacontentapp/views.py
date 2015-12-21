@@ -1,16 +1,19 @@
 from userapp.JSONFormatter import JSONResponse
 from rest_framework.views import APIView
 from mediacontentapp.serializers import AdSerializer, TextAdSerializer,\
-    CallOnlyAdSerializer, ImageAdSerializer, CampaignSerializer
+    CallOnlyAdSerializer, ImageAdSerializer, CampaignSerializer,\
+    ImageContentSerializer
 from userapp.models import MediaUser
-from mediacontentapp.models import Ad, TextAd, CallOnlyAd, ImageAd, Campaign
+from mediacontentapp.models import Ad, TextAd, CallOnlyAd, ImageAd, Campaign,\
+    ImageContent
 from mediacontentapp.controller import CampaignManager
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
-    HTTP_500_INTERNAL_SERVER_ERROR
+    HTTP_500_INTERNAL_SERVER_ERROR, HTTP_404_NOT_FOUND, HTTP_200_OK
 from datetime import date, datetime
 from PIL import Image
 from django.http.response import HttpResponse
-
+from django.utils.baseconv import base64
+import base64
 
 class CampaignViewSet(APIView):
 
@@ -167,6 +170,29 @@ class CallOnlyAdViewSet(AdViewSet):
                                     status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class ImageViewSet(AdViewSet):
+    """ Returns Image resource """
+
+    serializer_class = ImageAdSerializer
+    model = ImageContent
+
+    # curl -X GET -S -H 'Accept: application/json' \
+    # http://127.0.0.1:8000/mediacontent/ads/imageads/images/566d10ad1d41c8bd636ea654/
+    def get(self, request, image_id):
+
+        """ Returns a image identified by Id
+         ---
+         response_serializer: ImageContentSerializer
+        """
+        # Request Get, all users
+        if request.method == 'GET':
+            if image_id is not None:
+                img = ImageContent.objects.get(id=image_id)
+                return HttpResponse(img.image.read(),
+                                    content_type="image/jpeg")
+            return JSONResponse("", status=HTTP_404_NOT_FOUND)
+
+
 class ImageAdViewSet(AdViewSet):
 
     """ Print/Image Campaign resource """
@@ -192,7 +218,6 @@ class ImageAdViewSet(AdViewSet):
                 ad = ImageAd.objects.get(id=ad_id)
                 if ad.campaign.id == camp.id:
                     serializer = ImageAdSerializer(ad)
-                    return HttpResponse(ad.image.read(), content_type="image/jpeg")
             return JSONResponse(serializer.data)
 
     def post(self, request, campaign_id):
@@ -212,10 +237,17 @@ class ImageAdViewSet(AdViewSet):
         if request.method == 'POST':
             camp = Campaign.objects.get(id=campaign_id)
             if camp:
+                # Store image'
+                imageserializer = ImageContentSerializer(
+                        data=request.data)
+                if imageserializer.is_valid():
+                    img = imageserializer.save()
+
                 serializer = ImageAdSerializer(
                                 data=request.data)
                 if serializer.is_valid():
-                    serializer.save(campaign=camp)
+                    serializer.save(campaign=camp, image_content=img,
+                                    image_url=img.get_absolute_url())
                     return JSONResponse(serializer.data,
                                         status=HTTP_201_CREATED)
         return JSONResponse(serializer.errors,

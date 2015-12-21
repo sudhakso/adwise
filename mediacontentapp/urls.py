@@ -8,6 +8,8 @@ urlpatterns = [
     url(r'^ads/$', views.AdViewSet.as_view()),
     url(r'^ads/textads/', views.TextAdViewSet.as_view()),
     url(r'^ads/callads/', views.CallOnlyAdViewSet.as_view()),
+    url(r'^ads/imageads/images/(?P<image_id>[0-9a-zA-Z]+)/$',
+        views.ImageViewSet.as_view()),
     url(r'^ads/imageads/(?P<campaign_id>[0-9a-zA-Z]+)/$',
         views.ImageAdViewSet.as_view()),
     url(r'^ads/imageads/(?P<campaign_id>[0-9a-zA-Z]+)/(?P<ad_id>[0-9a-zA-Z]+)',

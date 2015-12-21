@@ -9,6 +9,7 @@ from rest_framework import fields
 from rest_framework.fields import IntegerField
 from datetime import datetime
 from django_mongodb_engine.storage import GridFSStorage
+from django.db.models.base import get_absolute_url
 
 connect(_MONGODB_NAME, alias='default')
 # gridfs = GridFSStorage(location='/uploads')
@@ -37,6 +38,29 @@ class SourceAdDetails(Document):
     (Angadi Silks, kent.co.in etc.)
     """
     pass
+
+
+class AmenityType(Document):
+    """
+    pre-defined amenity.
+    Rating system could consider amenity.
+    """
+    # pre-known types of amenity
+    typename = StringField()
+    weight = FloatField()
+
+
+class Amenity(Document):
+    """
+    Location specific amenities.
+    Rating system could consider amenity.
+    """
+    # public roads, Community hall, leisure,
+    type = ReferenceField('AmenityType')
+    # Ring road, marriage, snack bar
+    classifier = StringField()
+    name = StringField(primary_key=True)
+    rating = FloatField()
 
 
 class MediaSource(Document):
@@ -75,6 +99,7 @@ class OOHMediaSource(MediaSource):
     country = StringField()
     pin = StringField()
 
+    specials = ListField(ReferenceField('Amenity'))
     content = ListField(ReferenceField('Playing'))
 
     def get_absolute_url(self):
@@ -286,14 +311,27 @@ class CallOnlyAd(Ad):
         return "/mediacontent/ads/callonlyads/%i/" % self.id
 
 
+class ImageContent(Document):
+    """
+    An image instance .
+    """
+
+    image_type = StringField(default='jpg')
+    image = ImageField()
+
+    def get_absolute_url(self):
+        return "/mediacontent/ads/imageads/images/%s/" % (
+                                        self.id)
+
+
 class ImageAd(Ad):
     """
     An ad that includes a graphic to promote
     your business.
     """
-
     ad_type = StringField(default='ImageAd')
-    image = ImageField()
+    image_url = StringField()
+    image_content = ReferenceField('ImageContent')
 
     def get_absolute_url(self):
         return "/mediacontent/ads/imageads/%i/%i/" % (
