@@ -194,19 +194,19 @@ class Ad(Document):
     Represents the base class for possible advertisement
     impression types.
     """
-    url = URLField()
-    display_url = URLField()
+    url = StringField()
+    display_url = StringField()
 
     # Collection of product urls
-    final_urls = ListField()
-    mobile_urls = ListField()
-    app_urls = ListField()
+    final_urls = StringField()
+    mobile_urls = StringField()
+    app_urls = StringField()
 
     # Customer trusted tracking
-    thirdparty_tracking_url = URLField()
+    thirdparty_tracking_url = StringField()
 
     # AdWise tracking
-    adwise_tracking_url = URLField()
+    adwise_tracking_url = StringField()
 
     # Meta
     ad_type = StringField()
