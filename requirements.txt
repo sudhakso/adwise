@@ -9,7 +9,8 @@ djangotoolbox==1.8.0
 mongoengine==0.10.0
 pymongo==3.0.3
 wsgiref==0.1.2
-
+Pillow==3.0.0
+django-gcm==1.1.0
 ####
 # Additional dependencies, not covered in PIP
 # (1) MONGODB  

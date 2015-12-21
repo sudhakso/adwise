@@ -16,6 +16,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 USERAPP_DIR = "%s/%s/" % (BASE_DIR, 'userapp')
 MEDIAAPP_DIR = "%s/%s/" % (BASE_DIR, 'mediacontentapp')
 MEDIA_ROOT = os.path.dirname(os.path.dirname(__file__))
+GCM_APIKEY = "AIzaSyB_LJhGIT0hkh6I54znllGZ2pi1Y7Nl2Jo"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -45,7 +46,8 @@ INSTALLED_APPS = (
     'rest_framework_mongoengine',
     'rest_framework_swagger',
     'userapp',
-    'mediacontentapp'
+    'mediacontentapp',
+    'gcm',
 )
 
 MIDDLEWARE_CLASSES = (
