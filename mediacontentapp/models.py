@@ -22,7 +22,7 @@ class Campaign(Document):
     """
     name = StringField()
     description = StringField()
-    # TBD (FixMe): Media Agency user should be added different
+    # TBD (FixMe): Media Agency user should be added differento
     creator = ReferenceField('MediaUser')
     creation_time = DateTimeField(default=datetime.now())
     launched_at = DateTimeField()
@@ -207,6 +207,12 @@ class Ad(Document):
 
     # AdWise tracking
     adwise_tracking_url = StringField()
+
+    # Location tag
+    # TBD: Make tags very generic by nature.
+    # For example, tags should be search'able- location,
+    # genre, keywords etc.
+    ad_location_tag = GeoPointField()
 
     # Meta
     ad_type = StringField()

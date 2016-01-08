@@ -14,5 +14,5 @@ urlpatterns = [
     # Documentation engine
     url(r'^', include('rest_framework_swagger.urls')),
     #django-gcm
-    url(r'', include('gcm.urls'))
+#     url(r'', include('gcm.urls'))
 ]

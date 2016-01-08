@@ -6,6 +6,7 @@ Created on Nov 24, 2015
 from userapp.models import Location, Meter
 import json
 
+
 class LocationDriver(object):
     '''
     classdocs
@@ -20,7 +21,7 @@ class LocationDriver(object):
         # Load service data into Json
         req_data = json.loads(service_data)
         if 'point' in req_data:
-            Location.objects.create(
+            loc = Location.objects.create(
                             service_key=key,
                             point=req_data['point'])
 

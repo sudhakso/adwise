@@ -8,9 +8,28 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
+from __future__ import absolute_import
+# ^^^ The above is required if you want to import from the celery
+# library.  If you don't have this then `from celery.schedules import`
+# becomes `proj.celery.schedules` in Python 2.x since it allows
+# for relative imports by default.
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 from django.conf.global_settings import MEDIA_ROOT
+
+# from kombu import serialization
+# serialization.registry._decoders.pop("application/x-python-serialize")
+
+# Celery settings
+# TODO : Change the settings when AMQP cluster is used.
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
+
+#: Only add pickle to this list if your broker is secured
+#: from unwanted access (see user guide/security.html)
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 USERAPP_DIR = "%s/%s/" % (BASE_DIR, 'userapp')
@@ -47,7 +66,6 @@ INSTALLED_APPS = (
     'rest_framework_swagger',
     'userapp',
     'mediacontentapp',
-    'gcm',
 )
 
 MIDDLEWARE_CLASSES = (

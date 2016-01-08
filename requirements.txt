@@ -1,17 +1,26 @@
 Django==1.6.11
+Pillow==3.0.0
 PyYAML==3.11
+amqp==1.4.8
+anyjson==0.3.3
 argparse==1.2.1
+billiard==3.3.0.22
+blinker==1.4
+celery==3.1.19
 django-mongodb-engine==0.6.0
 django-rest-framework-mongoengine==2.0.2
 django-rest-swagger==0.3.4
 djangorestframework==3.2.4
 djangotoolbox==1.8.0
+kombu==3.0.32
 mongoengine==0.10.0
 pymongo==3.0.3
+pytz==2015.7
 wsgiref==0.1.2
-Pillow==3.0.0
-django-gcm==1.1.0
+
 ####
 # Additional dependencies, not covered in PIP
 # (1) MONGODB  
 # (2) sudo apt-get install libjpeg8-dev
+# (3) sudo apt-get install rabbitmq-server
+
