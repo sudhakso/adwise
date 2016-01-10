@@ -1,5 +1,5 @@
 from mediacontentapp.models import Ad, TextAd, ProductAd, DynamicSearchAd,\
-    Campaign, ImageContent
+    Campaign, ImageContent, JpegImageContent
 from mediacontentapp.models import CallOnlyAd, ImageAd
 from mediacontentapp.models import LocationExtension, BusinessHoursExtension
 from rest_framework_mongoengine import serializers
@@ -77,6 +77,17 @@ class ImageAdSerializer(serializers.DocumentSerializer):
 class ImageContentSerializer(serializers.DocumentSerializer):
     class Meta:
         model = ImageContent
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class JpegImageContentSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = JpegImageContent
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

@@ -18,6 +18,7 @@ class MediaSourceSerializer(serializers.DocumentSerializer):
 class OOHMediaSourceSerializer(serializers.DocumentSerializer):
     class Meta:
         model = OOHMediaSource
+        exclude = ('primary_image_content',)
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

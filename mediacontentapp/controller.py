@@ -10,3 +10,9 @@ class CampaignManager():
 
     def prepare_campaign(self, user_id, args):
         pass
+
+
+class MediaSourceController():
+
+    def process_query(self, *args):
+        pass

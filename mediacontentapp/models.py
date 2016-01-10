@@ -1,6 +1,6 @@
 from mongoengine.fields import GeoPointField, DictField, ListField,\
     StringField, URLField, BooleanField, DateTimeField, FloatField,\
-    ReferenceField, ImageField, FileField
+    ReferenceField, ImageField
 # from django_mongodb_engine.fields import GridFSField
 from mongoengine.document import Document
 from mongoengine import connect
@@ -8,11 +8,12 @@ from atlas_ws.settings import _MONGODB_NAME
 from rest_framework import fields
 from rest_framework.fields import IntegerField
 from datetime import datetime
-from django_mongodb_engine.storage import GridFSStorage
-from django.db.models.base import get_absolute_url
+# TBD (Filters don't work out of the box)
+# import django_filters
 
 connect(_MONGODB_NAME, alias='default')
-# gridfs = GridFSStorage(location='/uploads')
+
+All = 'everyone'
 
 
 # Create your models here.
@@ -68,13 +69,16 @@ class MediaSource(Document):
     Different types of media we integrate our solution with.
     """
     name = StringField()
-    description = StringField()
     type = StringField()
-    active = BooleanField()
-    date_joined = DateTimeField()
-    leased_by = StringField()
-    leased_to = StringField()
-    last_activity = DateTimeField()
+
+    subscription_start_date = DateTimeField()
+    subscription_end_date = DateTimeField()
+
+    operated_by = ReferenceField('MediaUser')
+    visibile = StringField(default=All)
+
+    last_updated = DateTimeField()
+    created_time = DateTimeField()
 
     meta = {'allow_inheritance': True}
 
@@ -91,16 +95,22 @@ class OOHMediaSource(MediaSource):
     """
     type = 'ooh'
     point = GeoPointField()
-    min_viewing_distance = FloatField()
-    avg_viewership = FloatField()
+
+    # Basic parameters
     street_name = StringField()
     city = StringField()
     state = StringField()
     country = StringField()
     pin = StringField()
 
-    specials = ListField(ReferenceField('Amenity'))
-    content = ListField(ReferenceField('Playing'))
+    # Advanced parameters
+    image_url = StringField()
+    primary_image_content = ReferenceField('JpegImageContent')
+#
+#     current_content = ListField(ReferenceField('Playing'))
+
+    # Analytical/Derived parameters
+    avg_visibility = FloatField(default='0.0')
 
     def get_absolute_url(self):
         return "/mediasource/ooh/%i/" % self.id
@@ -330,6 +340,19 @@ class ImageContent(Document):
                                         self.id)
 
 
+class JpegImageContent(Document):
+    """
+    A JPEG image instance .
+    """
+
+    image_type = StringField(default='jpg')
+    image = ImageField()
+
+    def get_absolute_url(self):
+        return "/mediacontent/images/%s/" % (
+                                self.id)
+
+
 class ImageAd(Ad):
     """
     An ad that includes a graphic to promote
@@ -425,3 +448,12 @@ class OfferExtension(AdExtension):
     advertisement impression.
     """
     pass
+
+
+# class OOHFilter(django_filters.FilterSet):
+class OOHFilter():
+    class Meta:
+        model = OOHMediaSource
+        fields = ['name', 'street_name', 'city', 'state', 'country', 'pin',
+                  'subscription_start_date', 'subscription_end_date',
+                  'operated_by']

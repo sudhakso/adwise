@@ -2,18 +2,15 @@ from userapp.JSONFormatter import JSONResponse
 from rest_framework.views import APIView
 from mediacontentapp.serializers import AdSerializer, TextAdSerializer,\
     CallOnlyAdSerializer, ImageAdSerializer, CampaignSerializer,\
-    ImageContentSerializer
+    ImageContentSerializer, JpegImageContentSerializer
 from userapp.models import MediaUser
 from mediacontentapp.models import Ad, TextAd, CallOnlyAd, ImageAd, Campaign,\
-    ImageContent
+    ImageContent, JpegImageContent
 from mediacontentapp.controller import CampaignManager
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
-    HTTP_500_INTERNAL_SERVER_ERROR, HTTP_404_NOT_FOUND, HTTP_200_OK
-from datetime import date, datetime
-from PIL import Image
+    HTTP_500_INTERNAL_SERVER_ERROR, HTTP_404_NOT_FOUND
+from datetime import datetime
 from django.http.response import HttpResponse
-from django.utils.baseconv import base64
-import base64
 
 
 class CampaignViewSet(APIView):
@@ -189,6 +186,29 @@ class ImageViewSet(AdViewSet):
         if request.method == 'GET':
             if image_id is not None:
                 img = ImageContent.objects.get(id=image_id)
+                return HttpResponse(img.image.read(),
+                                    content_type="image/jpeg")
+            return JSONResponse("", status=HTTP_404_NOT_FOUND)
+
+
+class JpegImageViewSet(APIView):
+    """ Returns JPEG Image resource """
+
+    serializer_class = JpegImageContentSerializer
+    model = JpegImageContent
+
+    # curl -X GET -S -H 'Accept: application/json' \
+    # http://127.0.0.1:8000/mediacontent/images/566d10ad1d41c8bd636ea654/
+    def get(self, request, image_id):
+
+        """ Returns a image identified by Id
+         ---
+         response_serializer: JpegImageContentSerializer
+        """
+        # Request Get, all users
+        if request.method == 'GET':
+            if image_id is not None:
+                img = JpegImageContent.objects.get(id=image_id)
                 return HttpResponse(img.image.read(),
                                     content_type="image/jpeg")
             return JSONResponse("", status=HTTP_404_NOT_FOUND)
