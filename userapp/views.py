@@ -40,6 +40,10 @@ class UserViewSet(APIView):
         except Exception as e:
             print e
             return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
                                 status=HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request, *args, **kwargs):
@@ -60,6 +64,10 @@ class UserViewSet(APIView):
                 return JSONResponse(serializer.errors,
                                     status=HTTP_400_BAD_REQUEST)
         except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
             print e
             return JSONResponse(str(e),
                                 status=HTTP_401_UNAUTHORIZED)
@@ -88,6 +96,10 @@ class UserServiceViewSet(APIView):
                 serializer = UserServiceSerializer(svcs, many=True)
                 return JSONResponse(serializer.data)
         except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
             print e
             return JSONResponse(str(e),
                                 status=HTTP_401_UNAUTHORIZED)
