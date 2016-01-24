@@ -1,7 +1,7 @@
 # Create your views here.
 from models import MediaUser, Service, UserService, ServiceRequest
 from userapp.serializers import UserSerializer, UserServiceSerializer,\
-    ServiceRequestSerializer
+    ServiceRequestSerializer, UserCreateRequestSerializer
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
     HTTP_500_INTERNAL_SERVER_ERROR, HTTP_401_UNAUTHORIZED
 from userapp.JSONFormatter import JSONResponse
@@ -49,13 +49,14 @@ class UserViewSet(APIView):
     def post(self, request, *args, **kwargs):
         """ Creates a user
          ---
-         request_serializer: UserSerializer
-         response_serializer: UserSerializer
+         request_serializer: UserCreateRequestSerializer
+         response_serializer: UserCreateRequestSerializer
         """
         # Request Post, create user
         try:
+            # Pass header for authentication
             auth_manager.do_auth(request.META)
-            serializer = UserSerializer(data=request.data)
+            serializer = UserCreateRequestSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return JSONResponse(serializer.data,
@@ -64,10 +65,6 @@ class UserViewSet(APIView):
                 return JSONResponse(serializer.errors,
                                     status=HTTP_400_BAD_REQUEST)
         except UserNotAuthorizedException as e:
-            print e
-            return JSONResponse(str(e),
-                                status=HTTP_401_UNAUTHORIZED)
-        except Exception as e:
             print e
             return JSONResponse(str(e),
                                 status=HTTP_401_UNAUTHORIZED)

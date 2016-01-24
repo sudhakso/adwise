@@ -12,36 +12,28 @@ from rest_framework import fields
 connect(_MONGODB_NAME, alias='default')
 
 
-# Create your models here.
-class Advertiser(Document):
-    # Identity
-    username = StringField(verbose_name='username', required=True,
-                           max_length=30)
-    password = StringField(verbose_name='password', required=True,
-                           max_length=30)
-    # e-correspondence
-    phone_number = StringField(verbose_name='phone_number', required=True,
-                               max_length=30)
-    email = EmailField()
+# Represents the agency/organization
+class Project(Document):
+    # unique name
+    name = StringField(verbose_name='name', required=True)
+    # organization type
+    type = StringField(verbose_name='type', required=True)
     # correspondence
     address = StringField(verbose_name='address', required=True,
                           max_length=256)
     city = StringField(verbose_name='city', required=True, max_length=80)
     state = StringField(verbose_name='state', required=True, max_length=80)
-    # records
-    date_joined = DateTimeField(default=datetime.now())
-    last_updated = DateTimeField(default=datetime.now())
-    last_activity = DateTimeField(default=datetime.now())
-    # subscriber
-    subscriber_id = StringField(verbose_name='subscriber_id', required=True,
-                                max_length=80)
-    subscription_start = DateTimeField(default=datetime.now())
-    subscription_end = DateTimeField(default=datetime.now())
+    pin = StringField(verbose_name='pin', required=True, max_length=80)
+    is_verified = BooleanField(default=False, required=False)
 
+    # Organization location/geo-spatial
+    point = GeoPointField()
+    date_created = DateTimeField(default=datetime.now())
     # reference - DRF field
     url = fields.URLField(source='get_absolute_url', read_only=False)
 
 
+# Any user in the AdWise system
 class MediaUser(Document):
     # Identity
     username = StringField(verbose_name='username', required=True,
@@ -51,29 +43,42 @@ class MediaUser(Document):
     # e-correspondence
     phone_number = StringField(verbose_name='phone_number', required=True,
                                max_length=30)
-    email = EmailField()
+    email = EmailField(verbose_name='email', required=True)
+    gender = StringField(required=True)
+    roles = ListField()
     # correspondence
-    address = StringField(verbose_name='address', required=True,
+    address = StringField(verbose_name='address', required=False,
                           max_length=256)
     city = StringField(verbose_name='city', required=True, max_length=80)
     state = StringField(verbose_name='state', required=True, max_length=80)
-    # location field
+    pin = StringField(verbose_name='pin', required=True, max_length=80)
+    # Organization location/geo-spatial field
     point = GeoPointField()
-    # records
+    # Records
     date_joined = DateTimeField(default=datetime.now())
     last_updated = DateTimeField(default=datetime.now())
     last_activity = DateTimeField(default=datetime.now())
-    # reference - DRF field
+    # Properties
+    is_admin = BooleanField(default=False, required=False)
+    email_verified = BooleanField(default=False, required=False)
+    phone_verified = BooleanField(default=False, required=False)
+    # Organization link (optional)
+    project_id = ReferenceField('Project')
+    # Reference - DRF field
     url = fields.URLField(source='get_absolute_url', read_only=False)
 
     def do_update(self, password=None, phone_number=None, email=None,
-                  address=None):
+                  address=None, email_verified=None, phone_verified=None):
         if password:
             self.password = password
         if phone_number:
             self.phone_number = phone_number
         if email:
             self.email = email
+        if email_verified:
+            self.email_verified = email_verified
+        if phone_verified:
+            self.phone_verified = phone_verified
 
         self.last_updated = datetime.now()
 
@@ -160,3 +165,15 @@ class Location(Document):
 
 class Meter(Document):
     service_key = StringField()
+
+
+class UserCreateRequest(Document):
+    project = ReferenceField('Project')
+    user = ReferenceField('MediaUser')
+
+
+# Token that is passed when a user is added by
+# a referee. E.g P(X) admin adding employee.
+class ReferedUserCreateRequest(Document):
+    user = ReferenceField('MediaUser')
+    token = StringField(required=False)
