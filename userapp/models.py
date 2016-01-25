@@ -12,6 +12,11 @@ from rest_framework import fields
 connect(_MONGODB_NAME, alias='default')
 
 
+class UserRole(Document):
+    name = StringField()
+    description = StringField(required=False)
+
+
 # Represents the agency/organization
 class Project(Document):
     # unique name
@@ -45,7 +50,6 @@ class MediaUser(Document):
                                max_length=30)
     email = EmailField(verbose_name='email', required=True)
     gender = StringField(required=True)
-    roles = ListField()
     # correspondence
     address = StringField(verbose_name='address', required=False,
                           max_length=256)
@@ -64,6 +68,8 @@ class MediaUser(Document):
     phone_verified = BooleanField(default=False, required=False)
     # Organization link (optional)
     project_id = ReferenceField('Project')
+    # TBD (Note:Sonu) More role association
+    role = ReferenceField('UserRole')
     # Reference - DRF field
     url = fields.URLField(source='get_absolute_url', read_only=False)
 
@@ -170,6 +176,7 @@ class Meter(Document):
 class UserCreateRequest(Document):
     project = ReferenceField('Project')
     user = ReferenceField('MediaUser')
+    role = ReferenceField('UserRole')
 
 
 # Token that is passed when a user is added by

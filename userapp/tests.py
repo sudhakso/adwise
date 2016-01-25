@@ -45,6 +45,9 @@ class MediaUserTestCase(TestCase):
                                  phone_number="roar",\
                                  city="remote", state='jungle',
                                  address='tourism',
+                                 gender='Male',
+                                 email='some@some.com',
+                                 pin='560077',
                                  point=[_MOCK_ATTR_X1, _MOCK_ATTR_Y1])
         MediaUser.objects.create(username="cat",
                                  password='cat',
@@ -52,6 +55,9 @@ class MediaUserTestCase(TestCase):
                                  city="suburb",
                                  state='house',
                                  address='pet',
+                                 gender='Male',
+                                 email='some@some.com',
+                                 pin='560077',
                                  point=[_MOCK_ATTR_X2, _MOCK_ATTR_Y2])
         self.client = APIClient()
 

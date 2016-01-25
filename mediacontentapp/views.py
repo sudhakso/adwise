@@ -7,10 +7,14 @@ from userapp.models import MediaUser
 from mediacontentapp.models import Ad, TextAd, CallOnlyAd, ImageAd, Campaign,\
     ImageContent, JpegImageContent
 from mediacontentapp.controller import CampaignManager
+from mediacontentapp.IdentityService import IdentityManager
+from mediacontentapp.faults import UserNotAuthorizedException
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
-    HTTP_500_INTERNAL_SERVER_ERROR, HTTP_404_NOT_FOUND
+    HTTP_500_INTERNAL_SERVER_ERROR, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
 from datetime import datetime
 from django.http.response import HttpResponse
+
+auth_manager = IdentityManager()
 
 
 class CampaignViewSet(APIView):
@@ -28,11 +32,17 @@ class CampaignViewSet(APIView):
          ---
          response_serializer: CampaignSerializer
         """
-        if username:
-            user = MediaUser.objects.get(username=username)
-            cs = Campaign.objects.filter(creator=user)
-            serializer = CampaignSerializer(cs, many=True)
-            return JSONResponse(serializer.data)
+        try:
+            auth_manager.do_auth(request.META)
+            if username:
+                user = MediaUser.objects.get(username=username)
+                cs = Campaign.objects.filter(creator=user)
+                serializer = CampaignSerializer(cs, many=True)
+                return JSONResponse(serializer.data)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
 
     def post(self, request, username):
 
@@ -42,6 +52,7 @@ class CampaignViewSet(APIView):
          response_serializer: CampaignSerializer
         """
         try:
+            auth_manager.do_auth(request.META)
             if username:
                 create_time = datetime.now()
                 user = MediaUser.objects.get(username=username)
@@ -60,6 +71,10 @@ class CampaignViewSet(APIView):
             else:
                 return JSONResponse(serializer.errors,
                                     status=HTTP_400_BAD_REQUEST)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
         except Exception as e:
             print e
             return JSONResponse(serializer.errors,
@@ -95,11 +110,17 @@ class TextAdViewSet(APIView):
          ---
          response_serializer: TextAdSerializer
         """
-        # Request Get, all users
-        if request.method == 'GET':
-            ads = TextAd.objects.all()
-            serializer = TextAdSerializer(ads, many=True)
-            return JSONResponse(serializer.data)
+        try:
+            auth_manager.do_auth(request.META)
+            # Request Get, all users
+            if request.method == 'GET':
+                ads = TextAd.objects.all()
+                serializer = TextAdSerializer(ads, many=True)
+                return JSONResponse(serializer.data)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
 
     def post(self, request, *args, **kwargs):
 
@@ -111,6 +132,7 @@ class TextAdViewSet(APIView):
         # Request Post, create user
         if request.method == 'POST':
             try:
+                auth_manager.do_auth(request.META)
                 serializer = TextAdSerializer(data=request.data)
                 if serializer.is_valid():
                     serializer.save()
@@ -119,6 +141,9 @@ class TextAdViewSet(APIView):
                 else:
                     return JSONResponse(serializer.errors,
                                         status=HTTP_400_BAD_REQUEST)
+            except UserNotAuthorizedException as e:
+                print e
+                return JSONResponse(str(e), status=HTTP_401_UNAUTHORIZED)
             except Exception as e:
                 print e
                 return JSONResponse(serializer.errors,
@@ -138,11 +163,16 @@ class CallOnlyAdViewSet(AdViewSet):
          ---
          response_serializer: CallOnlyAdSerializer
         """
-        # Request Get, all users
-        if request.method == 'GET':
-            ads = CallOnlyAd.objects.all()
-            serializer = CallOnlyAdSerializer(ads, many=True)
-            return JSONResponse(serializer.data)
+        try:
+            auth_manager.do_auth(request.META)
+            # Request Get, all users
+            if request.method == 'GET':
+                ads = CallOnlyAd.objects.all()
+                serializer = CallOnlyAdSerializer(ads, many=True)
+                return JSONResponse(serializer.data)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e), status=HTTP_401_UNAUTHORIZED)
 
     def post(self, request, *args, **kwargs):
 
@@ -154,6 +184,7 @@ class CallOnlyAdViewSet(AdViewSet):
         # Request Post, create user
         if request.method == 'POST':
             try:
+                auth_manager.do_auth(request.META)
                 serializer = CallOnlyAdSerializer(data=request.data)
                 if serializer.is_valid():
                     serializer.save()
@@ -162,6 +193,9 @@ class CallOnlyAdViewSet(AdViewSet):
                 else:
                     return JSONResponse(serializer.errors,
                                         status=HTTP_400_BAD_REQUEST)
+            except UserNotAuthorizedException as e:
+                print e
+                return JSONResponse(str(e), status=HTTP_401_UNAUTHORIZED)
             except Exception as e:
                 print e
                 return JSONResponse(serializer.errors,
@@ -182,13 +216,18 @@ class ImageViewSet(AdViewSet):
          ---
          response_serializer: ImageContentSerializer
         """
-        # Request Get, all users
-        if request.method == 'GET':
-            if image_id is not None:
-                img = ImageContent.objects.get(id=image_id)
-                return HttpResponse(img.image.read(),
-                                    content_type="image/jpeg")
-            return JSONResponse("", status=HTTP_404_NOT_FOUND)
+        try:
+            auth_manager.do_auth(request.META)
+            # Request Get, all users
+            if request.method == 'GET':
+                if image_id is not None:
+                    img = ImageContent.objects.get(id=image_id)
+                    return HttpResponse(img.image.read(),
+                                        content_type="image/jpeg")
+                return JSONResponse("", status=HTTP_404_NOT_FOUND)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e), status=HTTP_401_UNAUTHORIZED)
 
 
 class JpegImageViewSet(APIView):
@@ -205,13 +244,18 @@ class JpegImageViewSet(APIView):
          ---
          response_serializer: JpegImageContentSerializer
         """
-        # Request Get, all users
-        if request.method == 'GET':
-            if image_id is not None:
-                img = JpegImageContent.objects.get(id=image_id)
-                return HttpResponse(img.image.read(),
-                                    content_type="image/jpeg")
-            return JSONResponse("", status=HTTP_404_NOT_FOUND)
+        try:
+            auth_manager.do_auth(request.META)
+            # Request Get, all users
+            if request.method == 'GET':
+                if image_id is not None:
+                    img = JpegImageContent.objects.get(id=image_id)
+                    return HttpResponse(img.image.read(),
+                                        content_type="image/jpeg")
+                return JSONResponse("", status=HTTP_404_NOT_FOUND)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e), status=HTTP_401_UNAUTHORIZED)
 
 
 class ImageAdViewSet(AdViewSet):
@@ -229,17 +273,22 @@ class ImageAdViewSet(AdViewSet):
          ---
          response_serializer: ImageAdSerializer
         """
-        # Request Get, all users
-        if request.method == 'GET':
-            camp = Campaign.objects.get(id=campaign_id)
-            if ad_id is None:
-                ads = ImageAd.objects.filter(campaign=camp)
-                serializer = ImageAdSerializer(ads, many=True)
-            else:
-                ad = ImageAd.objects.get(id=ad_id)
-                if ad.campaign.id == camp.id:
-                    serializer = ImageAdSerializer(ad)
-            return JSONResponse(serializer.data)
+        try:
+            auth_manager.do_auth(request.META)
+            # Request Get, all users
+            if request.method == 'GET':
+                camp = Campaign.objects.get(id=campaign_id)
+                if ad_id is None:
+                    ads = ImageAd.objects.filter(campaign=camp)
+                    serializer = ImageAdSerializer(ads, many=True)
+                else:
+                    ad = ImageAd.objects.get(id=ad_id)
+                    if ad.campaign.id == camp.id:
+                        serializer = ImageAdSerializer(ad)
+                return JSONResponse(serializer.data)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e), status=HTTP_401_UNAUTHORIZED)
 
     def post(self, request, campaign_id):
 
@@ -255,21 +304,25 @@ class ImageAdViewSet(AdViewSet):
 
         # Request put an Image Ad for already created
         # campaign
-        if request.method == 'POST':
-            camp = Campaign.objects.get(id=campaign_id)
-            if camp:
-                # Store image'
-                imageserializer = ImageContentSerializer(
-                        data=request.data)
-                if imageserializer.is_valid():
-                    img = imageserializer.save()
-
-                serializer = ImageAdSerializer(
-                                data=request.data)
-                if serializer.is_valid():
-                    serializer.save(campaign=camp, image_content=img,
-                                    image_url=img.get_absolute_url())
-                    return JSONResponse(serializer.data,
-                                        status=HTTP_201_CREATED)
-        return JSONResponse(serializer.errors,
-                            status=HTTP_400_BAD_REQUEST)
+        try:
+            auth_manager.do_auth(request.META)
+            if request.method == 'POST':
+                camp = Campaign.objects.get(id=campaign_id)
+                if camp:
+                    # Store image'
+                    imageserializer = ImageContentSerializer(
+                            data=request.data)
+                    if imageserializer.is_valid():
+                        img = imageserializer.save()
+                    serializer = ImageAdSerializer(
+                                    data=request.data)
+                    if serializer.is_valid():
+                        serializer.save(campaign=camp, image_content=img,
+                                        image_url=img.get_absolute_url())
+                        return JSONResponse(serializer.data,
+                                            status=HTTP_201_CREATED)
+            return JSONResponse(serializer.errors,
+                                status=HTTP_400_BAD_REQUEST)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e), status=HTTP_401_UNAUTHORIZED)
