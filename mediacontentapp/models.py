@@ -64,21 +64,67 @@ class Amenity(Document):
     rating = FloatField()
 
 
+# TBD
+class Subscription(Document):
+    pass
+
+
+class Booking(Document):
+    """
+    Booking/Reservation orders
+    for a OOH instance
+    """
+    # Start date
+    start_time = DateTimeField()
+    # Requested duration, How many days, 1w, 1d, 1m, 1y etc.
+    duration = FloatField()
+    # Calculated end time
+    end_time = DateTimeField()
+    # type of media
+    type = StringField()
+    # Reference of media instance
+    source = ReferenceField('OOHMediaSource')
+
+
+class Pricing(Document):
+    """
+    Different pricing schemes
+    """
+    # Unique pricing strategy name
+    name = StringField()
+    unit = StringField(default="INR")
+    measure = StringField(default='monthly')
+    # Unique price
+    price = FloatField()
+    # Reference of the media source
+    source = ReferenceField('OOHMediaSource')
+    # Price offer range
+    offer_start_time = DateTimeField()
+    offer_end_time = DateTimeField()
+
+
 class MediaSource(Document):
     """
     Different types of media we integrate our solution with.
     """
+    # Basic properties
     name = StringField()
+    display_name = StringField()
+    caption = StringField()
     type = StringField()
-
-    subscription_start_date = DateTimeField()
-    subscription_end_date = DateTimeField()
-
+    # Can display
+    enabled = BooleanField()
+    # Verification
+    verified = BooleanField()
+    verified_by = ReferenceField('MediaUser')
+    # Media Owner
+    owner = ReferenceField('MediaUser')
+    # Creation attributes
     operated_by = ReferenceField('MediaUser')
-    visibile = StringField(default=All)
-
-    last_updated = DateTimeField()
-    created_time = DateTimeField()
+    created_time = DateTimeField(default=datetime.now())
+    updated_time = DateTimeField()
+    # Subscription details
+    subscription = ReferenceField('Subscription')
 
     meta = {'allow_inheritance': True}
 
@@ -95,22 +141,27 @@ class OOHMediaSource(MediaSource):
     """
     type = 'ooh'
     point = GeoPointField()
+    # Uniquely identify OOH instance
+    # by location
+    location_hash = StringField()
 
-    # Basic parameters
+    # Basic attributes
     street_name = StringField()
     city = StringField()
     state = StringField()
     country = StringField()
     pin = StringField()
 
+    # Other attributes
+    # 40,30
+    size = ListField()
+    # Amenity (ETL feed)
+    ammenities = ListField(ReferenceField('Amenity'))
     # Advanced parameters
     image_url = StringField()
     primary_image_content = ReferenceField('JpegImageContent')
 #
 #     current_content = ListField(ReferenceField('Playing'))
-
-    # Analytical/Derived parameters
-    avg_visibility = FloatField(default='0.0')
 
     def get_absolute_url(self):
         return "/mediasource/ooh/%i/" % self.id

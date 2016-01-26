@@ -82,11 +82,7 @@ class OOHMediaSourceViewSet(APIView):
                                 data=request.data)
             if serializer.is_valid():
                 serializer.save(created_time=datetime.now(),
-                                subscription_start_date=datetime.now(),
-                                subscription_end_date=(
-                                        datetime.now() +
-                                        timedelta(days=365)),
-                                last_updated=datetime.now(),
+                                updated_time=datetime.now(),
                                 primary_image_content=img,
                                 image_url=img.get_absolute_url())
                 return JSONResponse(serializer.data,
