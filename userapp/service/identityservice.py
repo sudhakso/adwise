@@ -5,10 +5,11 @@ Created on Nov 23, 2015
 '''
 from django.conf import settings
 from userapp import Config
-from userapp import importutils
-from datetime import datetime
-from abc import ABCMeta, abstractmethod
-from userapp.faults import UserNotAuthorizedException
+from abc import abstractmethod
+from userapp.faults import UserNotAuthorizedException, UserNotFoundException, UserAlreadyExist
+
+# Basic authentication
+from django.contrib.auth.models import User
 
 
 class IdentityDriver(object):
@@ -22,7 +23,11 @@ class IdentityDriver(object):
         pass
 
     @abstractmethod
-    def do_auth(self, *args):
+    def do_auth(self, request):
+        pass
+
+    @abstractmethod
+    def do_create(self, request):
         pass
 
 
@@ -30,7 +35,7 @@ class KeystoneDriver(IdentityDriver):
     '''
     classdocs
     '''
-    def __init__(self, *args):
+    def __init__(self, request):
         '''
         Constructor
         '''
@@ -38,7 +43,7 @@ class KeystoneDriver(IdentityDriver):
 
     # TBD (Note:Sonu) Validate with keystone
     # end-point
-    def do_auth(self, *args):
+    def do_auth(self, request):
         raise UserNotAuthorizedException()
 
 
@@ -51,6 +56,50 @@ class NoopDriver(IdentityDriver):
         Constructor
         '''
         pass
+
+    @abstractmethod
+    def do_auth(self, request):
+        from django.contrib.auth import login
+#         from mongoengine.django.auth import User
+        from mongoengine.queryset import DoesNotExist
+        from django.contrib import messages
+        # Get all Http headers
+        import re
+        regex = re.compile('^HTTP_')
+        head = dict((regex.sub('', header), value) for (header, value)
+                    in request.META.items() if header.startswith('HTTP_'))
+
+        try:
+            user = User.objects.get(username=head['USERNAME'])
+            if user.check_password(head['PASSWORD']):
+                user.backend = 'mongoengine.django.auth.MongoEngineBackend'
+                print login(request, user)
+                return True
+            else:
+                raise UserNotAuthorizedException(
+                                "Incorrect login name or password!")
+        except DoesNotExist:
+            raise UserNotFoundException("User does not exist.")
+
+    @abstractmethod
+    def do_create(self, request):
+        # Get all Http headers
+        import re
+        regex = re.compile('^HTTP_')
+        head = dict((regex.sub('', header), value) for (header, value)
+                    in request.META.items() if header.startswith('HTTP_'))
+        try:
+            user = User.objects.get(username=head['USERNAME'])
+            # Raise exception if user exists.
+            raise UserAlreadyExist("User %s exists already!"
+                                   % head['USERNAME'])
+        except Exception:
+            # User doesn't exist.
+            usr = User.objects.create(username=head['USERNAME'],
+                                      email=head['EMAIL'])
+            usr.set_password(head['PASSWORD'])
+            usr.save()
+        return True
 
 
 class DriverFactory(object):
@@ -88,9 +137,13 @@ class IdentityManager(object):
     def _load_driver(self, typ):
         return DriverFactory.get_driver(typ)
 
-    def do_auth(self, header):
+    def do_auth(self, request):
         # Initiate an auth request to the driver
-        self.driver.do_auth(header)
+        self.driver.do_auth(request)
+
+    def do_create(self, request):
+        # Create session first time
+        self.driver.do_create(request)
 
     def remove_expired_session(self, user_id):
         pass

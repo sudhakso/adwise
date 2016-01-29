@@ -9,10 +9,42 @@ from rest_framework.views import APIView
 from datetime import datetime
 from userapp.session.sessionmanager import SessionManager
 from userapp.service.identityservice import IdentityManager
-from userapp.faults import UserNotAuthorizedException
+from userapp.faults import UserNotAuthorizedException, UserAlreadyExist
+
 
 session_mgr = SessionManager()
 auth_manager = IdentityManager()
+
+
+# Handler to check user parameters success.
+def login(request):
+    try:
+        # Get all Http headers
+        import re
+        regex = re.compile('^HTTP_')
+        head = dict((regex.sub('', header), value) for (header, value)
+                    in request.META.items() if header.startswith('HTTP_'))
+        username = head['USERNAME']
+        email = head['EMAIL']
+        # Try if Auth driver recognizes the user
+        auth_manager.do_auth(request)
+        # Get the  user details, and pass them back
+        # to login caller.
+        usr = MediaUser.objects.get(username=username, email=email)
+        serializer = UserSerializer(usr, many=False)
+        return JSONResponse(serializer.data)
+    except UserNotAuthorizedException as e:
+        print e
+        return JSONResponse(str(e),
+                            status=HTTP_401_UNAUTHORIZED)
+    except Exception as e:
+        print e
+        return JSONResponse(str(e),
+                            status=HTTP_401_UNAUTHORIZED)
+    except Exception as e:
+        print e
+        return JSONResponse(str(e),
+                            status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UserViewSet(APIView):
@@ -28,7 +60,7 @@ class UserViewSet(APIView):
          response_serializer: UserSerializer
         """
         try:
-            auth_manager.do_auth(request.META)
+            auth_manager.do_auth(request)
             # Request Get, all users
             usrs = MediaUser.objects.all()
             serializer = UserSerializer(usrs, many=True)
@@ -55,7 +87,7 @@ class UserViewSet(APIView):
         # Request Post, create user
         try:
             # Pass header for authentication
-            auth_manager.do_auth(request.META)
+            auth_manager.do_create(request)
             serializer = UserCreateRequestSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -68,6 +100,10 @@ class UserViewSet(APIView):
             print e
             return JSONResponse(str(e),
                                 status=HTTP_401_UNAUTHORIZED)
+        except UserAlreadyExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_400_BAD_REQUEST)
         except Exception as e:
             print e
             return JSONResponse(str(e),
@@ -86,7 +122,7 @@ class UserServiceViewSet(APIView):
          response_serializer: UserServiceSerializer
         """
         try:
-            auth_manager.do_auth(request.META)
+            auth_manager.do_auth(request)
             if username:
                 user = MediaUser.objects.get(username=username)
                 svcs = UserService.objects.filter(user_ref=user)
@@ -112,7 +148,7 @@ class UserServiceViewSet(APIView):
          response_serializer: UserServiceSerializer
         """
         try:
-            auth_manager.do_auth(request.META)
+            auth_manager.do_auth(request)
             tm = datetime.now()
             if username and service_name:
                 user = MediaUser.objects.get(username=username)

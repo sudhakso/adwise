@@ -40,6 +40,7 @@ class KeystoneDriver(IdentityDriver):
         raise UserNotAuthorizedException()
 
 
+# Basic Http authentication
 class NoopDriver(IdentityDriver):
     '''
     classdocs

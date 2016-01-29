@@ -15,3 +15,7 @@ class UserSessionNotFoundException(Exception):
 
 class UserNotAuthorizedException(Exception):
     pass
+
+
+class UserAlreadyExist(Exception):
+    pass
