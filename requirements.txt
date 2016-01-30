@@ -1,4 +1,4 @@
-#git+https://github.com/django-nonrel/django.git
+git+https://github.com/django-nonrel/django.git
 Pillow==3.0.0
 PyYAML==3.11
 amqp==1.4.8
