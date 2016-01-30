@@ -116,15 +116,15 @@ class MediaSource(Document):
     enabled = BooleanField()
     # Verification
     verified = BooleanField()
-    verified_by = ReferenceField('MediaUser')
+    verified_by = ReferenceField('MediaUser', required=False)
     # Media Owner
-    owner = ReferenceField('MediaUser')
+    owner = ReferenceField('MediaUser', required=False)
     # Creation attributes
-    operated_by = ReferenceField('MediaUser')
+    operated_by = ReferenceField('MediaUser', required=False)
     created_time = DateTimeField(default=datetime.now())
     updated_time = DateTimeField()
     # Subscription details
-    subscription = ReferenceField('Subscription')
+#     subscription = ReferenceField('Subscription', required=False)
 
     meta = {'allow_inheritance': True}
 

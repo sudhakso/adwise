@@ -1,4 +1,4 @@
-Django==1.6.11
+#git+https://github.com/django-nonrel/django.git
 Pillow==3.0.0
 PyYAML==3.11
 amqp==1.4.8
@@ -8,7 +8,8 @@ billiard==3.3.0.22
 blinker==1.4
 celery==3.1.19
 django-mongodb-engine==0.6.0
-django-rest-framework-mongoengine==2.0.2
+#git+https://github.com/umutbozkurt/django-rest-framework-mongoengine.git@04701d1f285e470ea8902035677ff7898f7358b9
+git+https://github.com/umutbozkurt/django-rest-framework-mongoengine.git
 django-rest-swagger==0.3.4
 djangorestframework==3.2.4
 djangotoolbox==1.8.0

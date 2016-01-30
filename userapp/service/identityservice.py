@@ -29,6 +29,10 @@ class IdentityDriver(object):
     @abstractmethod
     def do_create(self, request):
         pass
+    
+    @abstractmethod
+    def remove_expired_session(self, request):
+        pass
 
 
 class KeystoneDriver(IdentityDriver):
@@ -100,6 +104,24 @@ class NoopDriver(IdentityDriver):
             usr.set_password(head['PASSWORD'])
             usr.save()
         return True
+    
+    @abstractmethod
+    def remove_expired_session(self, request):
+        # Get all Http headers
+        import re
+        regex = re.compile('^HTTP_')
+        head = dict((regex.sub('', header), value) for (header, value)
+                    in request.META.items() if header.startswith('HTTP_'))
+        try:
+            user = User.objects.get(username=head['USERNAME'])
+            if user:
+                user.delete()
+            # Raise exception if user exists.
+        except Exception:
+            # User doesn't exist.
+            pass
+        # Always successful
+        return True
 
 
 class DriverFactory(object):
@@ -145,8 +167,8 @@ class IdentityManager(object):
         # Create session first time
         self.driver.do_create(request)
 
-    def remove_expired_session(self, user_id):
-        pass
+    def remove_expired_session(self, request):
+        self.driver.remove_expired_session(request)
 
     def remove_session(self, user_id, session_id):
         pass

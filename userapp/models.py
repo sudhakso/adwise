@@ -15,6 +15,8 @@ connect(_MONGODB_NAME, alias='default')
 class UserRole(Document):
     name = StringField()
     description = StringField(required=False)
+    # reference - DRF field
+    url = fields.URLField(source='get_absolute_url', read_only=False)
 
 
 # Represents the agency/organization
@@ -41,13 +43,10 @@ class Project(Document):
 # Any user in the AdWise system
 class MediaUser(Document):
     # Identity
-    username = StringField(verbose_name='username', required=True,
-                           max_length=30, primary_key=True)
-    password = StringField(verbose_name='password', required=True,
-                           max_length=30)
+    username = StringField()
+    password = StringField()
     # e-correspondence
-    phone_number = StringField(verbose_name='phone_number', required=True,
-                               max_length=30)
+    phone_number = StringField(required=True)
     email = EmailField(verbose_name='email', required=True)
     gender = StringField(required=True)
     # correspondence
@@ -67,9 +66,9 @@ class MediaUser(Document):
     email_verified = BooleanField(default=False, required=False)
     phone_verified = BooleanField(default=False, required=False)
     # Organization link (optional)
-    project_id = ReferenceField('Project')
+    project_id = ReferenceField(Project, required=False)
     # TBD (Note:Sonu) More role association
-    role = ReferenceField('UserRole')
+    role = ReferenceField(UserRole, required=False)
     # Reference - DRF field
     url = fields.URLField(source='get_absolute_url', read_only=False)
 
@@ -174,9 +173,9 @@ class Meter(Document):
 
 
 class UserCreateRequest(Document):
-    project = ReferenceField('Project')
-    user = ReferenceField('MediaUser')
-    role = ReferenceField('UserRole')
+    project = ReferenceField('Project', required=False)
+    user = ReferenceField('MediaUser', required=True)
+    role = ReferenceField('UserRole', required=False)
 
 
 # Token that is passed when a user is added by

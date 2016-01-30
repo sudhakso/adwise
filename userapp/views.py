@@ -94,18 +94,18 @@ class UserViewSet(APIView):
                 return JSONResponse(serializer.data,
                                     status=HTTP_201_CREATED)
             else:
+                # Clear the temporary Auth session created.
+                auth_manager.remove_expired_session(request)
                 return JSONResponse(serializer.errors,
                                     status=HTTP_400_BAD_REQUEST)
-        except UserNotAuthorizedException as e:
-            print e
-            return JSONResponse(str(e),
-                                status=HTTP_401_UNAUTHORIZED)
         except UserAlreadyExist as e:
             print e
             return JSONResponse(str(e),
                                 status=HTTP_400_BAD_REQUEST)
         except Exception as e:
             print e
+            # Remove the created user.
+            auth_manager.remove_expired_session(request)
             return JSONResponse(str(e),
                                 status=HTTP_500_INTERNAL_SERVER_ERROR)
 

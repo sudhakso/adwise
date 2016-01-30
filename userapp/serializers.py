@@ -2,9 +2,6 @@ from userapp.models import MediaUser,\
  PreferenceSubCategory, UserDevicePref, UserService, ServiceRequest,\
  UserCreateRequest, Project, UserRole
 from rest_framework_mongoengine import serializers
-from rest_framework.serializers import ListSerializer
-from rest_framework_mongoengine.fields import ListField
-from mongoengine.fields import StringField
 
 
 class ProjectSerializer(serializers.DocumentSerializer):
@@ -18,7 +15,20 @@ class ProjectSerializer(serializers.DocumentSerializer):
         return self.get_field_names(*args, **kwargs)
 
 
+class UserRoleSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = UserRole
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
 class UserSerializer(serializers.DocumentSerializer):
+    project_id = ProjectSerializer(required=False)
+    role = UserRoleSerializer(required=False)
     class Meta:
         model = MediaUser
         geo_point = "point"
@@ -64,17 +74,6 @@ class ServiceRequestSerializer(serializers.DocumentSerializer):
         return self.get_field_names(*args, **kwargs)
 
 
-class UserRoleSerializer(serializers.DocumentSerializer):
-    class Meta:
-        model = UserRole
-
-    def _include_additional_options(self, *args, **kwargs):
-        return self.get_extra_kwargs()
-
-    def _get_default_field_names(self, *args, **kwargs):
-        return self.get_field_names(*args, **kwargs)
-
-
 class UserCreateRequestSerializer(serializers.DocumentSerializer):
     user = UserSerializer()
     project = ProjectSerializer(required=False)
@@ -82,6 +81,7 @@ class UserCreateRequestSerializer(serializers.DocumentSerializer):
 
     class Meta:
         model = UserCreateRequest
+        fields = ('user', 'project', 'role')
 
     def create(self, validated_data):
         proj = None
@@ -93,22 +93,19 @@ class UserCreateRequestSerializer(serializers.DocumentSerializer):
         # Save the project if mentioned
         if 'project' in validated_data:
             proj = Project(**validated_data['project'])
+            proj.save()
         if 'user' in validated_data:
-            user = MediaUser(project_id=proj,
+            user = MediaUser(project_id=proj, role=role,
                              **validated_data['user'])
+            user.save()
         if user:
             # If project is given, the user is marked as admin
             # for the project.
             # Else, it is a normal user
             if proj:
-                proj.save()
+                user.update(is_admin=is_admin, role=role)
                 user.save()
-                is_admin = True
-            else:
-                user.save()
-            # Update post save
-            user.update(is_admin=is_admin, role=role)
-
+ 
         return UserCreateRequest(project=proj, user=user, role=role)
 
     def _include_additional_options(self, *args, **kwargs):
