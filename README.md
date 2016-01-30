@@ -44,7 +44,7 @@ Python dependencies are the following
 OS System components are 
 
 * MONGODB  
-* sudo apt-get install libjpeg8-dev
+* sudo apt-get install libjpeg8-dev zlib1g-dev
 * sudo apt-get install rabbitmq-server
 
 * Database configuration
@@ -61,7 +61,7 @@ python manage.py tests
 * git clone git@bitbucket.org:adwise-m/adwise-userprofile-mgr.git
 * pip install -r requirements.txt
 * Install MONGODB using sudo apt-get, get the latest.
-* Perform, sudo apt-get install libjpeg8-dev
+* Perform, sudo apt-get install libjpeg8-dev zlib1g-dev
 * Perform, sudo apt-get install rabbitmq-server
 * Start the AdWise server using the command,
     (project_name)user@ubuntu:> python manage.py runserver.
