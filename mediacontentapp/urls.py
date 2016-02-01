@@ -19,6 +19,8 @@ urlpatterns = [
     # /?address=bangalore&user=<user-id>
     url(r'^mediasource/ooh/$',
         sourceviews.OOHMediaSourceViewSet.as_view()),
+    url(r'^mediasource/ooh/search/$',
+        sourceviews.OOHMediaSourceSearchViewSet.as_view()),
     url(r'^mediasource/digital/$',
         sourceviews.DigitalMediaSourceViewSet.as_view()),
     url(r'^mediasource/vod/$',

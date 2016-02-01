@@ -16,6 +16,7 @@ from __future__ import absolute_import
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import sys
 from django.conf.global_settings import MEDIA_ROOT
 
 # from kombu import serialization
@@ -139,4 +140,23 @@ SWAGGER_SETTINGS = {
         'delete'
     ],
     "is_authenticated": False
+}
+
+LOGGING = {
+ 'version': 1,
+ 'disable_existing_loggers': False,
+ 'handlers': {
+   'console': {
+     'level': 'ERROR',
+     'class': 'logging.StreamHandler',
+     'stream': sys.stderr
+   },
+  },
+ 'loggers': {
+   'django.request': {
+     'handlers': ['console'],
+     'propogate': True,
+     'level': 'ERROR',
+   }
+ }
 }
