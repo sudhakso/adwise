@@ -9,7 +9,7 @@ class MediaSourceSerializer(serializers.DocumentSerializer):
     verified_by = UserSerializer(required=False)
     owner = UserSerializer(required=False)
     operated_by = UserSerializer(required=False)
-    
+
     class Meta:
         model = MediaSource
         fields = ('verified_by', 'owner', 'operated_by')
@@ -25,7 +25,7 @@ class OOHMediaSourceSerializer(serializers.DocumentSerializer):
     verified_by = UserSerializer(required=False)
     owner = UserSerializer(required=False)
     operated_by = UserSerializer(required=False)
-    
+
     class Meta:
         model = OOHMediaSource
         exclude = ('primary_image_content',)

@@ -104,7 +104,7 @@ class NoopDriver(IdentityDriver):
             usr.set_password(head['PASSWORD'])
             usr.save()
         return True
-    
+
     @abstractmethod
     def remove_expired_session(self, request):
         # Get all Http headers

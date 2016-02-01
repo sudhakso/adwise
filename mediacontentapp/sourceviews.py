@@ -1,15 +1,20 @@
 from userapp.JSONFormatter import JSONResponse
 from rest_framework.views import APIView
-from mediacontentapp.models import MediaSource, OOHMediaSource, OOHFilter
+from mediacontentapp.models import MediaSource, OOHMediaSource
 from mediacontentapp.models import DigitalMediaSource, VODMediaSource,\
         RadioMediaSource
 from mediacontentapp.sourceserializers import MediaSourceSerializer,\
         OOHMediaSourceSerializer, VODMediaSourceSerializer,\
         DigitalMediaSourceSerializer, RadioMediaSourceSerializer
 from mediacontentapp.serializers import JpegImageContentSerializer
+from mediacontentapp import IdentityService
+from userapp.faults import UserNotAuthorizedException
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
-    HTTP_500_INTERNAL_SERVER_ERROR
-from datetime import date, datetime, timedelta
+    HTTP_500_INTERNAL_SERVER_ERROR, HTTP_401_UNAUTHORIZED
+from datetime import datetime
+from userapp.models import MediaUser
+
+auth_manager = IdentityService.IdentityManager()
 
 
 class MediaSourceViewSet(APIView):
@@ -71,7 +76,12 @@ class OOHMediaSourceViewSet(APIView):
         # curl -X POST -S -H 'Accept: application/json'\
         # -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg"\
         # http://127.0.0.1:8000/mediacontent/mediasource/ooh/
-        if request.method == 'POST':
+        try:
+            auth_user = auth_manager.do_auth(request)
+            # TBD (Note:Sonu) : Differentiate the Service user,
+            # on-boarding partner and the owner
+            operated_by = MediaUser.objects.get(
+                                    username=auth_user.username)
             # Store image'
             imageserializer = JpegImageContentSerializer(
                         data=request.data)
@@ -81,12 +91,19 @@ class OOHMediaSourceViewSet(APIView):
             serializer = OOHMediaSourceSerializer(
                                 data=request.data)
             if serializer.is_valid():
-                serializer.save(created_time=datetime.now(),
-                                updated_time=datetime.now(),
-                                primary_image_content=img,
-                                image_url=img.get_absolute_url())
+                src = serializer.save(created_time=datetime.now(),
+                                      updated_time=datetime.now(),
+                                      primary_image_content=img,
+                                      image_url=img.get_absolute_url())
+                src.update(operated_by=operated_by, owner=operated_by)
+                src.save()
                 return JSONResponse(serializer.data,
                                     status=HTTP_201_CREATED)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+
         return JSONResponse(serializer.errors,
                             status=HTTP_400_BAD_REQUEST)
 
