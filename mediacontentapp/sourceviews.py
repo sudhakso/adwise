@@ -8,8 +8,10 @@ from mediacontentapp.sourceserializers import MediaSourceSerializer,\
         DigitalMediaSourceSerializer, RadioMediaSourceSerializer
 from mediacontentapp.serializers import JpegImageContentSerializer
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
-    HTTP_500_INTERNAL_SERVER_ERROR
+    HTTP_500_INTERNAL_SERVER_ERROR, HTTP_200_OK
 from datetime import date, datetime, timedelta
+
+from mediacontentapp import mca_query
 
 
 class MediaSourceViewSet(APIView):
@@ -90,6 +92,50 @@ class OOHMediaSourceViewSet(APIView):
         return JSONResponse(serializer.errors,
                             status=HTTP_400_BAD_REQUEST)
 
+
+class OOHMediaSourceSearchViewSet(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        """ Returns a list of OOH media source match ids
+        """
+        # Request POST, with search string
+        results = {}
+        status_string = "Sorry!! No matches found."
+        if request.method == 'POST':
+            fields = request.query_params
+            if 'q' in fields:
+                search_string = fields['q']
+                results['display_message'] = "You searched for: " + search_string
+                terms=search_string.split()
+                entries = []
+                found_entries = {}
+                for term in terms:
+                    st_entries = OOHMediaSource.objects(street_name__icontains=term)
+                    if st_entries:
+                        for entry in st_entries:
+                            found_entries[entry['id']] = entry
+                    ct_entries = OOHMediaSource.objects(city__icontains=term)
+                    if ct_entries:
+                        for entry in ct_entries:
+                            found_entries[entry['id']] = entry
+                    state_entries = OOHMediaSource.objects(state__icontains=term)
+                    if state_entries:
+                        for entry in state_entries:
+                            found_entries[entry['id']] = entry
+                if found_entries:
+                    status_string = "Found the following matches"
+                    serializer = OOHMediaSourceSerializer(found_entries.values(), many=True)
+                    results['matches'] = serializer.data
+                else:
+                    results['matches'] = None
+                results['status_str'] = status_string
+                return JSONResponse(results,
+                                    status=HTTP_200_OK)
+            else:
+                status_string = "Invalid Operation. Please try again"
+                return JSONResponse(status_string,
+                                    status=HTTP_400_BAD_REQUEST)
 
 class DigitalMediaSourceViewSet(APIView):
 
