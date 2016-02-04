@@ -114,14 +114,43 @@ class OOHMediaSourceViewSet(APIView):
          response_serializer: OOHMediaSourceSerializer
         """
         try:
-            auth_manager.do_auth(request)
+            auth_user = auth_manager.do_auth(request)
             # TBD (Note:Sonu) : Update the image.
             inst = OOHMediaSource.objects.get(id=id)
+            owner = inst.owner
+            operated_by = inst.operated_by
+            # For any property to be updated, validate
+            # that it is done by the user who created it or
+            # owns the instance to avoid billboard stealth.
+            if owner:
+                # Verify if owner is modifying the parameter
+                if auth_user.username != owner.username:
+                    return JSONResponse(str("Not Authorized"),
+                                        status=HTTP_401_UNAUTHORIZED)
+            elif operated_by:
+                # Verify if the operated by is set to
+                # the user requesting the modification.
+                if auth_user.username != operated_by.username:
+                    return JSONResponse(str("Not Authorized"),
+                                        status=HTTP_401_UNAUTHORIZED)
+            else:
+                # Anonymous user cannot modify Object
+                return JSONResponse(str(
+                                "Anonymous user cannot modify resources."),
+                            status=HTTP_401_UNAUTHORIZED)
             # partial updates
             serializer = OOHMediaSourceSerializer(
                                 data=request.data, partial=True)
             if serializer.is_valid():
-                serializer.update(inst, serializer.validated_data)
+                updated_obj = serializer.update(inst, serializer.validated_data)
+                # Verify if Owner change operation is expected.
+                fields = request.query_params
+                if 'userid' in fields:
+                    xfer_ownership_to = MediaUser.objects.get(
+                                                    username=fields['userid'])
+                    if xfer_ownership_to:
+                        updated_obj.update(owner=xfer_ownership_to)
+                        updated_obj.save()
                 return JSONResponse(serializer.data,
                                     status=HTTP_200_OK)
         except UserNotAuthorizedException as e:

@@ -10,6 +10,7 @@ from userapp.faults import UserNotAuthorizedException, UserNotFoundException, Us
 
 # Basic authentication
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class IdentityDriver(object):
@@ -92,18 +93,18 @@ class NoopDriver(IdentityDriver):
         regex = re.compile('^HTTP_')
         head = dict((regex.sub('', header), value) for (header, value)
                     in request.META.items() if header.startswith('HTTP_'))
+        user = None
         try:
             user = User.objects.get(username=head['USERNAME'])
-            # Raise exception if user exists.
-            raise UserAlreadyExist("User %s exists already!"
-                                   % head['USERNAME'])
-        except Exception:
+            if user:
+                raise UserAlreadyExist()
+        except ObjectDoesNotExist:
             # User doesn't exist.
             usr = User.objects.create(username=head['USERNAME'],
                                       email=head['EMAIL'])
             usr.set_password(head['PASSWORD'])
             usr.save()
-        return True
+        return user
 
     @abstractmethod
     def remove_expired_session(self, request):
