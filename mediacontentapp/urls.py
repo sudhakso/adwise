@@ -16,8 +16,9 @@ urlpatterns = [
         views.ImageAdViewSet.as_view()),
     url(r'^campaign/(?P<username>[0-9a-zA-Z]+)/',
         views.CampaignViewSet.as_view()),
-    # /?address=bangalore&user=<user-id>
-    url(r'^mediasource/ooh/$',
+    url(r'^mediasource/ooh/(?P<id>[0-9a-zA-Z]+)',
+        sourceviews.OOHMediaSourceViewSet.as_view()),
+    url(r'^mediasource/ooh/',
         sourceviews.OOHMediaSourceViewSet.as_view()),
     url(r'^mediasource/ooh/search/$',
         sourceviews.OOHMediaSourceSearchViewSet.as_view()),

@@ -55,24 +55,22 @@ class OOHMediaSourceViewSet(APIView):
                 sources = OOHMediaSource.objects.get(id=fields['id'])
                 multiple = False
             else:
-                """
-                TBD : django-filters package not working.
-                sources = OOHFilter(request.GET,
-                                  queryset=OOHMediaSource.objects.all())
-                """
                 sources = OOHMediaSource.objects.all()
                 multiple = True
 
             serializer = OOHMediaSourceSerializer(sources, many=multiple)
             return JSONResponse(serializer.data)
 
-    def post(self, request):
+    def post(self, request, id=None):
 
         """ Creates a OOH media source in adwise
          ---
          request_serializer: OOHMediaSourceSerializer
          response_serializer: OOHMediaSourceSerializer
         """
+        # If it is an update request mentioning id.
+        if id:
+            return self._update(request, id)
 
         # curl -X POST -S -H 'Accept: application/json'\
         # -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg"\
@@ -105,6 +103,36 @@ class OOHMediaSourceViewSet(APIView):
             return JSONResponse(str(e),
                                 status=HTTP_401_UNAUTHORIZED)
 
+        return JSONResponse(serializer.errors,
+                            status=HTTP_400_BAD_REQUEST)
+
+    def _update(self, request, id):
+
+        """ Updatees given OOH media source
+         ---
+         request_serializer: OOHMediaSourceSerializer
+         response_serializer: OOHMediaSourceSerializer
+        """
+        try:
+            auth_manager.do_auth(request)
+            # TBD (Note:Sonu) : Update the image.
+            inst = OOHMediaSource.objects.get(id=id)
+            # partial updates
+            serializer = OOHMediaSourceSerializer(
+                                data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.update(inst, serializer.validated_data)
+                return JSONResponse(serializer.data,
+                                    status=HTTP_200_OK)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+        # Bad Request
         return JSONResponse(serializer.errors,
                             status=HTTP_400_BAD_REQUEST)
 

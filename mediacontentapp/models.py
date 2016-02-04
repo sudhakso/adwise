@@ -121,7 +121,7 @@ class MediaSource(Document):
     owner = ReferenceField('MediaUser', required=False)
     # Creation attributes
     operated_by = ReferenceField('MediaUser', required=False)
-    created_time = DateTimeField(default=datetime.now())
+    created_time = DateTimeField()
     updated_time = DateTimeField()
     # Subscription details
 #     subscription = ReferenceField('Subscription', required=False)
@@ -154,9 +154,9 @@ class OOHMediaSource(MediaSource):
 
     # Other attributes
     # 40,30
-    size = ListField()
+    size = ListField(default=[])
     # Amenity (ETL feed)
-    ammenities = ListField(ReferenceField('Amenity'))
+    ammenities = ListField(ReferenceField('Amenity'), default=[])
     # Advanced parameters
     image_url = StringField()
     primary_image_content = ReferenceField('JpegImageContent')
