@@ -245,7 +245,7 @@ class JpegImageViewSet(APIView):
          response_serializer: JpegImageContentSerializer
         """
         try:
-            auth_manager.do_auth(request.META)
+#             auth_manager.do_auth(request.META)
             # Request Get, all users
             if request.method == 'GET':
                 if image_id is not None:

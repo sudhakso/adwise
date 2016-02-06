@@ -5,7 +5,8 @@ from mediacontentapp.models import DigitalMediaSource, VODMediaSource,\
         RadioMediaSource
 from mediacontentapp.sourceserializers import MediaSourceSerializer,\
         OOHMediaSourceSerializer, VODMediaSourceSerializer,\
-        DigitalMediaSourceSerializer, RadioMediaSourceSerializer
+        DigitalMediaSourceSerializer, RadioMediaSourceSerializer,\
+    BookingSerializer, PricingSerializer
 from mediacontentapp.serializers import JpegImageContentSerializer
 from mediacontentapp import IdentityService
 from userapp.faults import UserNotAuthorizedException
@@ -76,6 +77,11 @@ class OOHMediaSourceViewSet(APIView):
         # -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg"\
         # http://127.0.0.1:8000/mediacontent/mediasource/ooh/
         try:
+            bookings = None
+            img = None
+            img_url = None
+            pricing = None
+
             auth_user = auth_manager.do_auth(request)
             # TBD (Note:Sonu) : Differentiate the Service user,
             # on-boarding partner and the owner
@@ -86,15 +92,29 @@ class OOHMediaSourceViewSet(APIView):
                         data=request.data)
             if imageserializer.is_valid():
                 img = imageserializer.save()
+                img_url = img.get_absolute_url()
 
+            # Store Booking (optional)
+            if 'booking' in request.data:
+                bookingserializer = BookingSerializer(
+                            data=request.data['booking'])
+                if bookingserializer.is_valid():
+                    bookings = bookingserializer.save()
+            # Store Pricing (optional)
+            if 'pricing' in request.data:
+                pricingserializer = PricingSerializer(
+                            data=request.data['pricing'])
+                if pricingserializer.is_valid():
+                    pricing = pricingserializer.save()
             serializer = OOHMediaSourceSerializer(
                                 data=request.data)
             if serializer.is_valid():
                 src = serializer.save(created_time=datetime.now(),
                                       updated_time=datetime.now(),
                                       primary_image_content=img,
-                                      image_url=img.get_absolute_url())
-                src.update(operated_by=operated_by, owner=operated_by)
+                                      image_url=img_url)
+                src.update(operated_by=operated_by, owner=operated_by,
+                           pricing=pricing, booking=bookings)
                 src.save()
                 return JSONResponse(serializer.data,
                                     status=HTTP_201_CREATED)
@@ -114,6 +134,9 @@ class OOHMediaSourceViewSet(APIView):
          response_serializer: OOHMediaSourceSerializer
         """
         try:
+            bookings = None
+            pricing = None
+
             auth_user = auth_manager.do_auth(request)
             # TBD (Note:Sonu) : Update the image.
             inst = OOHMediaSource.objects.get(id=id)
@@ -142,7 +165,31 @@ class OOHMediaSourceViewSet(APIView):
             serializer = OOHMediaSourceSerializer(
                                 data=request.data, partial=True)
             if serializer.is_valid():
-                updated_obj = serializer.update(inst, serializer.validated_data)
+                updated_obj = serializer.update(inst,
+                                                serializer.validated_data)
+                # Other reference fields
+                # Store image'
+                imageserializer = JpegImageContentSerializer(
+                            data=request.data)
+                if imageserializer.is_valid():
+                    img = imageserializer.save()
+                    img_url = img.get_absolute_url()
+                    updated_obj.update(primary_image_content=img,
+                                       image_url=img_url)
+                # Store Booking (optional)
+                if 'booking' in request.data:
+                    bookingserializer = BookingSerializer(
+                                data=request.data['booking'])
+                    if bookingserializer.is_valid():
+                        bookings = bookingserializer.save()
+                        updated_obj.update(booking=bookings)
+                # Store Pricing (optional)
+                if 'pricing' in request.data:
+                    pricingserializer = PricingSerializer(
+                                data=request.data['pricing'])
+                    if pricingserializer.is_valid():
+                        pricing = pricingserializer.save()
+                        updated_obj.update(pricing=pricing)
                 # Verify if Owner change operation is expected.
                 fields = request.query_params
                 if 'userid' in fields:
@@ -150,7 +197,8 @@ class OOHMediaSourceViewSet(APIView):
                                                     username=fields['userid'])
                     if xfer_ownership_to:
                         updated_obj.update(owner=xfer_ownership_to)
-                        updated_obj.save()
+                # Save finally!
+                updated_obj.save()
                 return JSONResponse(serializer.data,
                                     status=HTTP_200_OK)
         except UserNotAuthorizedException as e:

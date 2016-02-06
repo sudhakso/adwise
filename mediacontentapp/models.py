@@ -81,9 +81,8 @@ class Booking(Document):
     # Calculated end time
     end_time = DateTimeField()
     # type of media
-    type = StringField()
-    # Reference of media instance
-    source = ReferenceField('OOHMediaSource')
+    type = StringField(required=True)
+    # Reference of media in
 
 
 class Pricing(Document):
@@ -91,13 +90,16 @@ class Pricing(Document):
     Different pricing schemes
     """
     # Unique pricing strategy name
-    name = StringField()
-    unit = StringField(default="INR")
-    measure = StringField(default='monthly')
-    # Unique price
+    # Christmas pricing
+    name = StringField(required=True)
+    # Trading
+    currency = StringField()
+    # Display unit, E.g. per sq.ft
+    unit = StringField()
+    # Value E.g 5
+    rate = FloatField()
+    # total price
     price = FloatField()
-    # Reference of the media source
-    source = ReferenceField('OOHMediaSource')
     # Price offer range
     offer_start_time = DateTimeField()
     offer_end_time = DateTimeField()
@@ -155,6 +157,14 @@ class OOHMediaSource(MediaSource):
     # Other attributes
     # 40,30
     size = ListField(default=[])
+    lighting_type = StringField()
+    ooh_type = StringField()
+    area = FloatField()
+
+    # Pricing
+    pricing = ReferenceField('Pricing', required=False)
+    # Bookings
+    booking = ReferenceField('Booking', required=False)
     # Amenity (ETL feed)
     ammenities = ListField(ReferenceField('Amenity'), default=[])
     # Advanced parameters
@@ -397,7 +407,7 @@ class JpegImageContent(Document):
     """
 
     image_type = StringField(default='jpg')
-    image = ImageField()
+    image = ImageField(required=True)
 
     def get_absolute_url(self):
         return "/mediacontent/images/%s/" % (

@@ -43,7 +43,7 @@ class Project(Document):
 # Any user in the AdWise system
 class MediaUser(Document):
     # Identity
-    username = StringField(primary_key=True)
+    username = StringField()
     password = StringField()
     # e-correspondence
     phone_number = StringField(required=True)
