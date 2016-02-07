@@ -1,0 +1,4 @@
+{{ object.city }}
+{{ object.street_name }}
+{{ object.country }}
+{{ object.pin }}

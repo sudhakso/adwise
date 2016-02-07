@@ -15,4 +15,6 @@ urlpatterns = [
     url(r'^', include('rest_framework_swagger.urls')),
     #django-gcm
 #     url(r'', include('gcm.urls'))
+    # haystack urls
+    url(r'^search/', include('haystack.urls')),
 ]

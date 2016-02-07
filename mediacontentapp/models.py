@@ -15,7 +15,6 @@ connect(_MONGODB_NAME, alias='default')
 
 All = 'everyone'
 
-
 # Create your models here.
 class Campaign(Document):
     """
@@ -31,6 +30,9 @@ class Campaign(Document):
 
     def get_absolute_url(self):
         return "/campaign/%i/" % self.id
+
+    class Meta:
+        app_label = 'mediacontentapp'
 
 
 class SourceAdDetails(Document):
@@ -49,6 +51,9 @@ class AmenityType(Document):
     # pre-known types of amenity
     typename = StringField()
     weight = FloatField()
+    
+    class Meta:
+        app_label = 'mediacontentapp'
 
 
 class Amenity(Document):
@@ -63,6 +68,8 @@ class Amenity(Document):
     name = StringField(primary_key=True)
     rating = FloatField()
 
+    class Meta:
+        app_label = 'mediacontentapp'
 
 # TBD
 class Subscription(Document):
@@ -85,6 +92,9 @@ class Booking(Document):
     # Reference of media instance
     source = ReferenceField('OOHMediaSource')
 
+    class Meta:
+        app_label = 'mediacontentapp'
+
 
 class Pricing(Document):
     """
@@ -101,6 +111,9 @@ class Pricing(Document):
     # Price offer range
     offer_start_time = DateTimeField()
     offer_end_time = DateTimeField()
+
+    class Meta:
+        app_label = 'mediacontentapp'
 
 
 class MediaSource(Document):
@@ -130,6 +143,7 @@ class MediaSource(Document):
 
     class Meta:
         abstract = True
+        app_label = 'mediacontentapp'
 
     def get_absolute_url(self):
         return "/mediasource/%i/" % self.id
@@ -165,6 +179,9 @@ class OOHMediaSource(MediaSource):
 
     def get_absolute_url(self):
         return "/mediasource/ooh/%i/" % self.id
+
+    class Meta:
+        app_label = 'mediacontentapp'
 
 
 class DigitalMediaSource(MediaSource):
@@ -247,6 +264,7 @@ class AdExtension(Document):
 
     class Meta:
         abstract = True
+        app_label = 'mediacontentapp'
 
 
 class Ad(Document):
@@ -293,6 +311,7 @@ class Ad(Document):
 
     class Meta:
         abstract = True
+        app_label = 'mediacontentapp'
 
     def get_absolute_url(self):
         return "/mediacontent/ads/%i/" % self.id
@@ -499,12 +518,3 @@ class OfferExtension(AdExtension):
     advertisement impression.
     """
     pass
-
-
-# class OOHFilter(django_filters.FilterSet):
-class OOHFilter():
-    class Meta:
-        model = OOHMediaSource
-        fields = ['name', 'street_name', 'city', 'state', 'country', 'pin',
-                  'subscription_start_date', 'subscription_end_date',
-                  'operated_by']

@@ -1,6 +1,6 @@
 from userapp.JSONFormatter import JSONResponse
 from rest_framework.views import APIView
-from mediacontentapp.models import MediaSource, OOHMediaSource, OOHFilter
+from mediacontentapp.models import MediaSource, OOHMediaSource
 from mediacontentapp.models import DigitalMediaSource, VODMediaSource,\
         RadioMediaSource
 from mediacontentapp.sourceserializers import MediaSourceSerializer,\
@@ -11,7 +11,7 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
     HTTP_500_INTERNAL_SERVER_ERROR, HTTP_200_OK
 from datetime import date, datetime, timedelta
 
-from mediacontentapp import mca_query
+from haystack.query import SearchQuerySet
 
 
 class MediaSourceViewSet(APIView):
@@ -110,22 +110,23 @@ class OOHMediaSourceSearchViewSet(APIView):
                 terms=search_string.split()
                 entries = []
                 found_entries = {}
-                for term in terms:
-                    st_entries = OOHMediaSource.objects(street_name__icontains=term)
-                    if st_entries:
-                        for entry in st_entries:
-                            found_entries[entry['id']] = entry
-                    ct_entries = OOHMediaSource.objects(city__icontains=term)
-                    if ct_entries:
-                        for entry in ct_entries:
-                            found_entries[entry['id']] = entry
-                    state_entries = OOHMediaSource.objects(state__icontains=term)
-                    if state_entries:
-                        for entry in state_entries:
-                            found_entries[entry['id']] = entry
+#                 for term in terms:
+#                     st_entries = OOHMediaSource.objects(street_name__icontains=term)
+#                     if st_entries:
+#                         for entry in st_entries:
+#                             found_entries[entry['id']] = entry
+#                     ct_entries = OOHMediaSource.objects(city__icontains=term)
+#                     if ct_entries:
+#                         for entry in ct_entries:
+#                             found_entries[entry['id']] = entry
+#                     state_entries = OOHMediaSource.objects(state__icontains=term)
+#                     if state_entries:
+#                         for entry in state_entries:
+#                             found_entries[entry['id']] = entry
+                found_entries = SearchQuerySet().filter(content=search_string)
                 if found_entries:
                     status_string = "Found the following matches"
-                    serializer = OOHMediaSourceSerializer(found_entries.values(), many=True)
+                    serializer = OOHMediaSourceSerializer(found_entries, many=True)
                     results['matches'] = serializer.data
                 else:
                     results['matches'] = None
