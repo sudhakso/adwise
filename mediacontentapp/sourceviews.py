@@ -50,17 +50,37 @@ class OOHMediaSourceViewSet(APIView):
          response_serializer: OOHMediaSourceSerializer
         """
         # Request Get, all users
-        if request.method == 'GET':
+        sources = None
+        multiple = False
+        try:
+            auth_user = auth_manager.do_auth(request)
             fields = request.query_params
+            # OOH-Id
             if 'id' in fields:
                 sources = OOHMediaSource.objects.get(id=fields['id'])
                 multiple = False
+            # User-Id
+            # It is very weird MongoDB not supporting join on Reference
+            # members.
+            elif 'userid' in fields:
+                queryUser = MediaUser.objects.get(
+                                    username=fields['userid'])
+                sources = OOHMediaSource.objects(
+                                            owner=queryUser)
+                multiple = True if len(sources) > 0 else False
             else:
                 sources = OOHMediaSource.objects.all()
                 multiple = True
 
             serializer = OOHMediaSourceSerializer(sources, many=multiple)
             return JSONResponse(serializer.data)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+
+        return JSONResponse(serializer.errors,
+                            status=HTTP_400_BAD_REQUEST)
 
     def post(self, request, id=None):
 
