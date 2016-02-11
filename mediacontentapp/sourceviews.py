@@ -17,7 +17,7 @@ from userapp.models import MediaUser
 
 
 auth_manager = IdentityService.IdentityManager()
-
+BO_ROLE = 'r3'
 
 class MediaSourceViewSet(APIView):
 
@@ -236,6 +236,13 @@ class OOHMediaSourceViewSet(APIView):
 
 class OOHMediaSourceSearchViewSet(APIView):
 
+    def _get_boards_within_user(self, qUser, boards):
+        resultSet = set()
+        for board in boards:
+            if board.owner.username == qUser.username:
+                resultSet.add(board)
+        return resultSet
+
     def post(self, request, *args, **kwargs):
 
         """ Returns a list of OOH media source match ids
@@ -264,6 +271,11 @@ class OOHMediaSourceSearchViewSet(APIView):
                     if state_entries:
                         for entry in state_entries:
                             found_entries[entry['id']] = entry
+                if found_entries and 'userid' in fields:
+                    queryUser = MediaUser.objects.get(username=fields['userid'])
+                    if queryUser and queryUser.role.name == BO_ROLE:
+                        found_entries = self._get_boards_within_user(
+                            queryUser, found_entries)
                 if found_entries:
                     status_string = "Found the following matches"
                     serializer = OOHMediaSourceSerializer(found_entries.values(), many=True)
