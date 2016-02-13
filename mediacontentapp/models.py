@@ -17,13 +17,28 @@ All = 'everyone'
 
 
 # Create your models here.
+class MediaDashboard(Document):
+    """
+    Media dash-board for the user
+    """
+    user = ReferenceField('MediaUser', required=False)
+    # Limited dash-board elements.
+    # ['34abc56df45e', '43434abcb4543eb']
+    most_viewed_source = ListField(default=[], required=False)
+    available_source = ListField(default=[], required=False)
+    sources_owned = ListField(default=[], required=False)
+    free_within_month = ListField(default=[], required=False)
+    created = DateTimeField(default=datetime.now(), required=False)
+    last_updated = DateTimeField(default=datetime.now(), required=False)
+
+
 class Campaign(Document):
     """
     Campaign resource
     """
     name = StringField()
     description = StringField()
-    # TBD (FixMe): Media Agency user should be added differento
+    # TBD (FixMe): Media Agency user should be added different
     creator = ReferenceField('MediaUser')
     creation_time = DateTimeField(default=datetime.now())
     launched_at = DateTimeField()
@@ -67,6 +82,22 @@ class Amenity(Document):
 # TBD
 class Subscription(Document):
     pass
+
+
+class MediaActivity(Document):
+    """
+    User Activity, view delete
+    """
+    ACTIVITY_TYPE_CHOICES = (
+                ('0', 'View'),
+                ('1', 'Like'),
+                ('2', 'Share'),
+                ('3', 'Dislike'),
+    )
+    interacting_user = ReferenceField('MediaUser')
+    mediasource = ReferenceField('OOHMediaSource')
+    activity_time = DateTimeField(default=datetime.now())
+    activity_type = StringField(max_length=1, choices=ACTIVITY_TYPE_CHOICES)
 
 
 class Booking(Document):

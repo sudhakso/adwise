@@ -16,3 +16,12 @@ class MediaSourceController():
 
     def process_query(self, *args):
         pass
+
+
+class DashboardController():
+
+    def update_dashboard(self, dash, args):
+        pass
+
+    def process_query(self, *args):
+        pass

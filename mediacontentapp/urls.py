@@ -5,6 +5,8 @@ from mediacontentapp import views, sourceviews
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     # Media
+    url(r'^dashboard/',
+        views.DashboardViewSet.as_view()),
     url(r'^mediasource/ooh/(?P<id>[0-9a-zA-Z]+)',
         sourceviews.OOHMediaSourceViewSet.as_view()),
     url(r'^mediasource/ooh/',

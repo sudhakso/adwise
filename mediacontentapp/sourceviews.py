@@ -3,10 +3,11 @@ from rest_framework.views import APIView
 from mediacontentapp.models import MediaSource, OOHMediaSource
 from mediacontentapp.models import DigitalMediaSource, VODMediaSource,\
         RadioMediaSource
+from mediacontentapp.models import MediaDashboard, MediaActivity
 from mediacontentapp.sourceserializers import MediaSourceSerializer,\
         OOHMediaSourceSerializer, VODMediaSourceSerializer,\
         DigitalMediaSourceSerializer, RadioMediaSourceSerializer,\
-    BookingSerializer, PricingSerializer
+        BookingSerializer, PricingSerializer
 from mediacontentapp.serializers import JpegImageContentSerializer
 from mediacontentapp import IdentityService
 from userapp.faults import UserNotAuthorizedException
@@ -60,14 +61,16 @@ class OOHMediaSourceViewSet(APIView):
                 sources = OOHMediaSource.objects.get(id=fields['id'])
                 multiple = False
             # User-Id
-            # It is very weird MongoDB not supporting join on Reference
-            # members.
+            # Workaround: Mongo doesn't support join of ref-field.
+            # Billboard owner use case, where only his billboards are
+            # shown.
             elif 'userid' in fields:
                 queryUser = MediaUser.objects.get(
                                     username=fields['userid'])
                 sources = OOHMediaSource.objects(
                                             owner=queryUser)
                 multiple = True if len(sources) > 0 else False
+            # Media Agency case, where everything should be shown up
             else:
                 sources = OOHMediaSource.objects.all()
                 multiple = True

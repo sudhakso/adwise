@@ -3,18 +3,94 @@ from rest_framework.views import APIView
 from mediacontentapp.serializers import AdSerializer, TextAdSerializer,\
     CallOnlyAdSerializer, ImageAdSerializer, CampaignSerializer,\
     ImageContentSerializer, JpegImageContentSerializer
+from mediacontentapp.sourceserializers import MediaDashboardSerializer
 from userapp.models import MediaUser
 from mediacontentapp.models import Ad, TextAd, CallOnlyAd, ImageAd, Campaign,\
-    ImageContent, JpegImageContent
+    ImageContent, JpegImageContent, MediaDashboard
 from mediacontentapp.controller import CampaignManager
 from mediacontentapp.IdentityService import IdentityManager
+from mediacontentapp.controller import DashboardController
 from mediacontentapp.faults import UserNotAuthorizedException
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
-    HTTP_500_INTERNAL_SERVER_ERROR, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
+    HTTP_500_INTERNAL_SERVER_ERROR, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED,\
+    HTTP_200_OK
 from datetime import datetime
 from django.http.response import HttpResponse
 
 auth_manager = IdentityManager()
+dashboard_controller = DashboardController()
+
+
+class DashboardViewSet(APIView):
+
+    """ Media Dash-board """
+
+    serializer_class = MediaDashboardSerializer
+    model = MediaDashboard
+
+    # Must have dash-board controller.
+    # One for 'BO' another for 'MA' for e.g.
+    def get(self, request):
+
+        """ Returns dash-board for the user
+         ---
+         response_serializer: MediaDashboardSerializer
+        """
+        try:
+            auth_user = auth_manager.do_auth(request)
+            user = MediaUser.objects.get(
+                                    username=auth_user.username)
+            # return the dash-board for the user.
+            dash = MediaDashboard.objects.get(user=user)
+            serializer = MediaDashboardSerializer(dash)
+            return JSONResponse(serializer.data, status=HTTP_200_OK)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+    # Request to create, if not exist
+    # else, refresh
+    def post(self, request):
+
+        """ Creates a user dash-board
+         ---
+         response_serializer: MediaDashboardSerializer
+        """
+        try:
+            auth_user = auth_manager.do_auth(request)
+            # ensure user
+            user = MediaUser.objects.get(
+                                    username=auth_user.username)
+            dash = MediaDashboard.objects.filter(user=user)
+            if not len(dash):
+                # Create for the user
+                serializer = MediaDashboardSerializer(data=request.data)
+                if serializer.is_valid():
+                    # Create one.
+                    inst = serializer.save(user=user)
+                    updated_inst = serializer.update(inst)
+                    serializer = MediaDashboardSerializer(updated_inst)
+                    return JSONResponse(serializer.data,
+                                        status=HTTP_201_CREATED)
+            else:
+                # Update the dash-board
+                serializer = MediaDashboardSerializer()
+                updated_inst = serializer.update(dash[0])
+                serializer = MediaDashboardSerializer(updated_inst)
+                return JSONResponse(serializer.data, status=HTTP_200_OK)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class CampaignViewSet(APIView):
