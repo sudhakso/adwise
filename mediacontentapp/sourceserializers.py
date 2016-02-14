@@ -9,8 +9,12 @@ from datetime import timedelta
 
 
 class MediaDashboardSerializer(serializers.DocumentSerializer):
+
     class Meta:
         model = MediaDashboard
+        exclude = ('user',)
+#         fields = ('most_viewed_source', 'available_source', 'sources_owned',
+#                   'free_within_month', 'created')
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
@@ -26,12 +30,12 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
             if user:
                 sources = OOHMediaSource.objects(
                                         owner=user)
-                sourceidlist = [source.id for source in sources]
+                sourceidlist = [str(source.id) for source in sources]
                 # Enumerate sources
                 available_sources = OOHMediaSource.objects.filter(
                                         owner=user, booking=None)
                 available_sourceid_list = [
-                        source.id for source in available_sources]
+                        str(source.id) for source in available_sources]
 
                 booked_sources = [source
                                   for source in sources if source not in
@@ -41,7 +45,7 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
                 for source in booked_sources:
                     source_end_time = source.booking.end_time
                     if source_end_time < in30days:
-                        expiring_in30days_sources_id.append(source.id)
+                        expiring_in30days_sources_id.append(str(source.id))
                 # Update dash board instance
                 instance.update(sources_owned=sourceidlist,
                                 available_source=available_sourceid_list,
