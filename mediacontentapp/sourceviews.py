@@ -254,16 +254,20 @@ class OOHMediaSourceSearchViewSet(APIView):
             user_obj = auth_manager.do_auth(request)
             entries = []
             if user_obj:
+                # Is this guy a Bill board owner?
                 if user_obj.role.name == 'r3':
                     entries = OOHMediaSource.objects.filter(owner=user_obj)
                 else:
+                # Restrict the search within the city.
                     home_city = user_obj.city
-                    entries = OOHMediaSource.objects.filter(city=home_city)
+                    if home_city:
+                        entries = OOHMediaSource.objects.filter(city=home_city)
+                    else:
+                        entries = OOHMediaSource.objects.all()
                 results['display_message'] = "You searched for: " + q_str
                 matching_entries = []
 #                 logging.error("Entries %s", entries)
                 if entries:
-                    terms = q_str.split()
                     for e in entries:
 #                         logging.error("Entry %s", e.name)
                         if e.name and q_str in e.name:
