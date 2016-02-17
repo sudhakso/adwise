@@ -254,6 +254,7 @@ class OOHMediaSourceSearchViewSet(APIView):
             user_obj = auth_manager.do_auth(request)
             entries = []
             if user_obj:
+                user_obj = MediaUser.objects.get(username=user_obj.username)
                 # Is this guy a Bill board owner?
                 if user_obj.role.name == 'r3':
                     entries = OOHMediaSource.objects.filter(owner=user_obj)
