@@ -271,9 +271,11 @@ class OOHMediaSourceSearchViewSet(APIView):
                 if entries:
                     for e in entries:
 #                         logging.error("Entry %s", e.name)
-                        if e.name and q_str in e.name:
+                        if e.name and q_str.upper() in e.name.upper():
                             matching_entries.append(e)
-                        elif  e.street_name and q_str in e.street_name:
+                        elif e.street_name and q_str.upper() in e.street_name.upper():
+                            matching_entries.append(e)
+                        elif e.address and q_str.upper() in e.address.upper():
                             matching_entries.append(e)
 
 #                 logging.error("Entries %s", matching_entries)
