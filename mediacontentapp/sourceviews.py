@@ -3,21 +3,91 @@ from rest_framework.views import APIView
 from mediacontentapp.models import MediaSource, OOHMediaSource
 from mediacontentapp.models import DigitalMediaSource, VODMediaSource,\
         RadioMediaSource
-from mediacontentapp.models import MediaDashboard, MediaActivity
+from mediacontentapp.models import MediaDashboard, MediaSourceActivity
 from mediacontentapp.sourceserializers import MediaSourceSerializer,\
         OOHMediaSourceSerializer, VODMediaSourceSerializer,\
         DigitalMediaSourceSerializer, RadioMediaSourceSerializer,\
-        BookingSerializer, PricingSerializer
+        BookingSerializer, PricingSerializer, MediaSourceActivitySerializer
 from mediacontentapp.serializers import JpegImageContentSerializer
-from mediacontentapp import IdentityService
+from mediacontentapp import IdentityService, controller
 from userapp.faults import UserNotAuthorizedException
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
     HTTP_500_INTERNAL_SERVER_ERROR, HTTP_401_UNAUTHORIZED, HTTP_200_OK
 from datetime import datetime
 from userapp.models import MediaUser
+from controller import ActivityManager
 
 
 auth_manager = IdentityService.IdentityManager()
+activity_manager = controller.ActivityManager()
+
+
+class MediaSourceActivityTracker(APIView):
+
+    """ Activity tracking """
+
+    def get(self, request, activity, id=None):
+
+        """ Returns named activity counter for
+            a Media instance identified by Id.
+         ---
+         response_serializer: MediaSourceActivitySerializer
+        """
+        try:
+            auth_manager.do_auth(request)
+            # TBD (Note:Sonu) Must accept all activities, meaning id=None.
+            if activity_manager.get_activity_id(activity) != -1 and (
+                            id is not None):
+                # valid activity
+                source = OOHMediaSource.objects.get(id=id)
+                activities = MediaSourceActivity.objects.filter(
+                                                            mediasource=source)
+                serializer = MediaSourceActivitySerializer(
+                                                activities, many=True)
+                return JSONResponse(serializer.data)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def post(self, request, activity, id=None):
+
+        """ Logs a named activity for a given media source
+         ---
+         request_serializer: MediaSourceActivitySerializer
+         response_serializer: MediaSourceActivitySerializer
+        """
+        try:
+            auth_user = auth_manager.do_auth(request)
+            # TBD(Note:Sonu) Id is must.
+            activity_type = activity_manager.get_activity_id(activity)
+            if activity_type != -1 and (
+                            id is not None):
+                # valid user
+                user = MediaUser.objects.get(username=auth_user.username)
+                # valid activity, valid source
+                source = OOHMediaSource.objects.get(id=id)
+                serializer = MediaSourceActivitySerializer(data=request.data)
+                # Save the activity record
+                if serializer.is_valid():
+                    serializer.save(interacting_user=user,
+                                    mediasource=source,
+                                    activity_type=activity_type,
+                                    activity_time=datetime.now())
+                    return JSONResponse(str('success'),
+                                        status=HTTP_201_CREATED)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class MediaSourceViewSet(APIView):

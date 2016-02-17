@@ -84,20 +84,16 @@ class Subscription(Document):
     pass
 
 
-class MediaActivity(Document):
+class MediaSourceActivity(Document):
     """
     User Activity, view delete
     """
-    ACTIVITY_TYPE_CHOICES = (
-                ('0', 'View'),
-                ('1', 'Like'),
-                ('2', 'Share'),
-                ('3', 'Dislike'),
-    )
-    interacting_user = ReferenceField('MediaUser')
-    mediasource = ReferenceField('OOHMediaSource')
-    activity_time = DateTimeField(default=datetime.now())
-    activity_type = StringField(max_length=1, choices=ACTIVITY_TYPE_CHOICES)
+    interacting_user = ReferenceField('MediaUser', required=False)
+    mediasource = ReferenceField('OOHMediaSource', required=False)
+    activity_time = DateTimeField(default=datetime.now(), required=False)
+    activity_type = FloatField(default=-1, required=False)
+    # E.g. email:something, phone: some-number
+    activity_meta = StringField(default="", required=False)
 
 
 class Booking(Document):

@@ -7,6 +7,8 @@ urlpatterns = [
     # Media
     url(r'^dashboard/',
         views.DashboardViewSet.as_view()),
+    url(r'^mediasource/activity/(?P<activity>[a-z]+)/(?P<id>[0-9a-zA-Z]+)',
+        sourceviews.MediaSourceActivityTracker.as_view()),
     url(r'^mediasource/ooh/(?P<id>[0-9a-zA-Z]+)',
         sourceviews.OOHMediaSourceViewSet.as_view()),
     url(r'^mediasource/ooh/',
