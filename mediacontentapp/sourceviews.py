@@ -328,7 +328,7 @@ class OOHMediaSourceSearchViewSet(APIView):
             if user_obj:
                 user_obj = MediaUser.objects.get(username=user_obj.username)
                 # Is this guy a Bill board owner?
-                if user_obj.role.name == 'r3':
+                if user_obj.role.name == 'BO':
                     entries = OOHMediaSource.objects.filter(owner=user_obj)
                 else:
                 # Restrict the search within the city.
