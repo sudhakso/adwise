@@ -17,6 +17,7 @@ from datetime import datetime
 from userapp.models import MediaUser
 
 from controller import ActivityManager
+import logging
 
 
 auth_manager = IdentityService.IdentityManager()
@@ -322,24 +323,26 @@ class OOHMediaSourceSearchViewSet(APIView):
         if request.method == 'POST':
             fields = request.query_params
             q_str = fields.get('q',None)
-#             logging.error("Inside Search %s", user)
             user_obj = auth_manager.do_auth(request)
             entries = []
+
             if user_obj:
                 user_obj = MediaUser.objects.get(username=user_obj.username)
                 # Is this guy a Bill board owner?
                 if user_obj.role.name == 'BO':
                     entries = OOHMediaSource.objects.filter(owner=user_obj)
+                    logging.error("User Entries %s", [e.name for e in entries])
                 else:
                 # Restrict the search within the city.
                     home_city = user_obj.city
                     if home_city:
                         entries = OOHMediaSource.objects.filter(city=home_city)
+                        logging.error("City Entries %s", [e.name for e in entries])
                     else:
                         entries = OOHMediaSource.objects.all()
+                        logging.error("All Entries %s", [e.name for e in entries])
                 results['display_message'] = "You searched for: " + q_str
                 matching_entries = []
-#                 logging.error("Entries %s", entries)
                 if entries:
                     for e in entries:
 #                         logging.error("Entry %s", e.name)
@@ -348,7 +351,7 @@ class OOHMediaSourceSearchViewSet(APIView):
                         elif e.street_name and q_str.upper() in e.street_name.upper():
                             matching_entries.append(e)
 
-#                 logging.error("Entries %s", matching_entries)
+                logging.error("Matching Entries %s", [e.name for e in matching_entries])
                 if matching_entries:
                     status_string = "Found the "+str(len(matching_entries)) +" matches"
                     serializer = OOHMediaSourceSerializer(matching_entries, many=True)
