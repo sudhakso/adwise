@@ -37,12 +37,14 @@ class MediaSourceActivityTracker(APIView):
         try:
             auth_manager.do_auth(request)
             # TBD (Note:Sonu) Must accept all activities, meaning id=None.
-            if activity_manager.get_activity_id(activity) != -1 and (
+            activity_type = activity_manager.get_activity_id(activity)
+            if activity_type != -1 and (
                             id is not None):
                 # valid activity
                 source = OOHMediaSource.objects.get(id=id)
                 activities = MediaSourceActivity.objects.filter(
-                                                            mediasource=source)
+                                                mediasource=source,
+                                                activity_type=activity_type)
                 serializer = MediaSourceActivitySerializer(
                                                 activities, many=True)
                 return JSONResponse(serializer.data)
