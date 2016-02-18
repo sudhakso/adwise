@@ -11,6 +11,8 @@ urlpatterns = [
         sourceviews.OOHMediaSourceSearchViewSet.as_view()),
     url(r'^mediasource/activity/(?P<activity>[a-z]+)/(?P<id>[0-9a-zA-Z]+)',
         sourceviews.MediaSourceActivityTracker.as_view()),
+    url(r'^mediasource/tags/(?P<id>[0-9a-zA-Z]+)',
+        sourceviews.MediaSourceTagViewSet.as_view()),
     url(r'^mediasource/ooh/(?P<id>[0-9a-zA-Z]+)',
         sourceviews.OOHMediaSourceViewSet.as_view()),
     url(r'^mediasource/ooh/',

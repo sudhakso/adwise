@@ -40,3 +40,22 @@ class ActivityManager():
             return activities[activity_name]
         else:
             return -1
+
+
+class TagManager():
+
+    # Add more tags here.
+    # Idea is not to support wild variety of tags.
+    # Tags must be designed properly.
+    # Please note the values in the tag is not controlled.
+    @staticmethod
+    def get_tag_id(tag_name):
+        tags = dict(nearby=1,
+                    seenby=2,
+                    adtype=3)
+
+        if tag_name in tags:
+            return tags[tag_name]
+        else:
+            return -1
+    

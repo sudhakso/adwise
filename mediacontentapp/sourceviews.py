@@ -3,24 +3,84 @@ from rest_framework.views import APIView
 from mediacontentapp.models import MediaSource, OOHMediaSource
 from mediacontentapp.models import DigitalMediaSource, VODMediaSource,\
         RadioMediaSource
-from mediacontentapp.models import MediaDashboard, MediaSourceActivity
+from mediacontentapp.models import MediaDashboard, MediaSourceActivity,\
+        SourceTag
 from mediacontentapp.sourceserializers import MediaSourceSerializer,\
         OOHMediaSourceSerializer, VODMediaSourceSerializer,\
         DigitalMediaSourceSerializer, RadioMediaSourceSerializer,\
-        BookingSerializer, PricingSerializer, MediaSourceActivitySerializer
+        BookingSerializer, PricingSerializer, MediaSourceActivitySerializer,\
+        SourceTagSerializer
 from mediacontentapp.serializers import JpegImageContentSerializer
-from mediacontentapp import IdentityService, controller
+from mediacontentapp import IdentityService
 from userapp.faults import UserNotAuthorizedException
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
     HTTP_500_INTERNAL_SERVER_ERROR, HTTP_401_UNAUTHORIZED, HTTP_200_OK
 from datetime import datetime
 from userapp.models import MediaUser
 
-from controller import ActivityManager
+from controller import ActivityManager, TagManager
 
-
+# These managers are acting like utilities, and mostly
+# contain static methods to server controlling requests.
 auth_manager = IdentityService.IdentityManager()
-activity_manager = controller.ActivityManager()
+activity_manager = ActivityManager()
+tag_manager = TagManager()
+
+
+class MediaSourceTagViewSet(APIView):
+    """ Search'able tags """
+
+    def get(self, request, id):
+
+        """ Returns tags for Media instance
+        identified by Id.
+         ---
+         response_serializer: SourceTagSerializer
+        """
+        try:
+            auth_manager.do_auth(request)
+            if id is not None:
+                # valid activity
+                source = OOHMediaSource.objects.get(id=id)
+                tags = SourceTag.objects.filter(source_ref=source)
+                serializer = SourceTagSerializer(
+                                                tags, many=True)
+                return JSONResponse(serializer.data)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+        return JSONResponse("", status=HTTP_400_BAD_REQUEST)
+
+    def post(self, request, id):
+
+        """ Logs a named activity for a given media source
+         ---
+         request_serializer: SourceTagSerializer
+         response_serializer: SourceTagSerializer
+        """
+        try:
+            auth_manager.do_auth(request)
+            if id is not None:
+                source = OOHMediaSource.objects.get(id=id)
+                serializer = SourceTagSerializer(data=request.data)
+                # Save the activity record
+                if serializer.is_valid():
+                    serializer.save(source_ref=source)
+                    return JSONResponse(str('success'),
+                                        status=HTTP_201_CREATED)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class MediaSourceActivityTracker(APIView):

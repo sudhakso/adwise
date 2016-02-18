@@ -4,7 +4,7 @@ from userapp.serializers import UserSerializer
 
 from mediacontentapp.models import MediaSource, OOHMediaSource,\
         VODMediaSource, DigitalMediaSource, RadioMediaSource, Pricing,\
-        Booking, MediaDashboard, MediaSourceActivity
+        Booking, MediaDashboard, MediaSourceActivity, SourceTag
 from datetime import timedelta
 
 
@@ -57,6 +57,17 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
 class MediaSourceActivitySerializer(serializers.DocumentSerializer):
     class Meta:
         model = MediaSourceActivity
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class SourceTagSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = SourceTag
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

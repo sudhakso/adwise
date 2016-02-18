@@ -134,6 +134,11 @@ curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "us
 # Fetching a share/like/dislike activity by billboard
 curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://localhost:8000/mediacontent/mediasource/activity/share/56c0b94c1d41c8957cba8237
 
+# Adding tags to a billboard, E.g adds nearby tag with values school and temple.
+curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"name":"nearby", "tags": ["school", "temple"], "type":1.0}'  http://localhost:8000/mediacontent/mediasource/tags/56c0b94c1d41c8957cba8237
+
+# Getting added tags to a billboard
+curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://localhost:8000/mediacontent/mediasource/tags/56c0b94c1d41c8957cba8237
 
 # Miscellaneous
 # Create a service called 'location' for the User

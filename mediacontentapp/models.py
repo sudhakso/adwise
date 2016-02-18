@@ -84,6 +84,20 @@ class Subscription(Document):
     pass
 
 
+class SourceTag(Document):
+    """
+    User Activity, view delete
+    """
+    name = StringField(default="", required=False)
+    tags = ListField(default=[], required=False)
+    # Unique category to upload the tags in.
+    # Becomes important for search etc.
+    type = FloatField(default=-1.0, required=False)
+    # Reference to MediaSource to which this tag applies.
+    # This is only output serialized
+    source_ref = ReferenceField('OOHMediaSource', required=False)
+
+
 class MediaSourceActivity(Document):
     """
     User Activity, view delete
