@@ -19,3 +19,6 @@ class UserNotAuthorizedException(Exception):
 
 class UserAlreadyExist(Exception):
     pass
+
+class LicenseExpiredException(Exception):
+    pass

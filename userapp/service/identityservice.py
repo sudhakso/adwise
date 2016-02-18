@@ -6,8 +6,10 @@ Created on Nov 23, 2015
 from django.conf import settings
 from userapp import Config
 from abc import abstractmethod
-from userapp.faults import UserNotAuthorizedException, UserNotFoundException, UserAlreadyExist
-
+from userapp.models import MediaUser
+from userapp.faults import UserNotAuthorizedException, UserNotFoundException,\
+    UserAlreadyExist, LicenseExpiredException
+from datetime import datetime
 # Basic authentication
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
@@ -35,6 +37,12 @@ class IdentityDriver(object):
     def remove_expired_session(self, request):
         pass
 
+    def is_usage_allowed(self, user):
+        media_user = MediaUser.objects.get(username=user.username)
+        if media_user.usage_expiry_date and (
+            media_user.usage_expiry_date < datetime.now()):
+            raise LicenseExpiredException("Upgrade required")
+        return True
 
 class KeystoneDriver(IdentityDriver):
     '''
@@ -79,7 +87,7 @@ class NoopDriver(IdentityDriver):
             if user.check_password(head['PASSWORD']):
                 user.backend = 'mongoengine.django.auth.MongoEngineBackend'
                 print login(request, user)
-                return True
+                return self.is_usage_allowed(user)
             else:
                 raise UserNotAuthorizedException(
                                 "Incorrect login name or password!")

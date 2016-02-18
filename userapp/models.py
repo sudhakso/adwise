@@ -1,3 +1,4 @@
+import datetime as dt
 from django.db import models
 from django.db.models.fields.related import ForeignKey
 from mongoengine.fields import GeoPointField, DictField, ListField,\
@@ -11,6 +12,8 @@ from rest_framework import fields
 
 connect(_MONGODB_NAME, alias='default')
 
+
+TRIAL_PERIOD = 15
 
 class UserRole(Document):
     name = StringField()
@@ -61,6 +64,8 @@ class MediaUser(Document):
     date_joined = DateTimeField(default=datetime.now())
     last_updated = DateTimeField(default=datetime.now())
     last_activity = DateTimeField(default=datetime.now())
+    usage_expiry_date = DateTimeField(default=(
+        datetime.now() + dt.timedelta(days=TRIAL_PERIOD)))
     # Properties
     is_admin = BooleanField(default=False, required=False)
     email_verified = BooleanField(default=False, required=False)

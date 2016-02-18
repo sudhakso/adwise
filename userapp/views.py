@@ -9,7 +9,8 @@ from rest_framework.views import APIView
 from datetime import datetime
 from userapp.session.sessionmanager import SessionManager
 from userapp.service.identityservice import IdentityManager
-from userapp.faults import UserNotAuthorizedException, UserAlreadyExist
+from userapp.faults import UserNotAuthorizedException, UserAlreadyExist,\
+    LicenseExpiredException
 
 
 session_mgr = SessionManager()
@@ -33,6 +34,10 @@ def login(request):
         usr = MediaUser.objects.get(username=username, email=email)
         serializer = UserSerializer(usr, many=False)
         return JSONResponse(serializer.data)
+    except LicenseExpiredException as e:
+        print e
+        return JSONResponse(str(e),
+                            status=HTTP_401_UNAUTHORIZED)
     except UserNotAuthorizedException as e:
         print e
         return JSONResponse(str(e),
