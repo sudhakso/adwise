@@ -34,7 +34,8 @@ class ActivityManager():
     def get_activity_id(activity_name):
         activities = dict(share=1,
                           like=2,
-                          dislike=3)
+                          dislike=3,
+                          quote=4)
 
         if activity_name in activities:
             return activities[activity_name]
@@ -58,4 +59,3 @@ class TagManager():
             return tags[tag_name]
         else:
             return -1
-    

@@ -22,12 +22,27 @@ class MediaDashboard(Document):
     Media dash-board for the user
     """
     user = ReferenceField('MediaUser', required=False)
-    # Limited dash-board elements.
-    # ['34abc56df45e', '43434abcb4543eb']
+    # Possible values (billboard_owner, media_agency, onboarding_partner,
+    # unknown)
+    dashboard_type = StringField(required=True)
+    # Common dash-board elements.
+    # view and date counter
+    most_liked_source = ListField(default=[], required=False)
+    # activity and date counter
     most_viewed_source = ListField(default=[], required=False)
+    # availability counter
     available_source = ListField(default=[], required=False)
+    # share and date counter
+    most_shared_source = ListField(default=[], required=False)
+    # created date counter
+    new_additions = ListField(default=[], required=False)
+    # premium and date counter
+    premium_source = ListField(default=[], required=False)
+    # Ownership related
     sources_owned = ListField(default=[], required=False)
     free_within_month = ListField(default=[], required=False)
+    num_shared = FloatField(default=0.0, required=False)
+
     created = DateTimeField(default=datetime.now(), required=False)
     last_updated = DateTimeField(default=datetime.now(), required=False)
 
