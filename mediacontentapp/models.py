@@ -24,7 +24,7 @@ class MediaDashboard(Document):
     user = ReferenceField('MediaUser', required=False)
     # Possible values (billboard_owner, media_agency, onboarding_partner,
     # unknown)
-    dashboard_type = StringField(required=True)
+    dashboard_type = StringField(required=False)
     # Common dash-board elements.
     # view and date counter
     most_liked_source = ListField(default=[], required=False)

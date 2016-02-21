@@ -21,18 +21,6 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
     def _get_default_field_names(self, *args, **kwargs):
         return self.get_field_names(*args, **kwargs)
 
-    def DASHBOARD_TYPE(self, instance):
-        if hasattr(instance, 'dashboard_type'):
-            if instance.dashboard_type == "BO":
-                return "MEDIA_OWNER"
-            elif instance.dashboard_type == "MA":
-                return "MEDIA_BROWSER"
-            elif instance.dashboard_type == "Partner":
-                return "PARTNER"
-            return "UNKNOWN"
-        else:
-            return "UNKNOWN"
-
     def update(self, instance, validated_data=None):
         today = datetime.datetime.now()
         if instance:
@@ -40,7 +28,7 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
             # Get all media source for the user
             if user:
                 # Media owner
-                if self.DASHBOARD_TYPE(instance) == 'MEDIA_OWNER':
+                if instance.dashboard_type == 'MEDIA_OWNER':
                     sources = OOHMediaSource.objects(
                                             owner=user)
                     sourceidlist = [str(source.id) for source in sources]
@@ -72,7 +60,7 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
                             num_shared=shared)
                     instance.save()
                 # Media browser
-                elif self.DASHBOARD_TYPE(instance) == 'MEDIA_BROWSER':
+                elif instance.dashboard_type == 'MEDIA_BROWSER':
                     # All MB fields
                     # Enumerate sources
                     new_sources = []
@@ -119,7 +107,7 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
                     # Save finally. Do we need?
                     instance.save()
                     pass
-                elif self.DASHBOARD_TYPE(instance) == 'partner':
+                elif instance.dashboard_type == 'partner':
                     # on boarding partner
                     # TBD
                     pass

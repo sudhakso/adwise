@@ -68,11 +68,15 @@ class DashboardViewSet(APIView):
                                     username=auth_user.username)
             dash = MediaDashboard.objects.filter(user=user)
             if not len(dash):
+                # Get the dash-board type
+                dash_typ = dashboard_controller.type(
+                                    user.role.name if user.role else None)
                 # Create for the user
                 serializer = MediaDashboardSerializer(data=request.data)
                 if serializer.is_valid():
                     # Create one.
-                    inst = serializer.save(user=user)
+                    inst = serializer.save(user=user,
+                                           dashboard_type=dash_typ)
                     updated_inst = serializer.update(inst)
                     serializer = MediaDashboardSerializer(updated_inst)
                     return JSONResponse(serializer.data,

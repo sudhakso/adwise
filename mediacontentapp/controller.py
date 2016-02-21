@@ -27,6 +27,19 @@ class DashboardController():
     def process_query(self, *args):
         pass
 
+    def type(self, role_name):
+        if role_name is None:
+            return "UNKNOWN"
+
+        if role_name == "BO":
+            return "MEDIA_OWNER"
+        elif role_name == "MA":
+            return "MEDIA_BROWSER"
+        elif role_name == "OP":
+            return "PARTNER"
+        else:
+            return "UNKNOWN"
+
 
 class ActivityManager():
 
