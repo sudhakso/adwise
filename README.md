@@ -128,6 +128,12 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 # Update image for OOH
 curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg" http://127.0.0.1:8000/mediacontent/mediasource/ooh/56b5f4ca1d41c85e256e11c2/
 
+# Creating/Updating a dashboard for the User - set approriate dashboard type. (Media Agency - "MA", Billboard Owner - "BO", On baording partner -> "Partner", Service User -> "Unknown")
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"dashboard_type":"MA"}' http://127.0.0.1:8000/mediacontent/dashboard/
+
+# Getting a dashboard for the User
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/dashboard/
+
 # Storing a share/like/dislike request by Billboard
 curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST  -d '{"activity_meta" : "email=sonu@g.com, phone=ksksk"}' http://localhost:8000/mediacontent/mediasource/activity/share/56c0b94c1d41c8957cba8237
 
