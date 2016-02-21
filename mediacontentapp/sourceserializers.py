@@ -130,17 +130,6 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
                 return instance
 
 
-class MediaSourceActivitySerializer(serializers.DocumentSerializer):
-    class Meta:
-        model = MediaSourceActivity
-
-    def _include_additional_options(self, *args, **kwargs):
-        return self.get_extra_kwargs()
-
-    def _get_default_field_names(self, *args, **kwargs):
-        return self.get_field_names(*args, **kwargs)
-
-
 class SourceTagSerializer(serializers.DocumentSerializer):
     class Meta:
         model = SourceTag
@@ -238,6 +227,19 @@ class RadioMediaSourceSerializer(serializers.DocumentSerializer):
 
     class Meta:
         model = RadioMediaSource
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class MediaSourceActivitySerializer(serializers.DocumentSerializer):
+
+    class Meta:
+        model = MediaSourceActivity
+        exclude = ('interacting_user', 'mediasource')
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
