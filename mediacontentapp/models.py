@@ -104,8 +104,8 @@ class MediaSourceActivity(Document):
     """
     interacting_user = ReferenceField('MediaUser', required=False)
     mediasource = ReferenceField('OOHMediaSource', required=False)
-    activity_time = DateTimeField(default=datetime.now(), required=False)
-    activity_type = FloatField(default=-1, required=False)
+    activity_time = DateTimeField(required=False)
+    activity_type = FloatField(required=False)
     # E.g. email:something, phone: some-number
     activity_meta = StringField(default="", required=False)
 

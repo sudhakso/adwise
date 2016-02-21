@@ -144,6 +144,9 @@ class MediaSourceActivityTracker(APIView):
                                     activity_time=datetime.now())
                     return JSONResponse(str('success'),
                                         status=HTTP_201_CREATED)
+                else:
+                    return JSONResponse(str(serializer.errors),
+                                        status=HTTP_400_BAD_REQUEST)
         except UserNotAuthorizedException as e:
             print e
             return JSONResponse(str(e),
