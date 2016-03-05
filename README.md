@@ -9,8 +9,10 @@ AdWise system comprises of User management application, Mediacontent management 
 In future other relevant application will be added.
 
 * Version
-0.1 master
+0.1.01 master
 
+* Branch
+remotes/origin/adwise-userprofile-mgr_0.1_patch1
 
 ### How do I get the dev set up? ###
 
