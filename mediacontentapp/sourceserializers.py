@@ -115,18 +115,6 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
                     pass
                 return instance
 
-
-class SourceTagSerializer(serializers.DocumentSerializer):
-    class Meta:
-        model = SourceTag
-
-    def _include_additional_options(self, *args, **kwargs):
-        return self.get_extra_kwargs()
-
-    def _get_default_field_names(self, *args, **kwargs):
-        return self.get_field_names(*args, **kwargs)
-
-
 class BookingSerializer(serializers.DocumentSerializer):
     class Meta:
         model = Booking
@@ -177,6 +165,19 @@ class OOHMediaSourceSerializer(serializers.DocumentSerializer):
     class Meta:
         model = OOHMediaSource
         exclude = ('primary_image_content',)
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class SourceTagSerializer(serializers.DocumentSerializer):
+
+    class Meta:
+        model = SourceTag
+        exclude = ('source_ref',)
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

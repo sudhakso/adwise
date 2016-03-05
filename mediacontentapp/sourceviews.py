@@ -74,6 +74,9 @@ class MediaSourceTagViewSet(APIView):
                     serializer.save(source_ref=source)
                     return JSONResponse(str('success'),
                                         status=HTTP_201_CREATED)
+                else:
+                    return JSONResponse(str(serializer.errors),
+                                        status=HTTP_500_INTERNAL_SERVER_ERROR)
         except UserNotAuthorizedException as e:
             print e
             return JSONResponse(str(e),
