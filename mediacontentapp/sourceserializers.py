@@ -98,9 +98,9 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
                                                 str(view.mediasource.id))
                     # Update dash board instance
                     instance.update(
-                            most_viewed_source=most_viewed_recently,
-                            most_liked_source=most_liked_recently,
-                            most_shared_source=most_shared_recently,
+                            most_viewed_source=list(set(most_viewed_recently)),
+                            most_liked_source=list(set(most_liked_recently)),
+                            most_shared_source=list(set(most_shared_recently)),
                             new_additions=new_sources,
                             premium_source=[],
                             available_source=available_sourceid_list)
@@ -234,3 +234,4 @@ class MediaSourceActivitySerializer(serializers.DocumentSerializer):
 
     def _get_default_field_names(self, *args, **kwargs):
         return self.get_field_names(*args, **kwargs)
+
