@@ -147,6 +147,9 @@ class MediaSourceActivityTracker(APIView):
                 else:
                     return JSONResponse(str(serializer.errors),
                                         status=HTTP_400_BAD_REQUEST)
+            else:
+                return JSONResponse(str(serializer.errors),
+                                    status=HTTP_400_BAD_REQUEST)
         except UserNotAuthorizedException as e:
             print e
             return JSONResponse(str(e),

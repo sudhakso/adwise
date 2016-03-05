@@ -48,7 +48,8 @@ class ActivityManager():
         activities = dict(share=1,
                           like=2,
                           dislike=3,
-                          quote=4)
+                          quote=4,
+                          view=5)
 
         if activity_name in activities:
             return activities[activity_name]

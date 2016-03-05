@@ -32,11 +32,13 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
                     sources = OOHMediaSource.objects(
                                             owner=user)
                     sourceidlist = [str(source.id) for source in sources]
+                    instance.sources_owned = sourceidlist
                     # Enumerate sources
                     available_sources = OOHMediaSource.objects.filter(
                                             owner=user, booking=None)
                     available_sourceid_list = [
                             str(source.id) for source in available_sources]
+                    instance.available_source = available_sourceid_list
                     booked_sources = [source
                                       for source in sources if source not in
                                       available_sources]
@@ -46,19 +48,15 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
                         source_end_time = source.booking.end_time
                         if source_end_time < in30days:
                             expiring_in30days_sources_id.append(str(source.id))
+                    instance.free_within_month = expiring_in30days_sources_id
                     # Activity tracking counters
-                    shared = len(MediaSourceActivity.objects.filter(
-                                interacting_user=user,
-                                activity_type=ActivityManager.get_activity_id(
+                    instance.shared = len(MediaSourceActivity.objects.filter(
+                                        interacting_user=user,
+                                        activity_type=ActivityManager.get_activity_id(
                                                                     "share")))
-
                     # Update dash board instance
-                    instance.update(
-                            sources_owned=sourceidlist,
-                            available_source=available_sourceid_list,
-                            free_within_month=expiring_in30days_sources_id,
-                            num_shared=shared)
                     instance.save()
+                    return instance
                 # Media browser
                 elif instance.dashboard_type == 'MEDIA_BROWSER':
                     # All MB fields
@@ -68,10 +66,12 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
                                                             booking=None)
                     available_sourceid_list = [
                             str(source.id) for source in available_sources]
+                    instance.available_source = available_sourceid_list
                     for source in available_sources:
                         last7days = today - timedelta(days=7)
                         if source.created_time > last7days:
                             new_sources.append(str(source.id))
+                    instance.new_additions = new_sources
                     # Get shared counter
                     most_shared_recently = []
                     shared = MediaSourceActivity.objects.filter(
@@ -80,6 +80,8 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
                         if share.activity_time > last7days:
                             most_shared_recently.append(
                                                 str(share.mediasource.id))
+                    instance.most_shared_source = list(set(
+                        most_shared_recently)) if most_shared_recently else None
                     # Get liked counter
                     most_liked_recently = []
                     liked = MediaSourceActivity.objects.filter(
@@ -88,6 +90,8 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
                         if like.activity_time > last7days:
                             most_liked_recently.append(
                                                 str(like.mediasource.id))
+                    instance.most_liked_source = list(set(
+                        most_liked_recently)) if most_liked_recently else None
                     # Get viewed counter
                     most_viewed_recently = []
                     viewed = MediaSourceActivity.objects.filter(
@@ -96,17 +100,11 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
                         if view.activity_time > last7days:
                             most_viewed_recently.append(
                                                 str(view.mediasource.id))
-                    # Update dash board instance
-                    instance.update(
-                            most_viewed_source=list(set(most_viewed_recently)),
-                            most_liked_source=list(set(most_liked_recently)),
-                            most_shared_source=list(set(most_shared_recently)),
-                            new_additions=new_sources,
-                            premium_source=[],
-                            available_source=available_sourceid_list)
-                    # Save finally. Do we need?
+                    instance.most_viewed_source = list(set(
+                        most_viewed_recently)) if most_viewed_recently else None
+                    # Save finally.
                     instance.save()
-                    pass
+                    return instance
                 elif instance.dashboard_type == 'partner':
                     # on boarding partner
                     # TBD
