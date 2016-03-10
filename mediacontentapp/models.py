@@ -171,9 +171,9 @@ class MediaSource(Document):
     caption = StringField()
     type = StringField()
     # Can display
-    enabled = BooleanField()
-    # Verification
-    verified = BooleanField()
+    enabled = BooleanField(default=True)
+    # Verification,
+    verified = BooleanField(default=False)
     verified_by = ReferenceField('MediaUser', required=False)
     # Media Owner
     owner = ReferenceField('MediaUser', required=False)

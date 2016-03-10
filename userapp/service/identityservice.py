@@ -97,7 +97,7 @@ class NoopDriver(IdentityDriver):
         try:
             user = User.objects.get(username=head['USERNAME'])
             if user:
-                raise UserAlreadyExist()
+                raise UserAlreadyExist("User exists already")
         except ObjectDoesNotExist:
             # User doesn't exist.
             usr = User.objects.create(username=head['USERNAME'],
