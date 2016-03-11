@@ -400,21 +400,15 @@ class OOHMediaSourceSearchViewSet(APIView):
                 # Is this guy a Bill board owner?
                 if user_obj.role.name == 'BO':
                     entries = OOHMediaSource.objects.filter(owner=user_obj)
-                    logging.error("User Entries %s", [e.name for e in entries])
+#                     logging.error("User Entries %s", [e.name for e in entries])
                 else:
-                # Restrict the search within the city.
-                    home_city = user_obj.city
-                    if home_city:
-                        entries = OOHMediaSource.objects.filter(city=home_city)
-                        logging.error("City Entries %s", [e.name for e in entries])
-                    else:
-                        entries = OOHMediaSource.objects.all()
-                        logging.error("All Entries %s", [e.name for e in entries])
+                # Must be an MA or Onboarding partner. So fetch all boards.
+                    entries = OOHMediaSource.objects.all()
+#                     logging.error("All Entries %s", [e.name for e in entries])
                 results['display_message'] = "You searched for: " + q_str
                 matching_entries = []
                 if entries:
                     for e in entries:
-#                         logging.error("Entry %s", e.name)
                         if e.name and q_str.upper() in e.name.upper():
                             matching_entries.append(e)
                         elif e.street_name and q_str.upper() in e.street_name.upper():
