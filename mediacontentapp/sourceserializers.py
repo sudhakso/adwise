@@ -23,32 +23,39 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
 
     def update(self, instance, validated_data=None):
         today = datetime.datetime.now()
+        in30days = today + timedelta(days=30)
         if instance:
             user = instance.user
             # Get all media source for the user
             if user:
                 # Media owner
                 if instance.dashboard_type == 'MEDIA_OWNER':
-                    sources = OOHMediaSource.objects(
-                                            owner=user)
-                    sourceidlist = [str(source.id) for source in sources]
-                    instance.sources_owned = sourceidlist
-                    # Enumerate sources
-                    available_sources = OOHMediaSource.objects.filter(
+                    # All sources owned by Owner
+                    A = OOHMediaSource.objects(
+                                        owner=user)
+                    instance.sources_owned = [str(source.id) for source in A]
+                    # All sources sure shot available
+                    A_a = OOHMediaSource.objects.filter(
                                             owner=user, booking=None)
-                    available_sourceid_list = [
-                            str(source.id) for source in available_sources]
-                    instance.available_source = available_sourceid_list
-                    booked_sources = [source
-                                      for source in sources if source not in
-                                      available_sources]
-                    in30days = today + timedelta(days=30)
-                    expiring_in30days_sources_id = []
-                    for source in booked_sources:
-                        source_end_time = source.booking.end_time
-                        if source_end_time < in30days:
-                            expiring_in30days_sources_id.append(str(source.id))
-                    instance.free_within_month = expiring_in30days_sources_id
+                    # All past/future/current booked instances
+                    B = [source for source in A if source not in A_a]
+                    # All expired bookings
+                    B_e = [source for source in
+                           B if source.booking.end_time < today]
+                    # All future bookings (> 1 day)
+                    B_f = [source for source in
+                           B if source.booking.start_time > in30days]
+                    # Booked but available now within 30 days
+                    B_a = list(set(B_e).union(B_f))
+                    # Availability final
+                    A_f = list(set([source for source in A_a]).union(B_a))
+                    instance.available_source = [str(source.id) for source in
+                                                 A_f]
+                    # Booking future Expiring in < 30 days
+                    B_f_e = [source for source in B if source not in A_f and
+                             source.booking.end_time < in30days]
+                    instance.free_within_month = [str(source.id) for source in
+                                                  B_f_e]
                     # Activity tracking counters
                     instance.shared = len(MediaSourceActivity.objects.filter(
                                         interacting_user=user,
@@ -61,21 +68,36 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
                 elif instance.dashboard_type == 'MEDIA_BROWSER':
                     # All MB fields
                     # Enumerate sources
-                    new_sources = []
-                    available_sources = OOHMediaSource.objects.filter(
-                                                            booking=None)
-                    available_sourceid_list = [
-                            str(source.id) for source in available_sources]
-                    instance.available_source = available_sourceid_list
-                    for source in available_sources:
+                    N = []
+                    # Get all sources known
+                    A = OOHMediaSource.objects.all()
+                    # Get sure shot available
+                    A_a = OOHMediaSource.objects.filter(
+                                                    booking=None)
+                    # All past/future/current booked instances
+                    B = [source for source in A if source not in A_a]
+                    # All expired bookings
+                    B_e = [source for source in
+                           B if source.booking.end_time < today]
+                    # All future bookings (> today)
+                    B_f = [source for source in
+                           B if source.booking.start_time > in30days]
+                    # Booked but available now within 30 days
+                    B_a = list(set(B_e).union(B_f))
+                    # Availability final
+                    A_f = list(set([source for source in A_a]).union(B_a))
+                    instance.available_source = [str(source.id) for source in
+                                                 A_f]
+                    for source in A_f:
                         last7days = today - timedelta(days=7)
                         if source.created_time > last7days:
-                            new_sources.append(str(source.id))
-                    instance.new_additions = new_sources
+                            N.append(str(source.id))
+                    instance.new_additions = N
                     # Get shared counter
                     most_shared_recently = []
                     shared = MediaSourceActivity.objects.filter(
-                                activity_type=ActivityManager.get_activity_id("share"))
+                                activity_type=ActivityManager.get_activity_id(
+                                                            "share"))
                     for share in shared:
                         if share.activity_time > last7days:
                             most_shared_recently.append(
@@ -85,7 +107,8 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
                     # Get liked counter
                     most_liked_recently = []
                     liked = MediaSourceActivity.objects.filter(
-                                activity_type=ActivityManager.get_activity_id("like"))
+                                activity_type=ActivityManager.get_activity_id(
+                                                                "like"))
                     for like in liked:
                         if like.activity_time > last7days:
                             most_liked_recently.append(
@@ -114,6 +137,7 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
                     # TBD
                     pass
                 return instance
+
 
 class BookingSerializer(serializers.DocumentSerializer):
     class Meta:
