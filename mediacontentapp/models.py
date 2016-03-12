@@ -171,7 +171,7 @@ class MediaSource(Document):
     caption = StringField()
     type = StringField()
     # Can display
-    enabled = BooleanField(default=True)
+    enabled = BooleanField(default=True, required=False)
     # Verification,
     verified = BooleanField(default=False)
     verified_by = ReferenceField('MediaUser', required=False)

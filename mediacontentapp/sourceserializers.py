@@ -32,11 +32,11 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
                 if instance.dashboard_type == 'MEDIA_OWNER':
                     # All sources owned by Owner
                     A = OOHMediaSource.objects(
-                                        owner=user)
+                                        owner=user, enabled=True)
                     instance.sources_owned = [str(source.id) for source in A]
                     # All sources sure shot available
                     A_a = OOHMediaSource.objects.filter(
-                                            owner=user, booking=None)
+                                            owner=user, booking=None, enabled=True)
                     # All past/future/current booked instances
                     B = [source for source in A if source not in A_a]
                     # All expired bookings
@@ -70,10 +70,10 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
                     # Enumerate sources
                     N = []
                     # Get all sources known
-                    A = OOHMediaSource.objects.all()
+                    A = OOHMediaSource.objects.filter(enabled=True)
                     # Get sure shot available
                     A_a = OOHMediaSource.objects.filter(
-                                                    booking=None)
+                                                    booking=None, enabled=True)
                     # All past/future/current booked instances
                     B = [source for source in A if source not in A_a]
                     # All expired bookings
@@ -188,7 +188,7 @@ class OOHMediaSourceSerializer(serializers.DocumentSerializer):
 
     class Meta:
         model = OOHMediaSource
-        exclude = ('primary_image_content',)
+        exclude = ('primary_image_content', 'enabled',)
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
