@@ -1,11 +1,13 @@
 from django.test import TestCase
 import datetime
 from models import MediaUser
+from django.contrib.auth.models import User
 from io import BytesIO
 from rest_framework.parsers import JSONParser
 import json
 from testsdata import user_post_json_data,\
-                user_service_post_json_data
+                user_service_post_json_data,\
+                serviceuser_post_json_data
 
 from mongoengine import connect
 from django.test.client import Client
@@ -176,25 +178,71 @@ class SwaggerIntegrationTestCase(TestCase):
 
 
 class UserAppRestApiTestCase(TestCase):
-    def test_get_user(self):
-        response = self.client.get(_API_USER_ROOT)
+
+    def setUp(self):
+        connect('rest_database', alias='default')
+        self.client = APIClient()
+        test_user = json.loads(serviceuser_post_json_data)
+        # Creates default user for testing function
+        response = self.client.post(_API_USER_ROOT,
+                                    data=serviceuser_post_json_data,
+                                    content_type='application/json',
+                                    HTTP_USERNAME=test_user['user']['username'],
+                                    HTTP_PASSWORD=test_user['user']['password'],
+                                    HTTP_EMAIL=test_user['user']['email'])
+        self.assertEqual(response.status_code, 201)
+        res_json = parseJSON(response)
+        self.assertEqual(len(MediaUser.objects.filter(
+                                    username=test_user['user']['username'])),
+                         1)
+        self.assertEqual(len(MediaUser.objects.filter(
+                                    email=test_user['user']['email'])),
+                         1)
+        # Authorization headers
+        self.assertEqual(len(User.objects.filter(
+                                    username=test_user['user']['username'])),
+                         1)
+        self.assertEqual(len(User.objects.filter(
+                                    email=test_user['user']['email'])),
+                         1)
+        # Response Check
+        self.assertEqual(res_json['user']['username'],
+                         test_user['user']['username'])
+
+    def _test_get_user(self, username, password, email):
+        response = self.client.get(_API_USER_ROOT,
+                                   HTTP_USERNAME=username,
+                                   HTTP_PASSWORD=password,
+                                   HTTP_EMAIL=email)
         self.assertEqual(response.status_code, 200)
 
     def test_create_user(self):
-        response = self.client.get(_API_USER_ROOT)
-        self.assertEqual(response.status_code, 200)
-
+        req_json = json.loads(user_post_json_data)
         response = self.client.post(_API_USER_ROOT,
                                     data=user_post_json_data,
-                                    content_type='application/json')
+                                    content_type='application/json',
+                                    HTTP_USERNAME="lion2",
+                                    HTTP_PASSWORD="lion123",
+                                    HTTP_EMAIL="lion@jungle.com")
         self.assertEqual(response.status_code, 201)
         res_json = parseJSON(response)
-        req_json = json.loads(user_post_json_data)
-        self.assertEqual(MediaUser.objects.count(), 1)
-        self.assertEqual(res_json['username'], req_json['username'])
+        self.assertEqual(len(MediaUser.objects.filter(
+                                    username=req_json['user']["username"])),
+                         1)
+        self.assertEqual(len(MediaUser.objects.filter(
+                                    email=req_json['user']["email"])),
+                         1)
+        self.assertEqual(res_json['user']['username'],
+                         req_json['user']['username'])
+        self._test_get_user(res_json['user']['username'],
+                            res_json['user']['password'],
+                            res_json['user']['email'])
 
-    def test_create_request_for_user(self):
-        response = self.client.get(_API_USER_ROOT)
+    def _test_create_request_for_user(self, username, password, email):
+        response = self.client.get(_API_USER_ROOT,
+                                   HTTP_USERNAME=username,
+                                   HTTP_PASSWORD=password,
+                                   HTTP_EMAIL=email)
         self.assertEqual(response.status_code, 200)
 
         response = self.client.post(_API_USER_ROOT,
