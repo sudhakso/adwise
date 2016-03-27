@@ -2,7 +2,7 @@ from userapp.JSONFormatter import JSONResponse
 from rest_framework.views import APIView
 from mediacontentapp.serializers import AdSerializer, TextAdSerializer,\
     CallOnlyAdSerializer, ImageAdSerializer, CampaignSerializer,\
-    ImageContentSerializer, JpegImageContentSerializer
+    ImageContentSerializer, JpegImageContentSerializer, CampaignSpecSerializer
 from mediacontentapp.sourceserializers import MediaDashboardSerializer
 from userapp.models import MediaUser
 from mediacontentapp.models import Ad, TextAd, CallOnlyAd, ImageAd, Campaign,\
@@ -106,25 +106,25 @@ class CampaignViewSet(APIView):
     # View controller
     controller = CampaignManager()
 
-    def get(self, request, username):
+    def get(self, request):
 
         """ Returns a list of campaigns for a user
          ---
          response_serializer: CampaignSerializer
         """
         try:
-            auth_manager.do_auth(request.META)
-            if username:
-                user = MediaUser.objects.get(username=username)
-                cs = Campaign.objects.filter(creator=user)
-                serializer = CampaignSerializer(cs, many=True)
-                return JSONResponse(serializer.data)
+            auth_user = auth_manager.do_auth(request)
+            # valid user
+            user = MediaUser.objects.get(username=auth_user.username)
+            cs = Campaign.objects.filter(creator=user)
+            serializer = CampaignSerializer(cs, many=True)
+            return JSONResponse(serializer.data)
         except UserNotAuthorizedException as e:
             print e
             return JSONResponse(str(e),
                                 status=HTTP_401_UNAUTHORIZED)
 
-    def post(self, request, username):
+    def post(self, request):
 
         """ Creates a campaign for a user
          ---
@@ -132,22 +132,34 @@ class CampaignViewSet(APIView):
          response_serializer: CampaignSerializer
         """
         try:
-            auth_manager.do_auth(request.META)
-            if username:
-                create_time = datetime.now()
-                user = MediaUser.objects.get(username=username)
-                if user:
-                    serializer = CampaignSerializer(
-                                                data=request.data)
-                    if serializer.is_valid():
-                        campaign = serializer.save(creation_time=create_time,
-                                                   creator=user)
-                        # Prepare the campaign for the User
-                        self.controller.prepare_campaign(
-                                                    user_id=user,
-                                                    args=campaign)
-                        return JSONResponse(serializer.data,
-                                            status=HTTP_201_CREATED)
+            spec = None
+            create_time = datetime.now()
+            auth_user = auth_manager.do_auth(request)
+            user = MediaUser.objects.get(username=auth_user.username)
+            # Serialize spec
+            if 'spec' in request.data:
+                cspecserializer = CampaignSpecSerializer(
+                                            data=request.data['spec'])
+                if cspecserializer.is_valid():
+                    spec = cspecserializer.save()
+
+            # Serialize the Campaign
+            serializer = CampaignSerializer(
+                                        data=request.data)
+            if serializer.is_valid():
+                campaign = serializer.save(creation_time=create_time,
+                                           creator=user)
+                # Campaign created.
+                if spec:
+                    campaign.update(spec=spec)
+                    campaign.save()
+                # Prepare the campaign for the User
+                self.controller.prepare_campaign(
+                                            user=user,
+                                            camp=campaign,
+                                            spec=spec)
+                return JSONResponse(serializer.data,
+                                    status=HTTP_201_CREATED)
             else:
                 return JSONResponse(serializer.errors,
                                     status=HTTP_400_BAD_REQUEST)
@@ -158,7 +170,7 @@ class CampaignViewSet(APIView):
         except Exception as e:
             print e
             return JSONResponse(serializer.errors,
-                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+                                status=HTTP_400_BAD_REQUEST)
 
 
 class AdViewSet(APIView):
@@ -297,7 +309,7 @@ class ImageViewSet(AdViewSet):
          response_serializer: ImageContentSerializer
         """
         try:
-            auth_manager.do_auth(request.META)
+            auth_manager.do_auth(request)
             # Request Get, all users
             if request.method == 'GET':
                 if image_id is not None:
@@ -325,7 +337,7 @@ class JpegImageViewSet(APIView):
          response_serializer: JpegImageContentSerializer
         """
         try:
-#             auth_manager.do_auth(request.META)
+            auth_manager.do_auth(request)
             # Request Get, all users
             if request.method == 'GET':
                 if image_id is not None:
@@ -354,7 +366,7 @@ class ImageAdViewSet(AdViewSet):
          response_serializer: ImageAdSerializer
         """
         try:
-            auth_manager.do_auth(request.META)
+            auth_manager.do_auth(request)
             # Request Get, all users
             if request.method == 'GET':
                 camp = Campaign.objects.get(id=campaign_id)
@@ -385,7 +397,7 @@ class ImageAdViewSet(AdViewSet):
         # Request put an Image Ad for already created
         # campaign
         try:
-            auth_manager.do_auth(request.META)
+            auth_manager.do_auth(request)
             if request.method == 'POST':
                 camp = Campaign.objects.get(id=campaign_id)
                 if camp:
@@ -397,8 +409,11 @@ class ImageAdViewSet(AdViewSet):
                     serializer = ImageAdSerializer(
                                     data=request.data)
                     if serializer.is_valid():
-                        serializer.save(campaign=camp, image_content=img,
-                                        image_url=img.get_absolute_url())
+                        ad = serializer.save(image_content=img,
+                                             image_url=img.get_absolute_url())
+                        # Update ad by campaign
+                        ad.update(campaign=camp)
+                        ad.save()
                         return JSONResponse(serializer.data,
                                             status=HTTP_201_CREATED)
             return JSONResponse(serializer.errors,

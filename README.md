@@ -9,8 +9,10 @@ AdWise system comprises of User management application, Mediacontent management 
 In future other relevant application will be added.
 
 * Version
-0.1 master
+0.1.01 master
 
+* Branch
+remotes/origin/adwise-userprofile-mgr_0.1_patch1
 
 ### How do I get the dev set up? ###
 
@@ -123,7 +125,7 @@ curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET
 curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET http://localhost:8000/mediacontent/mediasource/ooh/?userid=serviceuser@series-5.com
 
 # Create OOH (all properties except image)
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{ "name" : "kundanahalli_40x40", "type" : "ooh", "street_name" : "kundanahalli railway gate", "city" : "Bangalore", "state" : "Karnataka", "country" : "India", "point": [124.78, 32.0], "size": [10, 4], "pin" : "560057", "pricing" : { "name" : "diwali", "currency" : "INR", "unit" : "perSq.Ft.", "rate" : 5, "offer_start_time" : "2016-02-25T18:37:21.766000", "offer_end_time" : "2016-02-25T18:37:21.766000"}, "booking" : { "start_time" : "2016-02-25T18:37:21.766000", "duration" : 10, "type" : "educational"}}' http://127.0.0.1:8000/mediacontent/mediasource/ooh/56b5f4ca1d41c85e256e11c2/
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{ "name" : "kundanahalli_40x40", "type" : "ooh", "street_name" : "kundanahalli railway gate", "city" : "Bangalore", "state" : "Karnataka", "country" : "India", "point": [124.78, 32.0], "size": [10, 4], "pin" : "560057", "pricing" : { "name" : "diwali", "currency" : "INR", "unit" : "perSq.Ft.", "rate" : 5, "offer_start_time" : "2016-02-25T18:37:21.766000", "offer_end_time" : "2016-02-25T18:37:21.766000"}, "booking" : { "start_time" : "2016-02-25T18:37:21.766000", "duration" : 10, "type" : "educational"}}' http://127.0.0.1:8000/mediacontent/mediasource/ooh/
 
 # Update image for OOH
 curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg" http://127.0.0.1:8000/mediacontent/mediasource/ooh/56b5f4ca1d41c85e256e11c2/
@@ -149,6 +151,9 @@ curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "us
 # Miscellaneous
 # Create a service called 'location' for the User
 sudo curl -H "Content-Type: application/json" -X POST -d '{"target_service_name": "location", "service_meta": "empty"}' http://localhost:8000/users/services/lion2/location/
+
+# Create a campaign
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"name": "P(x) campaign", "description": "Starters T20", "launched_at": "2016-04-25T18:37:21.766000", "end_at": "2016-04-29T18:37:21.766000", "spec" :{"name":"basic", "type": "basictype", "ad_type":"imagead", "target_group":[], "linked_source_ids":["56f75d6f1d41c81380d87b65"]}}' http://localhost:8000/mediacontent/campaign/
 
 # Create an ImageAd for a campaign
 curl -X POST -S -H 'Accept: application/json' -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg" -F "display_url"="http://hp.com" -F "final_urls"="http://hp.com" -F "mobile_urls"="http://hp.com" -F "app_urls"="http://hp.com" -F "thirdparty_tracking_url"="http://track.com" -F "adwise_tracking_url"="http://hp.com" -F "ad_type"="ImageAd" http://127.0.0.1:8000/mediacontent/ads/imageads/5677bbb31d41c84312e9cd91/

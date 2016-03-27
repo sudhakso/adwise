@@ -4,12 +4,26 @@ Created on Dec 12, 2015
 @author: sonu
 '''
 
-# TODO(Sonu) : Controller to handle campaigns
+from mediacontentapp.models import OOHMediaSource
+from mongoengine.fields import GeoPointField
 
 
 class CampaignManager():
 
-    def prepare_campaign(self, user_id, args):
+    def _valid_geo(self, param):
+        if isinstance(param, GeoPointField):
+            return True
+
+    def prepare_campaign(self, user, camp, spec):
+        # update the geo-hash for the campaign
+        if camp and spec:
+            for _id in spec.linked_source_ids:
+                ooh = OOHMediaSource.objects.filter(id=_id)
+                if ooh and ooh[0].point:
+                    camp.geo_tags.append(ooh[0].point)
+            camp.save()
+
+    def enable_campaign(self):
         pass
 
 
@@ -48,7 +62,8 @@ class ActivityManager():
         activities = dict(share=1,
                           like=2,
                           dislike=3,
-                          quote=4)
+                          quote=4,
+                          view=5)
 
         if activity_name in activities:
             return activities[activity_name]

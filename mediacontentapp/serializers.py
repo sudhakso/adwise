@@ -1,15 +1,28 @@
 from mediacontentapp.models import Ad, TextAd, ProductAd, DynamicSearchAd,\
-    Campaign, ImageContent, JpegImageContent
+    Campaign, ImageContent, JpegImageContent, CampaignSpec
 from mediacontentapp.models import CallOnlyAd, ImageAd
 from mediacontentapp.models import LocationExtension, BusinessHoursExtension
 from rest_framework_mongoengine import serializers
 
 
+class CampaignSpecSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = CampaignSpec
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
 class CampaignSerializer(serializers.DocumentSerializer):
+    spec = CampaignSpecSerializer(required=False, read_only=True)
+
     class Meta:
         model = Campaign
-        fields = ('id', 'name', 'description', 'creation_time', 'launched_at',
-                  'end_at')
+        fields = ('id', 'spec', 'name', 'description', 'creation_time',
+                  'launched_at', 'end_at', 'geo_tags', 'enabled',)
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
@@ -19,8 +32,14 @@ class CampaignSerializer(serializers.DocumentSerializer):
 
 
 class AdSerializer(serializers.DocumentSerializer):
+    campaign = CampaignSerializer(required=False, read_only=True)
+
     class Meta:
         model = Ad
+        fields = ('url', 'display_url', 'final_urls', 'mobile_urls',
+                  'app_urls', 'thirdparty_tracking_url', 'adwise_tracking_url',
+                  'ad_type', 'custom_parameters', 'device_preference',
+                  'campaign', 'extensions',)
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
@@ -63,6 +82,8 @@ class CallOnlyAdSerializer(serializers.DocumentSerializer):
 
 
 class ImageAdSerializer(serializers.DocumentSerializer):
+    campaign = CampaignSerializer(required=False)
+
     class Meta:
         model = ImageAd
         exclude = ('image_content',)

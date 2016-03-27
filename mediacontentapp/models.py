@@ -47,20 +47,48 @@ class MediaDashboard(Document):
     last_updated = DateTimeField(default=datetime.now(), required=False)
 
 
+class CampaignSpec(Document):
+    """
+    Campaign specification
+    """
+    name = StringField()
+    # Unique type
+    type = StringField()
+    # TODO (Sonu): different types of source cannot be supported
+    # Bring in source type field.
+    linked_source_ids = ListField(default=[], required=False)
+    # Target group
+    target_group = ListField(default=[], required=False)
+    # Type of Impression - imageads, textads, callads etc.
+    ad_type = StringField(default='imageads', required=True)
+
+    def get_absolute_url(self):
+        return "/mediacontent/campaignspec/%i/" % self.id
+
+
 class Campaign(Document):
     """
     Campaign resource
     """
     name = StringField()
     description = StringField()
-    # TBD (FixMe): Media Agency user should be added different
+
     creator = ReferenceField('MediaUser')
     creation_time = DateTimeField(default=datetime.now())
+
     launched_at = DateTimeField()
     end_at = DateTimeField()
 
+    # Administrative control
+    enabled = BooleanField(default=True, required=False)
+    # TODO(Sonu): Why not generalize tags?
+    # Tag
+    geo_tags = ListField(default=[], required=False)
+    # Specifications! Do we need a list of them?
+    spec = ReferenceField('CampaignSpec', required=False)
+
     def get_absolute_url(self):
-        return "/campaign/%i/" % self.id
+        return "/mediacontent/campaign/%i/" % self.id
 
 
 class SourceAdDetails(Document):
@@ -171,9 +199,9 @@ class MediaSource(Document):
     caption = StringField()
     type = StringField()
     # Can display
-    enabled = BooleanField()
-    # Verification
-    verified = BooleanField()
+    enabled = BooleanField(default=True, required=False)
+    # Verification,
+    verified = BooleanField(default=False)
     verified_by = ReferenceField('MediaUser', required=False)
     # Media Owner
     owner = ReferenceField('MediaUser', required=False)
@@ -347,7 +375,7 @@ class Ad(Document):
     device_preference = IntegerField()
 
     # Campaign this Ad refers to.
-    campaign = ReferenceField(Campaign)
+    campaign = ReferenceField('Campaign')
     # List of extension
     extenstions = ListField(ReferenceField('AdExtension'))
 

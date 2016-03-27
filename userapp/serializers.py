@@ -29,6 +29,7 @@ class UserRoleSerializer(serializers.DocumentSerializer):
 class UserSerializer(serializers.DocumentSerializer):
     project_id = ProjectSerializer(required=False)
     role = UserRoleSerializer(required=False)
+
     class Meta:
         model = MediaUser
         geo_point = "point"
