@@ -157,3 +157,6 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 
 # Create an ImageAd for a campaign
 curl -X POST -S -H 'Accept: application/json' -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg" -F "display_url"="http://hp.com" -F "final_urls"="http://hp.com" -F "mobile_urls"="http://hp.com" -F "app_urls"="http://hp.com" -F "thirdparty_tracking_url"="http://track.com" -F "adwise_tracking_url"="http://hp.com" -F "ad_type"="ImageAd" http://127.0.0.1:8000/mediacontent/ads/imageads/5677bbb31d41c84312e9cd91/
+
+# Update a campaign
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"name": "P(x1) campaign", "description": "Starters T20", "launched_at": "2016-04-25T18:37:21.766000", "end_at": "2016-04-29T18:37:21.766000", "spec" :{"name":"basic1", "type": "basictype", "ad_type":"imagead", "target_group":[], "linked_source_ids":["56f75d6f1d41c81380d87b65","56f76fc01d41c81fe5ac9cd9"]}}' http://localhost:8000/mediacontent/campaign/56f76fc01d41c81fe5ac9cd9/

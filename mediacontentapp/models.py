@@ -57,8 +57,6 @@ class CampaignSpec(Document):
     # TODO (Sonu): different types of source cannot be supported
     # Bring in source type field.
     linked_source_ids = ListField(default=[], required=False)
-    # Target group
-    target_group = ListField(default=[], required=False)
     # Type of Impression - imageads, textads, callads etc.
     ad_type = StringField(default='imageads', required=True)
 
@@ -78,7 +76,11 @@ class Campaign(Document):
 
     launched_at = DateTimeField()
     end_at = DateTimeField()
-
+    # TODO (Sonu:) Move them to extension
+    city = ListField(default=[], required=False)
+    state = ListField(default=[], required=False)
+    country = ListField(default=[], required=False)
+    target_group = ListField(default=[], required=False)
     # Administrative control
     enabled = BooleanField(default=True, required=False)
     # TODO(Sonu): Why not generalize tags?

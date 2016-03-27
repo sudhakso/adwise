@@ -22,7 +22,8 @@ class CampaignSerializer(serializers.DocumentSerializer):
     class Meta:
         model = Campaign
         fields = ('id', 'spec', 'name', 'description', 'creation_time',
-                  'launched_at', 'end_at', 'geo_tags', 'enabled',)
+                  'launched_at', 'end_at', 'geo_tags', 'enabled', 'city',
+                  'state', 'country', 'state', 'target_group',)
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

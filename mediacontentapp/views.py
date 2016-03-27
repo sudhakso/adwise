@@ -106,17 +106,24 @@ class CampaignViewSet(APIView):
     # View controller
     controller = CampaignManager()
 
-    def get(self, request):
+    def get(self, request, camp_id=None):
 
         """ Returns a list of campaigns for a user
          ---
          response_serializer: CampaignSerializer
         """
         try:
+            cs = None
             auth_user = auth_manager.do_auth(request)
             # valid user
             user = MediaUser.objects.get(username=auth_user.username)
-            cs = Campaign.objects.filter(creator=user)
+            if camp_id:
+                cs = Campaign.objects.filter(creator=user, id=camp_id)
+            else:
+                cs = Campaign.objects.filter(creator=user)
+            if not len(cs):
+                return JSONResponse(str("Object not found."),
+                                    status=HTTP_404_NOT_FOUND)
             serializer = CampaignSerializer(cs, many=True)
             return JSONResponse(serializer.data)
         except UserNotAuthorizedException as e:
@@ -124,7 +131,7 @@ class CampaignViewSet(APIView):
             return JSONResponse(str(e),
                                 status=HTTP_401_UNAUTHORIZED)
 
-    def post(self, request):
+    def post(self, request, camp_id=None):
 
         """ Creates a campaign for a user
          ---
@@ -136,6 +143,11 @@ class CampaignViewSet(APIView):
             create_time = datetime.now()
             auth_user = auth_manager.do_auth(request)
             user = MediaUser.objects.get(username=auth_user.username)
+
+            # Handle update here
+            if camp_id:
+                return self._update(request, camp_id, user)
+
             # Serialize spec
             if 'spec' in request.data:
                 cspecserializer = CampaignSpecSerializer(
@@ -171,6 +183,44 @@ class CampaignViewSet(APIView):
             print e
             return JSONResponse(serializer.errors,
                                 status=HTTP_400_BAD_REQUEST)
+
+    def _update(self, request, camp_id, user):
+        """ Updates given campaign instance
+         ---
+         request_serializer: CampaignSerializer
+         response_serializer: CampaignSerializer
+        """
+        try:
+            spec = None
+            # TBD (Note:Sonu) : Update the image.
+            inst = Campaign.objects.get(id=camp_id, creator=user)
+            # For any property to be updated, validate
+            # that it is done by the user who created it or
+            # owns the instance to avoid billboard stealth.
+            if not inst:
+                # Verify if owner is modifying the parameter
+                return JSONResponse(str("Not Authorized"),
+                                    status=HTTP_401_UNAUTHORIZED)
+            # partial updates
+            serializer = CampaignSerializer(
+                                data=request.data, partial=True)
+            if serializer.is_valid():
+                updated_obj = serializer.update(inst,
+                                                serializer.validated_data)
+                # Other reference fields
+                # Store image'
+                specserializer = CampaignSpecSerializer(
+                                        data=request.data, partial=True)
+                if specserializer.is_valid():
+                    spec = specserializer.update(updated_obj.spec,
+                                                 specserializer.validated_data)
+                    updated_obj.save(spec=spec)
+                return JSONResponse(serializer.validated_data,
+                                    status=HTTP_200_OK)
+        except Exception as e:
+            print e
+        return JSONResponse(serializer.errors,
+                            status=HTTP_400_BAD_REQUEST)
 
 
 class AdViewSet(APIView):
