@@ -209,6 +209,11 @@ class UserAppRestApiTestCase(TestCase):
         self.assertEqual(res_json['user']['username'],
                          test_user['user']['username'])
 
+    def tearDown(self):
+        MediaUser.objects.all().delete()
+        UserService.objects.all().delete()
+        TestCase.tearDown(self)
+
     def _test_get_user(self, username, password, email):
         response = self.client.get(_API_USER_ROOT,
                                    HTTP_USERNAME=username,

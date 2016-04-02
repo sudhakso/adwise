@@ -47,6 +47,18 @@ class MediaDashboard(Document):
     last_updated = DateTimeField(default=datetime.now(), required=False)
 
 
+class CampaignTracking(Document):
+    """
+    Campaign specification
+    """
+    name = StringField()
+    campaign = ReferenceField('CampaignSpec', required=True)
+
+    def get_absolute_url(self):
+        return "/mediacontent/campaign/%i/track/%i" % (
+                                    self.campaign.id, self.id)
+
+
 class CampaignSpec(Document):
     """
     Campaign specification
@@ -354,7 +366,7 @@ class Ad(Document):
     url = StringField()
     display_url = StringField()
 
-    # Collection of product urls
+    # TBD (Sonu): Collection of product urls
     final_urls = StringField()
     mobile_urls = StringField()
     app_urls = StringField()
@@ -487,19 +499,6 @@ class ImageContent(Document):
                                         self.id)
 
 
-class JpegImageContent(Document):
-    """
-    A JPEG image instance .
-    """
-
-    image_type = StringField(default='jpg')
-    image = ImageField(required=True)
-
-    def get_absolute_url(self):
-        return "/mediacontent/images/%s/" % (
-                                self.id)
-
-
 class ImageAd(Ad):
     """
     An ad that includes a graphic to promote
@@ -554,7 +553,7 @@ class LocationExtension(AdExtension):
     locationcode = GeoPointField()
 
     def get_absolute_url(self):
-        return "/mediacontent/ext/locationextensions/%i/" % self.id
+        return "/mediacontent/ads/extension/location/%i/" % self.id
 
 
 class BusinessHoursExtension(AdExtension):
@@ -566,7 +565,16 @@ class BusinessHoursExtension(AdExtension):
     days = ListField()
 
     def get_absolute_url(self):
-        return "/mediacontent/ext/businesshoursextensions/%i/" % self.id
+        return "/mediacontent/ads/extension/businesshours/%i/" % self.id
+
+
+class SocialMediaExtension(AdExtension):
+    """
+    This extension adds social media links to the
+    advertisement impression.
+    """
+    facebook_handle = URLField(default="", required=False)
+    twitter_handle = URLField(default="", required=False)
 
 
 class ReviewExtension(AdExtension):
@@ -594,7 +602,33 @@ class OfferExtension(AdExtension):
     This extension adds coupons and offers extension to the
     advertisement impression.
     """
-    pass
+    # Discount, Introductory, festive etc,
+    # Search-tag
+    offer_type = StringField()
+    validity = ReferenceField(Period)
+    offer_code = StringField()
+    # Search-tag
+    offer_description = StringField()
+    # Internal data, Stored in ad-wise
+    # not to be serialized
+    offer_meta = DictField()
+
+    def get_absolute_url(self):
+        return "/mediacontent/ads/extension/offer/%i/" % self.id
+
+
+class JpegImageContent(Document):
+    """
+    A JPEG image instance .
+    """
+
+    image_type = StringField(default='jpg')
+    image = ImageField(required=True)
+
+    def get_absolute_url(self):
+        return "/mediacontent/images/%s/" % (
+                                self.id)
+
 
 
 # class OOHFilter(django_filters.FilterSet):
