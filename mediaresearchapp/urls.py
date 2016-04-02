@@ -6,5 +6,6 @@ from django.conf.urls import url, include
 urlpatterns = [
     # Media
     url(r'^dashboard/',
-        None)
+        None),
+    url(r'^', None)
 ]

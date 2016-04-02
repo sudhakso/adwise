@@ -2,11 +2,12 @@ from userapp.JSONFormatter import JSONResponse
 from rest_framework.views import APIView
 from mediacontentapp.serializers import AdSerializer, TextAdSerializer,\
     CallOnlyAdSerializer, ImageAdSerializer, CampaignSerializer,\
-    ImageContentSerializer, JpegImageContentSerializer, CampaignSpecSerializer
+    ImageContentSerializer, JpegImageContentSerializer, CampaignSpecSerializer,\
+    CampaignTrackingSerializer
 from mediacontentapp.sourceserializers import MediaDashboardSerializer
 from userapp.models import MediaUser
 from mediacontentapp.models import Ad, TextAd, CallOnlyAd, ImageAd, Campaign,\
-    ImageContent, JpegImageContent, MediaDashboard
+    ImageContent, JpegImageContent, MediaDashboard, CampaignTracking
 from mediacontentapp.controller import CampaignManager
 from mediacontentapp.IdentityService import IdentityManager
 from mediacontentapp.controller import DashboardController
@@ -175,6 +176,10 @@ class CampaignViewSet(APIView):
                                             user=user,
                                             camp=campaign,
                                             spec=spec)
+                # Create tracker object
+                tracker = CampaignTrackingSerializer(data=request.data)
+                if tracker.is_valid():
+                    tracker.save(campaign=campaign)
                 return JSONResponse(serializer.data,
                                     status=HTTP_201_CREATED)
             else:
@@ -184,6 +189,10 @@ class CampaignViewSet(APIView):
             print e
             return JSONResponse(str(e),
                                 status=HTTP_401_UNAUTHORIZED)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
         except Exception as e:
             print e
             return JSONResponse(serializer.errors,
@@ -226,6 +235,38 @@ class CampaignViewSet(APIView):
             print e
         return JSONResponse(serializer.errors,
                             status=HTTP_400_BAD_REQUEST)
+
+
+class CampaignTrackingViewSet(APIView):
+    """ campaign tracking resource """
+
+    serializer_class = CampaignTrackingSerializer
+    model = CampaignTracking
+    # View controller
+    controller = CampaignManager()
+
+    def get(self, request, camp_id):
+
+        """ Returns a tracking object for the campaigns
+         ---
+         response_serializer: CampaignTrackingSerializer
+        """
+        try:
+            auth_user = auth_manager.do_auth(request)
+            # valid user
+            user = MediaUser.objects.get(username=auth_user.username)
+            camp = Campaign.objects.get(creator=user, id=camp_id)
+            track = CampaignTracking.objects.get(campaign=camp)
+            serializer = CampaignTrackingSerializer(track)
+            return JSONResponse(serializer.data)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
 
 
 class AdViewSet(APIView):

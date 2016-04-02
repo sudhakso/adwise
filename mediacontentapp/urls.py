@@ -21,6 +21,8 @@ urlpatterns = [
     url(r'^mediasource/ooh/',
         sourceviews.OOHMediaSourceViewSet.as_view()),
     # Campaign
+    url(r'^campaign/(?P<camp_id>[0-9a-zA-Z]+)/track/$',
+        views.CampaignTrackingViewSet.as_view()),
     url(r'^campaign/(?P<camp_id>[0-9a-zA-Z]+)/$',
         views.CampaignViewSet.as_view()),
     url(r'^campaign/',

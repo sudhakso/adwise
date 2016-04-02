@@ -52,7 +52,7 @@ class CampaignTracking(Document):
     Campaign specification
     """
     name = StringField()
-    campaign = ReferenceField('CampaignSpec', required=True)
+    campaign = ReferenceField('Campaign', required=False)
 
     def get_absolute_url(self):
         return "/mediacontent/campaign/%i/track/%i" % (
