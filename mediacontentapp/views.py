@@ -13,9 +13,10 @@ from mediacontentapp.controller import DashboardController
 from mediacontentapp.faults import UserNotAuthorizedException
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
     HTTP_500_INTERNAL_SERVER_ERROR, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED,\
-    HTTP_200_OK
+    HTTP_200_OK, HTTP_204_NO_CONTENT
 from datetime import datetime
 from django.http.response import HttpResponse
+from mongoengine.errors import DoesNotExist
 
 auth_manager = IdentityManager()
 dashboard_controller = DashboardController()
@@ -122,10 +123,14 @@ class CampaignViewSet(APIView):
             else:
                 cs = Campaign.objects.filter(creator=user)
             if not len(cs):
-                return JSONResponse(str("Object not found."),
-                                    status=HTTP_404_NOT_FOUND)
+                return JSONResponse(str("User doesn't have any campaign."),
+                                    status=HTTP_204_NO_CONTENT)
             serializer = CampaignSerializer(cs, many=True)
             return JSONResponse(serializer.data)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
         except UserNotAuthorizedException as e:
             print e
             return JSONResponse(str(e),
@@ -417,22 +422,23 @@ class ImageAdViewSet(AdViewSet):
         """
         try:
             auth_manager.do_auth(request)
-            # Request Get, all users
-            if request.method == 'GET':
-                camp = Campaign.objects.get(id=campaign_id)
-                if ad_id is None:
-                    ads = ImageAd.objects.filter(campaign=camp)
-                    serializer = ImageAdSerializer(ads, many=True)
-                else:
-                    ad = ImageAd.objects.get(id=ad_id)
-                    if ad.campaign.id == camp.id:
-                        serializer = ImageAdSerializer(ad)
-                return JSONResponse(serializer.data)
+            camp = Campaign.objects.get(id=campaign_id)
+            if ad_id is None:
+                ads = ImageAd.objects.filter(campaign=camp)
+                serializer = ImageAdSerializer(ads, many=True)
+            else:
+                ad = ImageAd.objects.get(id=ad_id)
+                if ad.campaign.id == camp.id:
+                    serializer = ImageAdSerializer(ad)
+            return JSONResponse(serializer.data)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e), status=HTTP_404_NOT_FOUND)
         except UserNotAuthorizedException as e:
             print e
             return JSONResponse(str(e), status=HTTP_401_UNAUTHORIZED)
 
-    def post(self, request, campaign_id):
+    def post(self, request, campaign_id, ad_id=None):
 
         """ Creates an image ad for a campaign
          ---
@@ -448,26 +454,29 @@ class ImageAdViewSet(AdViewSet):
         # campaign
         try:
             auth_manager.do_auth(request)
-            if request.method == 'POST':
-                camp = Campaign.objects.get(id=campaign_id)
-                if camp:
-                    # Store image'
-                    imageserializer = ImageContentSerializer(
-                            data=request.data)
-                    if imageserializer.is_valid():
-                        img = imageserializer.save()
-                    serializer = ImageAdSerializer(
-                                    data=request.data)
-                    if serializer.is_valid():
-                        ad = serializer.save(image_content=img,
-                                             image_url=img.get_absolute_url())
-                        # Update ad by campaign
-                        ad.update(campaign=camp)
-                        ad.save()
-                        return JSONResponse(serializer.data,
-                                            status=HTTP_201_CREATED)
-            return JSONResponse(serializer.errors,
-                                status=HTTP_400_BAD_REQUEST)
+            camp = Campaign.objects.get(id=campaign_id)
+            if camp:
+                # Store image'
+                imageserializer = ImageContentSerializer(
+                        data=request.data)
+                if imageserializer.is_valid():
+                    img = imageserializer.save()
+                serializer = ImageAdSerializer(
+                                data=request.data)
+                if serializer.is_valid():
+                    ad = serializer.save(image_content=img,
+                                         image_url=img.get_absolute_url())
+                    # Update ad by campaign
+                    ad.update(campaign=camp)
+                    ad.save()
+                    return JSONResponse(serializer.data,
+                                        status=HTTP_201_CREATED)
+                return JSONResponse("Unknown error processing %s ." % campaign_id,
+                                    status=HTTP_400_BAD_REQUEST)
         except UserNotAuthorizedException as e:
             print e
             return JSONResponse(str(e), status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse("Campaign with Id (%s) not found." % campaign_id,
+                                status=HTTP_404_NOT_FOUND)
