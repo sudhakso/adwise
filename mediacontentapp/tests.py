@@ -6,11 +6,12 @@ from rest_framework.parsers import JSONParser
 import json
 from userapp.models import MediaUser
 from models import Campaign, CampaignSpec
-from testsdata import campaign_post_json_data, serviceuser_post_json_data
+from testsdata import campaign_post_json_data, serviceuser_post_json_data, \
+    campaign_update_post_json_data
 
 from mongoengine import connect
 from rest_framework.test import APIClient
-from userapp.models import UserSession, UserService
+from django.contrib.auth.models import User
 
 _API_SERVER_URL = 'http://127.0.0.1:8000'
 _API_USER_ROOT = '/users/'
@@ -53,9 +54,10 @@ class CampaignRestApiTestCase(TestCase):
     def _cleanUp(self):
         MediaUser.objects.all().delete()
         Campaign.objects.all().delete()
+        User.objects.all().delete()
 
     def setUp(self):
-        connect('mediacontent_database', alias='default')
+        connect('rest_database', alias='default')
         self._cleanUp()
         self.client = APIClient()
         self.test_user = json.loads(serviceuser_post_json_data)
@@ -72,6 +74,7 @@ class CampaignRestApiTestCase(TestCase):
         TestCase.tearDown(self)
         MediaUser.objects.all().delete()
         Campaign.objects.all().delete()
+        User.objects.all().delete()
 
     def test_create_campaign(self):
         req_json = json.loads(campaign_post_json_data)
@@ -84,4 +87,27 @@ class CampaignRestApiTestCase(TestCase):
         self.assertEqual(response.status_code, 201)
         res_json = parseJSON(response)
         _camp = Campaign.objects.filter(name=req_json['name'])
-        self.assertTrue(_camp is not None)
+        self.assertTrue(len(_camp) > 0)
+        self.assertTrue(_camp[0] is not None)
+        self.assertTrue(_camp[0].id is not None)
+        self.assertTrue(_camp[0].spec.linked_source_ids is not None)
+        self.assertTrue(len(_camp[0].spec.linked_source_ids) == len(
+                                                req_json['spec']['linked_source_ids']))
+        camp = _camp[0]
+        # Update the campaign
+        req_update_json = json.loads(campaign_update_post_json_data)
+        response = self.client.post('%s%s/' % (
+                                        _API_CAMPAIGN_RESOURCE, _camp[0].id),
+                                    data=campaign_update_post_json_data,
+                                    content_type='application/json',
+                                    HTTP_USERNAME=self.test_user['user']['username'],
+                                    HTTP_PASSWORD=self.test_user['user']['password'],
+                                    HTTP_EMAIL=self.test_user['user']['email'])
+        self.assertEqual(response.status_code, 200)
+        _updated_camp = Campaign.objects.get(id=camp.id)
+        self.assertTrue(_updated_camp is not None)
+        self.assertTrue(
+            req_update_json['spec']['linked_source_ids'][0] in _updated_camp.spec.linked_source_ids)
+
+
+

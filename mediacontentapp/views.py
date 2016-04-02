@@ -209,12 +209,12 @@ class CampaignViewSet(APIView):
                                                 serializer.validated_data)
                 # Other reference fields
                 # Store image'
-                specserializer = CampaignSpecSerializer(
-                                        data=request.data, partial=True)
-                if specserializer.is_valid():
-                    spec = specserializer.update(updated_obj.spec,
-                                                 specserializer.validated_data)
-                    updated_obj.save(spec=spec)
+                if "spec" in request.data:
+                    specserializer = CampaignSpecSerializer(
+                                            data=request.data["spec"], partial=True)
+                    if specserializer.is_valid():
+                        spec = specserializer.update(updated_obj.spec,
+                                                     specserializer.validated_data)
                 return JSONResponse(serializer.validated_data,
                                     status=HTTP_200_OK)
         except Exception as e:
