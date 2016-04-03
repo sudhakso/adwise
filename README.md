@@ -182,3 +182,6 @@ Format is, /mediacontent/ads/imageads/<$campaign_id>/<$imagead_id>
 # Add ImageAd with offer extension
 
 
+# Do a research
+while sleep 1; do curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"raw_strings": "swimming equipment", "query_fields":["category", "description"]}' http://localhost:8000/research/; done;
+

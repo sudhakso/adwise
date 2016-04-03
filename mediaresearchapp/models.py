@@ -13,6 +13,8 @@ All = 'everyone'
 
 
 class SearchQuery(Document):
+    user = ReferenceField('MediaUser')
+    raw_strings = StringField()
     query_fields = ListField(StringField())
     query_values = ListField(StringField())
     creation_time = DateTimeField()
@@ -26,6 +28,4 @@ class ResearchElement(Document):
 
 
 class ResearchResult(Document):
-    resource_urls = ListField(default=[], required=False)
-    campaigns = ListField(default=[])
-    ads = ListField(default=[])
+    campaigns = ListField(ReferenceField('Campaign'))

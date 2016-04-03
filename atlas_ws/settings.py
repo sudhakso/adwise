@@ -67,6 +67,7 @@ INSTALLED_APPS = (
     'rest_framework_swagger',
     'userapp',
     'mediacontentapp',
+    'mediaresearchapp',
 )
 
 MIDDLEWARE_CLASSES = (
