@@ -79,7 +79,7 @@ class BasicResearchViewSet(APIView):
                 else:
                     return JSONResponse("Something went wrong terrible. Unknown error!.",
                                         status=HTTP_500_INTERNAL_SERVER_ERROR)
-            return JSONResponse("Obfuscated query. Cannot handle.",
+            return JSONResponse("Obfuscated query. Cannot handle error %s" % sql.errors,
                                 status=HTTP_400_BAD_REQUEST)
         except DoesNotExist as e:
             print e

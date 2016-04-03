@@ -5,6 +5,7 @@ from mongoengine.fields import ListField,\
 from mongoengine.document import Document
 from mongoengine import connect
 from atlas_ws.settings import _MONGODB_NAME
+from datetime import datetime
 
 
 connect(_MONGODB_NAME, alias='default')
@@ -13,11 +14,11 @@ All = 'everyone'
 
 
 class SearchQuery(Document):
-    user = ReferenceField('MediaUser')
+    user = ReferenceField('MediaUser', required=False)
     raw_strings = StringField()
-    query_fields = ListField(StringField())
-    query_values = ListField(StringField())
-    creation_time = DateTimeField()
+    query_fields = ListField(default=[])
+    query_values = ListField(default=[])
+    creation_time = DateTimeField(default=datetime.now())
     query_runtime_duration = FloatField()
 
 
