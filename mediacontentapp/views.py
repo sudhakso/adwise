@@ -242,13 +242,15 @@ class CampaignViewSet(APIView):
                                                      specserializer.validated_data)
                 if "image" in request.data:
                     imageserializer = ImageContentSerializer(
-                                        data=request.data["image"], partial=True)
+                                        data=request.data, partial=True)
                     # Bug (Sonu:) how to change the image URL? or the
                     # image URL is retained. Need to be checked.
                     # Post image update, image show may not work correctly.
-                    if imageserializer.is_valid():
-                        img = imageserializer.update(updated_obj.image_content,
-                                                     imageserializer.validated_data)
+                    if imageserializer.is_valid(raise_exception=True):
+                        img = imageserializer.save()
+                        updated_obj.update(image_content=img,
+                                           image_url=img.get_absolute_url())
+                        updated_obj.save()
                 return JSONResponse(serializer.validated_data,
                                     status=HTTP_200_OK)
         except Exception as e:
