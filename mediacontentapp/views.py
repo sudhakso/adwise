@@ -3,11 +3,12 @@ from rest_framework.views import APIView
 from mediacontentapp.serializers import AdSerializer, TextAdSerializer,\
     CallOnlyAdSerializer, ImageAdSerializer, CampaignSerializer,\
     ImageContentSerializer, JpegImageContentSerializer, CampaignSpecSerializer,\
-    CampaignTrackingSerializer
+    CampaignTrackingSerializer, AdExtensionSerializer, OfferExtensionSerializer
 from mediacontentapp.sourceserializers import MediaDashboardSerializer
 from userapp.models import MediaUser
 from mediacontentapp.models import Ad, TextAd, CallOnlyAd, ImageAd, Campaign,\
-    ImageContent, JpegImageContent, MediaDashboard, CampaignTracking
+    ImageContent, JpegImageContent, MediaDashboard, CampaignTracking,\
+    OfferExtension
 from mediacontentapp.controller import CampaignManager
 from mediacontentapp.IdentityService import IdentityManager
 from mediacontentapp.controller import DashboardController
@@ -161,6 +162,14 @@ class CampaignViewSet(APIView):
                 if cspecserializer.is_valid():
                     spec = cspecserializer.save()
 
+            img = None
+            # Store home page for the campaign
+            if 'image' in request.data:
+                imageserializer = ImageContentSerializer(
+                        data=request.data)
+                if imageserializer.is_valid():
+                    img = imageserializer.save()
+
             # Serialize the Campaign
             serializer = CampaignSerializer(
                                         data=request.data)
@@ -170,7 +179,9 @@ class CampaignViewSet(APIView):
                 # Campaign created.
                 if spec:
                     campaign.update(spec=spec)
-                    campaign.save()
+                if img:
+                    campaign.update(image_content=img,
+                                    image_url=img.get_absolute_url())
                 # Prepare the campaign for the User
                 self.controller.prepare_campaign(
                                             user=user,
@@ -229,6 +240,15 @@ class CampaignViewSet(APIView):
                     if specserializer.is_valid():
                         spec = specserializer.update(updated_obj.spec,
                                                      specserializer.validated_data)
+                if "image" in request.data:
+                    imageserializer = ImageContentSerializer(
+                                        data=request.data["image"], partial=True)
+                    # Bug (Sonu:) how to change the image URL? or the
+                    # image URL is retained. Need to be checked.
+                    # Post image update, image show may not work correctly.
+                    if imageserializer.is_valid():
+                        img = imageserializer.update(updated_obj.image_content,
+                                                     imageserializer.validated_data)
                 return JSONResponse(serializer.validated_data,
                                     status=HTTP_200_OK)
         except Exception as e:
@@ -479,6 +499,46 @@ class ImageAdViewSet(AdViewSet):
             print e
             return JSONResponse(str(e), status=HTTP_401_UNAUTHORIZED)
 
+    def _update(self, request, ad):
+
+        try:
+            # partial updates
+            serializer = ImageAdSerializer(
+                                data=request.data, partial=True)
+            if serializer.is_valid():
+                updated_obj = serializer.update(ad,
+                                                serializer.validated_data)
+                # Other reference fields
+                # Store image'
+                if "image" in request.data:
+                    imageserializer = ImageContentSerializer(
+                            data=request.data["image"])
+                    if imageserializer.is_valid():
+                        img = imageserializer.save()
+                        img_url = img.get_absolute_url()
+                        updated_obj.update(image_content=img,
+                                           image_url=img_url)
+                if "offerex" in request.data:
+                    #
+                    #
+                    #
+                    #
+                    # Extensions are stored and updated
+                    offer = OfferExtensionSerializer(data=request.data["offerex"],
+                                                     many=True)
+                    if offer.is_valid(raise_exception=True):
+                        ofs = offer.save()
+                        updated_obj.save(extensions=ofs)
+                return JSONResponse(serializer.validated_data,
+                                    status=HTTP_200_OK)
+            # Bad request
+            return JSONResponse(str(serializer.errors),
+                                status=HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
     def post(self, request, campaign_id, ad_id=None):
 
         """ Creates an image ad for a campaign
@@ -497,6 +557,11 @@ class ImageAdViewSet(AdViewSet):
             auth_manager.do_auth(request)
             camp = Campaign.objects.get(id=campaign_id)
             if camp:
+                # Check if an update is triggered
+                if ad_id is not None:
+                    ad = ImageAd.objects.get(id=ad_id)
+                    return self._update(request, ad)
+
                 # Store image'
                 imageserializer = ImageContentSerializer(
                         data=request.data)
@@ -514,6 +579,9 @@ class ImageAdViewSet(AdViewSet):
                                         status=HTTP_201_CREATED)
                 return JSONResponse("Unknown error processing %s ." % campaign_id,
                                     status=HTTP_400_BAD_REQUEST)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e), status=HTTP_404_NOT_FOUND)
         except UserNotAuthorizedException as e:
             print e
             return JSONResponse(str(e), status=HTTP_401_UNAUTHORIZED)

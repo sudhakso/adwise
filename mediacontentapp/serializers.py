@@ -1,7 +1,9 @@
 from mediacontentapp.models import Ad, TextAd, ProductAd, DynamicSearchAd,\
     Campaign, ImageContent, JpegImageContent, CampaignSpec, CampaignTracking
 from mediacontentapp.models import CallOnlyAd, ImageAd
-from mediacontentapp.models import LocationExtension, BusinessHoursExtension
+from mediacontentapp.models import AdExtension,\
+    LocationExtension, BusinessHoursExtension,\
+    OfferExtension, Period
 from rest_framework_mongoengine import serializers
 
 
@@ -21,7 +23,7 @@ class CampaignSerializer(serializers.DocumentSerializer):
 
     class Meta:
         model = Campaign
-        exclude = ('creator',)
+        exclude = ('creator', 'image_content',)
 #         fields = ('id', 'spec', 'name', 'description', 'creation_time',
 #                   'launched_at', 'end_at', 'geo_tags', 'enabled', 'city',
 #                   'state', 'country', 'state', 'target_group',)
@@ -141,9 +143,43 @@ class DynamicSearchAdSerializer(serializers.DocumentSerializer):
         return self.get_field_names(*args, **kwargs)
 
 
+class AdExtensionSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = AdExtension
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
 class LocationExtensionSerializer(serializers.DocumentSerializer):
     class Meta:
         model = LocationExtension
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class PeriodSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = Period
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class OfferExtensionSerializer(serializers.DocumentSerializer):
+
+    class Meta:
+        model = OfferExtension
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

@@ -98,6 +98,9 @@ class Campaign(Document):
     # TODO(Sonu): Why not generalize tags?
     # Tag
     geo_tags = ListField(default=[], required=False)
+    # Home page
+    image_url = StringField()
+    image_content = ReferenceField('ImageContent')
     # Specifications! Do we need a list of them?
     spec = ReferenceField('CampaignSpec', required=False)
 
@@ -391,7 +394,7 @@ class Ad(Document):
     # Campaign this Ad refers to.
     campaign = ReferenceField('Campaign')
     # List of extension
-    extenstions = ListField(ReferenceField('AdExtension'))
+    extensions = ListField(ReferenceField('AdExtension'))
 
     # reference - DRF field
     url = fields.URLField(source='get_absolute_url', read_only=False)
@@ -604,11 +607,13 @@ class OfferExtension(AdExtension):
     """
     # Discount, Introductory, festive etc,
     # Search-tag
-    offer_type = StringField()
-    validity = ReferenceField(Period)
+    offer_type = StringField(default='offer')
     offer_code = StringField()
     # Search-tag
     offer_description = StringField()
+    openDay = DateTimeField()
+    closeDay = DateTimeField()
+
     # Internal data, Stored in ad-wise
     # not to be serialized
     offer_meta = DictField()

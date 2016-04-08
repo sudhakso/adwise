@@ -179,7 +179,11 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 
 Format is, /mediacontent/ads/imageads/<$campaign_id>/<$imagead_id>
 
+# 
+#
+#
 # Add ImageAd with offer extension
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"offerex":[{"ex_name": "new customer offer", "ex_type": "offer", "offer_code": "QOWGX", "offer_description": "pre-launch offer", "openDay":"2016-04-29T18:37:21.766000", "closeDay": "2016-04-29T18:37:21.766000"}]}' http://localhost:8000/mediacontent/ads/imageads/57002fb11d41c8855868dbd4/570739611d41c84309e0a976/
 
 
 # Do a research
