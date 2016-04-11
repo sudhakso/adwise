@@ -15,7 +15,7 @@ from mediacontentapp.serializers import CampaignSerializer
 from mediaresearchapp.models import ResearchResult
 from mediaresearchapp.tasks import search_pipeline, BasicSearchTask
 from celery.app.trace import SUCCESS
-
+from django.core import serializers
 
 SEARCH_TASK_TIMEOUT = 30
 
@@ -28,7 +28,7 @@ class BasicResearchViewSet(APIView):
 
     """ Basic Research """
 
-    def _locate_user(self, request):
+    def _log_user(self, request):
         # Get all Http headers
         import re
         regex = re.compile('^HTTP_')
@@ -49,7 +49,7 @@ class BasicResearchViewSet(APIView):
          response_serializer: ResearchResultSerializer
         """
         try:
-            user = self._locate_user(request)
+            user = self._log_user(request)
             # return the dash-board for the user
             sql = SearchQuerySerializer(data=request.data)
             if sql.is_valid():

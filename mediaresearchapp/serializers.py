@@ -3,6 +3,7 @@ from mediacontentapp.models import Ad, TextAd, ProductAd, DynamicSearchAd,\
 from mediaresearchapp.models import ResearchElement, ResearchResult,\
     SearchQuery
 from rest_framework_mongoengine import serializers
+from mediacontentapp.serializers import CampaignSerializer
 
 
 class ResearchElementSerializer(serializers.DocumentSerializer):
@@ -17,6 +18,8 @@ class ResearchElementSerializer(serializers.DocumentSerializer):
 
 
 class ResearchResultSerializer(serializers.DocumentSerializer):
+    campaigns = CampaignSerializer(many=True, read_only=True)
+
     class Meta:
         model = ResearchResult
 

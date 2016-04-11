@@ -30,3 +30,4 @@ class ResearchElement(Document):
 
 class ResearchResult(Document):
     campaigns = ListField(ReferenceField('Campaign'))
+    query_runtime_duration = FloatField(default=0.0)

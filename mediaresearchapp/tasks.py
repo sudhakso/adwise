@@ -6,6 +6,8 @@ Created on April 1, 2016
 
 from __future__ import absolute_import
 
+import datetime
+import json
 from celery import shared_task
 from celery import Task
 from mediacontentapp.models import Campaign
@@ -13,20 +15,29 @@ from mediaresearchapp.models import SearchQuery, ResearchResult
 from celery import Celery
 from mediaresearchapp.serializers import ResearchResultSerializer
 from rest_framework.renderers import JSONRenderer
+from django.core import serializers
+from mediacontentapp.serializers import CampaignSerializer
 
 
 class BasicSearchTask(Task):
     ignore_errors = True
 
     def run(self, *args, **kwargs):
-        res = ResearchResult()
+        start = datetime.datetime.now()
         print 'Searching %s ...' % kwargs['raw_strings']
-        camps = Campaign.objects.all()
-        for acamp in camps:
-            res.campaigns.append(acamp)
-        ser = ResearchResultSerializer(res)
-        json = JSONRenderer().render(ser.data)
-        return json
+        # Get all campaigns
+        queryset = Campaign.objects.all()
+        camps = []
+        for acamp in queryset:
+            camps.append(acamp)
+        end = datetime.datetime.now()
+        elapsed_time = end - start
+        _rr = ResearchResult(campaigns=camps,
+                             query_runtime_duration=elapsed_time.total_seconds())
+        rr = _rr.save()
+        ser = ResearchResultSerializer(rr, many=False)
+        _srjson = json.dumps(ser.data)
+        return _srjson
 
 
 @shared_task
