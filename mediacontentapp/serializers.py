@@ -35,6 +35,30 @@ class CampaignSerializer(serializers.DocumentSerializer):
         return self.get_field_names(*args, **kwargs)
 
 
+# Serializer for indexing campaign
+class CampaignIndexSerializer(serializers.DocumentSerializer):
+
+    class Meta:
+        model = Campaign
+        fields = ('id',
+                  'name',
+                  'description',
+                  'launched_at',
+                  'end_at',
+                  'geo_tags',
+                  'city',
+                  'state',
+                  'country',
+                  'tags',
+                  'category')
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
 class CampaignTrackingSerializer(serializers.DocumentSerializer):
     class Meta:
         model = CampaignTracking

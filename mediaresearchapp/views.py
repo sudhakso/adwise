@@ -2,22 +2,72 @@ import time
 from userapp.JSONFormatter import JSONResponse
 from rest_framework.views import APIView
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
-    HTTP_500_INTERNAL_SERVER_ERROR, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED,\
-    HTTP_200_OK, HTTP_204_NO_CONTENT, HTTP_408_REQUEST_TIMEOUT
-from datetime import datetime
-from django.http.response import HttpResponse
+    HTTP_500_INTERNAL_SERVER_ERROR, HTTP_404_NOT_FOUND,\
+    HTTP_200_OK, HTTP_408_REQUEST_TIMEOUT
 from mongoengine.errors import DoesNotExist
-from mediaresearchapp.serializers import ResearchElementSerializer,\
-    ResearchResultSerializer, SearchQuerySerializer
+from mediaresearchapp.serializers import SearchQuerySerializer,\
+ StartupLeadsSerializer
 from userapp.models import MediaUser
-from mediacontentapp.models import Campaign
 from mediacontentapp.serializers import CampaignSerializer
-from mediaresearchapp.models import ResearchResult
-from mediaresearchapp.tasks import search_pipeline, BasicSearchTask
-from celery.app.trace import SUCCESS
-from django.core import serializers
+from mediaresearchapp.models import StartupLeads
+from mediaresearchapp.tasks import BasicSearchTask
+
 
 SEARCH_TASK_TIMEOUT = 30
+
+
+class StartupViewSet(APIView):
+
+    def get(self, request, id=None):
+
+        """ Returns if a startup lead object exists
+         ---
+         response_serializer: StartupLeadsSerializer
+        """
+        try:
+            if id:
+                sl = StartupLeads.objects.get(email=id)
+            # Serialize the lead collected.
+            serializer = CampaignSerializer(sl)
+            return JSONResponse(serializer.data)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def post(self, request, id=None):
+
+        """ Creates a startup lead for a user
+         ---
+         request_serializer: StartupLeadsSerializer
+         response_serializer: StartupLeadsSerializer
+        """
+        try:
+            # Serialize the Campaign
+            serializer = StartupLeadsSerializer(
+                                        data=request.data, partial=True)
+            if serializer.is_valid():
+                if id:
+                    inst = StartupLeads.objects.get(email=id)
+                    serializer.update(inst, serializer.validated_data)
+                else:
+                    serializer.save()
+                    return JSONResponse(serializer.data,
+                                        status=HTTP_201_CREATED)
+            else:
+                return JSONResponse(serializer.errors,
+                                    status=HTTP_400_BAD_REQUEST)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print e
+            return JSONResponse(serializer.errors,
+                                status=HTTP_400_BAD_REQUEST)
 
 
 class ResearchDashboardViewSet(APIView):

@@ -3,9 +3,50 @@ Created on Dec 12, 2015
 
 @author: sonu
 '''
-
+from django.conf import settings
+from mediacontentapp import Config
 from mediacontentapp.models import OOHMediaSource
 from mongoengine.fields import GeoPointField
+from pyes import ES
+
+
+class IndexingService():
+
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        param = {
+            'default_ini': '%s%s' % (settings.MEDIAAPP_DIR, 'mediaconfig.ini'),
+            'default_value_map': {}
+            }
+
+        self.indexcfg = Config.config(**param)
+        self.endpoint = self.indexcfg.get_config(
+                                        'indexing', 'pyes_endpoint')
+        self.indexing_tags = [e.strip() for e in self.indexcfg.get_config(
+                                            'indexing', 'index').split(',')]
+        self._conn = ES(self.endpoint)
+        # create the indexes
+        self.create_indexes(self.indexing_tags)
+
+    @property
+    def connection(self):
+        return self._conn
+
+    def status(self):
+        pass
+
+    def create_indexes(self, tags):
+        for index in tags:
+            try:
+                self.connection.indices.create_index_if_missing(index.lower())
+            except TypeError as te:
+                print "Exception creating index (%s). Index exists : (%s)." % (
+                                                        index, str(te))
+            except Exception as e:
+                print "Exception creating index (%s). Critical : (%s)." % (
+                                                        index, str(e))
 
 
 class CampaignManager():

@@ -93,6 +93,10 @@ class Campaign(Document):
     state = ListField(default=[], required=False)
     country = ListField(default=[], required=False)
     target_group = ListField(default=[], required=False)
+    # search'able tags
+    tags = StringField()
+    # UI assumes certain categories
+    category = StringField()
     # Administrative control
     enabled = BooleanField(default=True, required=False)
     # TODO(Sonu): Why not generalize tags?

@@ -1,6 +1,6 @@
 from mongoengine.fields import ListField,\
     StringField, DateTimeField, FloatField,\
-    ReferenceField
+    ReferenceField, GeoPointField
 # from django_mongodb_engine.fields import GridFSField
 from mongoengine.document import Document
 from mongoengine import connect
@@ -11,6 +11,19 @@ from datetime import datetime
 connect(_MONGODB_NAME, alias='default')
 
 All = 'everyone'
+
+
+# Leads for non-registered user
+class StartupLeads(Document):
+    # User email
+    email = StringField(required=False)
+    phone_number = StringField(required=False)
+    # Last activity
+    activity = DateTimeField(default=datetime.now())
+    # Attempts to use the product w/o reg.
+    attempts = FloatField(required=False)
+    # latest location tried
+    cordinates = GeoPointField(required=False)
 
 
 class SearchQuery(Document):
