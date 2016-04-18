@@ -28,7 +28,7 @@ class StartupViewSet(APIView):
             if id:
                 sl = StartupLeads.objects.get(email=id)
             # Serialize the lead collected.
-            serializer = CampaignSerializer(sl)
+            serializer = StartupLeadsSerializer(sl)
             return JSONResponse(serializer.data)
         except DoesNotExist as e:
             print e
