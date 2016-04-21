@@ -155,10 +155,12 @@ curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "us
 sudo curl -H "Content-Type: application/json" -X POST -d '{"target_service_name": "location", "service_meta": "empty"}' http://localhost:8000/users/services/lion2/location/
 
 # Create a campaign
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"name": "P(x) campaign", "description": "Starters T20", "launched_at": "2016-04-25T18:37:21.766000", "end_at": "2016-04-29T18:37:21.766000", "spec" :{"name":"basic", "type": "basictype", "ad_type":"imagead", "target_group":[], "linked_source_ids":["56f75d6f1d41c81380d87b65"]}}' http://localhost:8000/mediacontent/campaign/
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"name": "P(x) campaign", "description": "Starters T20", "launched_at": "2016-04-25T18:37:21.766000", "end_at": "2016-04-29T18:37:21.766000", "target_group":[], "linked_source_ids":["56f75d6f1d41c81380d87b65"], "spec" :{"name":"basic", "type": "basictype", "ad_type":"imagead"}}' http://localhost:8000/mediacontent/campaign/
 
 Note: ad_type value can be used to fetch the ad content for this campaign
 For example, /mediacontent/ads/<$ad_type>/<$campaign_id>
+
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"name": "IPL World T20", "description": "IPL T20 cricket championship", "launched_at": "2016-04-25T18:37:21.766000", "end_at": "2016-04-29T18:37:21.766000", "tags": "cricket football golf", "category": "sports", "city": ["bengaluru", "delhi"], "state": ["karnantaka","Delhi"], "spec" :{"name":"basic", "type": "basictype", "ad_type":"imagead"}}' http://localhost:8000/mediacontent/campaign/
 
 # Get all campaigns for the User
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://localhost:8000/mediacontent/campaign/
@@ -190,4 +192,6 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 
 # Do a research
 while sleep 1; do curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"raw_strings": "swimming equipment", "query_fields":["category", "description"]}' http://localhost:8000/research/; done;
+
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"raw_strings": "cricket", "query_fields":["category", "description"]}' http://localhost:8000/research/_search/
 
