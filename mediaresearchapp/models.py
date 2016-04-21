@@ -6,6 +6,7 @@ from mongoengine.document import Document
 from mongoengine import connect
 from atlas_ws.settings import _MONGODB_NAME
 from datetime import datetime
+from mongoengine.base.fields import ObjectIdField
 
 
 connect(_MONGODB_NAME, alias='default')
@@ -27,7 +28,7 @@ class StartupLeads(Document):
 
 
 class SearchQuery(Document):
-    user = ReferenceField('MediaUser', required=False)
+    userid = ObjectIdField(required=False)
     raw_strings = StringField()
     query_fields = ListField(default=[])
     query_values = ListField(default=[])

@@ -48,6 +48,8 @@ OS System components are
 * MONGODB  
 * sudo apt-get install libjpeg8-dev zlib1g-dev
 * sudo apt-get install rabbitmq-server
+* Download and install elastic search from http://www.elastic.co/downloads
+* Install celery
 
 * Database configuration
 This project uses MONGODB.

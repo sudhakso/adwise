@@ -9,5 +9,9 @@ urlpatterns = [
         views.StartupViewSet.as_view()),
     url(r'^dashboard/',
         views.ResearchDashboardViewSet.as_view()),
+    url(r'^_search/', views.ResearchViewSet.as_view()),
+    # structured queries, city=""&..
+    url(r'^_sql/', views.SqlResearchViewSet.as_view()),
+    # designed to return most recent campaigns.
     url(r'^', views.BasicResearchViewSet.as_view())
 ]

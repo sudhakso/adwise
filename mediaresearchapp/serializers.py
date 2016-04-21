@@ -44,7 +44,6 @@ class ResearchResultSerializer(serializers.DocumentSerializer):
 class SearchQuerySerializer(serializers.DocumentSerializer):
     class Meta:
         model = SearchQuery
-        exclude = ('user',)
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
