@@ -6,7 +6,7 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
     HTTP_200_OK, HTTP_408_REQUEST_TIMEOUT
 from mongoengine.errors import DoesNotExist
 from mediaresearchapp.serializers import SearchQuerySerializer,\
- StartupLeadsSerializer
+ StartupLeadsSerializer, ResearchResultSerializer
 from userapp.models import MediaUser
 from mediacontentapp.serializers import CampaignSerializer
 from mediaresearchapp.models import StartupLeads
