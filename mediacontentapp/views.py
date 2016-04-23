@@ -564,6 +564,7 @@ class ImageAdViewSet(AdViewSet):
                     ad = ImageAd.objects.get(id=ad_id)
                     return self._update(request, ad)
 
+                img = None
                 # Store image'
                 imageserializer = ImageContentSerializer(
                         data=request.data)
@@ -573,7 +574,7 @@ class ImageAdViewSet(AdViewSet):
                                 data=request.data)
                 if serializer.is_valid():
                     ad = serializer.save(image_content=img,
-                                         image_url=img.get_absolute_url())
+                                         image_url=img.get_absolute_url() if img is not None else None)
                     # Update ad by campaign
                     ad.update(campaign=camp)
                     ad.save()
