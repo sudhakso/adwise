@@ -23,8 +23,8 @@ def _log_user(request):
     regex = re.compile('^HTTP_')
     head = dict((regex.sub('', header), value) for (header, value)
                 in request.META.items() if header.startswith('HTTP_'))
-    username = head['USERNAME']
-    email = head['EMAIL']
+    username = head['USERNAME'] if 'USERNAME' in head else 'Anonymous'
+    email = head['EMAIL'] if 'EMAIL' in head else 'Anonymous'
     _data['username'] = username
     _data['email'] = email
 
