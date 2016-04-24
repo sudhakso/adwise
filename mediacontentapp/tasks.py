@@ -21,7 +21,7 @@ from mediacontentapp.serializers import CampaignSerializer,\
 from mediacontentapp.controller import IndexingService
 
 # Initialize the service
-indexing_service = IndexingService()
+# indexing_service = IndexingService()
 
 
 class BasicSearchTask(Task):
@@ -61,6 +61,13 @@ class OfferIndexingTask(Task):
 
 class CampaignIndexingTask(Task):
     ignore_errors = True
+    _es = None
+
+    @property
+    def es(self):
+        if self._es is None:
+            self._es = IndexingService()
+        return self._es
 
     # instancename=, object=
     def run(self, *args, **kwargs):
@@ -73,7 +80,7 @@ class CampaignIndexingTask(Task):
             data = kwargs['campaign']
         print data
         try:
-            indexing_service.connection.index(
+            self.es.connection.index(
                                 data,
                                 "campaign",
                                 "external")
