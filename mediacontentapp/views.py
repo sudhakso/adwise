@@ -1,14 +1,17 @@
+import json
 from userapp.JSONFormatter import JSONResponse
 from rest_framework.views import APIView
 from mediacontentapp.serializers import AdSerializer, TextAdSerializer,\
     CallOnlyAdSerializer, ImageAdSerializer, CampaignSerializer,\
     ImageContentSerializer, JpegImageContentSerializer, CampaignSpecSerializer,\
-    CampaignTrackingSerializer, AdExtensionSerializer, OfferExtensionSerializer
+    CampaignTrackingSerializer, AdExtensionSerializer, OfferExtensionSerializer,\
+    CampaignIndexSerializer
 from mediacontentapp.sourceserializers import MediaDashboardSerializer
 from userapp.models import MediaUser
 from mediacontentapp.models import Ad, TextAd, CallOnlyAd, ImageAd, Campaign,\
     ImageContent, JpegImageContent, MediaDashboard, CampaignTracking,\
     OfferExtension
+from mediacontentapp.tasks import CampaignIndexingTask
 from mediacontentapp.controller import CampaignManager
 from mediacontentapp.IdentityService import IdentityManager
 from mediacontentapp.controller import DashboardController
@@ -98,6 +101,36 @@ class DashboardViewSet(APIView):
             print e
             return JSONResponse(str(e),
                                 status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class CampaignIndexingViewSet(APIView):
+
+    def post(self, request):
+
+        """ re-creates the indexes for the campaign
+        """
+        try:
+            campset = Campaign.objects.filter(enabled=True)
+            if campset:
+                cs = CampaignIndexSerializer(campset, many=True)
+                task = CampaignIndexingTask()
+                rc = task.delay(args=[],
+                                instancename=str("__all"),
+                                campaign=json.dumps(cs.data),
+                                ignore_failures=True,
+                                many=True)
+                if rc.state == "SUCCESS":
+                    return JSONResponse("indexed",
+                                        status=HTTP_201_CREATED)
+                else:
+                    return JSONResponse("Failed",
+                                        status=HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                return JSONResponse("no content to index",
+                                    status=HTTP_204_NO_CONTENT)
+        except Exception as e:
+                    return JSONResponse(str(e),
+                                        status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class CampaignViewSet(APIView):

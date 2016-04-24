@@ -67,7 +67,10 @@ class CampaignIndexingTask(Task):
         start = datetime.datetime.now()
         print 'Creating index for campaign : %s ...' % (
                                 kwargs['instancename'])
-        data = kwargs['campaign']
+        if 'many' in kwargs and kwargs['many'] == True:
+            data = {'root': kwargs['campaign']}
+        else:
+            data = kwargs['campaign']
         print data
         try:
             indexing_service.connection.index(
