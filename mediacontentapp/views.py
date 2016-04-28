@@ -460,7 +460,7 @@ class ImageViewSet(AdViewSet):
          response_serializer: ImageContentSerializer
         """
         try:
-            auth_manager.do_auth(request)
+#             auth_manager.do_auth(request)
             # Request Get, all users
             if request.method == 'GET':
                 if image_id is not None:
@@ -488,7 +488,7 @@ class JpegImageViewSet(APIView):
          response_serializer: JpegImageContentSerializer
         """
         try:
-            auth_manager.do_auth(request)
+#             auth_manager.do_auth(request)
             # Request Get, all users
             if request.method == 'GET':
                 if image_id is not None:
@@ -517,7 +517,7 @@ class ImageAdViewSet(AdViewSet):
          response_serializer: ImageAdSerializer
         """
         try:
-            auth_manager.do_auth(request)
+#             auth_manager.do_auth(request)
             camp = Campaign.objects.get(id=campaign_id)
             if ad_id is None:
                 ads = ImageAd.objects.filter(campaign=camp)
