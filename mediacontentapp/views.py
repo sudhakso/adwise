@@ -510,14 +510,20 @@ class ImageAdViewSet(AdViewSet):
 
     # curl -X GET -S -H 'Accept: application/json' \
     # http://127.0.0.1:8000/mediacontent/ads/imageads/566c580f1d41c8a69d0a063d/566d10ad1d41c8bd636ea654/
-    def get(self, request, campaign_id, ad_id=None):
+    def get(self, request, campaign_id=None, ad_id=None):
 
         """ Returns a list of image campaign ads
          ---
          response_serializer: ImageAdSerializer
         """
         try:
-#             auth_manager.do_auth(request)
+            # Get all image-ads
+            if campaign_id is None:
+                ads = ImageAd.objects.all()
+                serializer = ImageAdSerializer(ads, many=True)
+                return JSONResponse(serializer.data)
+
+            # Get more specific ads by campaigns
             camp = Campaign.objects.get(id=campaign_id)
             if ad_id is None:
                 ads = ImageAd.objects.filter(campaign=camp)
