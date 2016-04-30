@@ -127,6 +127,12 @@ def post_ad(url, auth_dict, ad, imagedir=None):
 # Keep the data in the same location where this script resides.
 # Basically take the script to location where all files are present
 # and run.
+# Example, 
+#/home/sonu/thomas/atlas/upstream/up/bin/python ad_import.py
+# tabseparated_ad.data 
+# http://ec2-52-10-208-37.us-west-2.compute.amazonaws.com:8000/ 
+# /home/sonu/adimages/campaigns 
+# 571b8a87c0c95445f8cb396e
 
 if __name__ == '__main__':
     (columns, data) = main(sys.argv[1])
