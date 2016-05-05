@@ -5,7 +5,7 @@ from mediacontentapp.serializers import AdSerializer, TextAdSerializer,\
     CallOnlyAdSerializer, ImageAdSerializer, CampaignSerializer,\
     ImageContentSerializer, JpegImageContentSerializer, CampaignSpecSerializer,\
     CampaignTrackingSerializer, AdExtensionSerializer, OfferExtensionSerializer,\
-    CampaignIndexSerializer
+    CampaignIndexSerializer, SocialMediaExtensionSerializer, T_C_ExtensionSerializer
 from mediacontentapp.sourceserializers import MediaDashboardSerializer
 from userapp.models import MediaUser
 from mediacontentapp.models import Ad, TextAd, CallOnlyAd, ImageAd, Campaign,\
@@ -18,7 +18,7 @@ from mediacontentapp.controller import DashboardController
 from mediacontentapp.faults import UserNotAuthorizedException
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
     HTTP_500_INTERNAL_SERVER_ERROR, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED,\
-    HTTP_200_OK, HTTP_204_NO_CONTENT
+    HTTP_200_OK, HTTP_204_NO_CONTENT, HTTP_202_ACCEPTED
 from datetime import datetime
 from django.http.response import HttpResponse
 from mongoengine.errors import DoesNotExist
@@ -553,7 +553,7 @@ class ImageAdViewSet(AdViewSet):
                 # Store image'
                 if "image" in request.data:
                     imageserializer = ImageContentSerializer(
-                            data=request.data["image"])
+                            data=request.data)
                     if imageserializer.is_valid():
                         img = imageserializer.save()
                         img_url = img.get_absolute_url()
@@ -565,13 +565,27 @@ class ImageAdViewSet(AdViewSet):
                     #
                     #
                     # Extensions are stored and updated
-                    offer = OfferExtensionSerializer(data=request.data["offerex"],
+                    offer = OfferExtensionSerializer(data=request.data['offerex'],
+                                                     partial=True,
                                                      many=True)
                     if offer.is_valid(raise_exception=True):
                         ofs = offer.save()
-                        updated_obj.save(extensions=ofs)
-                return JSONResponse(serializer.validated_data,
-                                    status=HTTP_200_OK)
+                        updated_obj.update(offerex=ofs)
+                if "socialex" in request.data:
+                    #
+                    #
+                    #
+                    #
+                    # Extensions are stored and updated
+                    social = SocialMediaExtensionSerializer(data=request.data['socialex'],
+                                                            partial=True,
+                                                            many=True)
+                    if social.is_valid(raise_exception=True):
+                        s_exs = social.save()
+                        updated_obj.update(socialex=s_exs)
+                updated_obj.save()
+                return JSONResponse(str(updated_obj.id),
+                                    status=HTTP_202_ACCEPTED)
             # Bad request
             return JSONResponse(str(serializer.errors),
                                 status=HTTP_400_BAD_REQUEST)
@@ -604,22 +618,52 @@ class ImageAdViewSet(AdViewSet):
                     return self._update(request, ad)
 
                 img = None
+                img_url = None
+                offer = None
+                social = None
                 # Store image'
-                imageserializer = ImageContentSerializer(
-                        data=request.data)
-                if imageserializer.is_valid():
-                    img = imageserializer.save()
+                if "image" in request.data:
+                    imageserializer = ImageContentSerializer(
+                            data=request.data["image"])
+                    if imageserializer.is_valid():
+                        img = imageserializer.save()
+                        img_url = img.get_absolute_url()
+
                 serializer = ImageAdSerializer(
                                 data=request.data)
                 if serializer.is_valid():
+                    # Add other elements
+                    if "offerex" in request.data:
+                        #
+                        #
+                        #
+                        #
+                        # Extensions are stored and updated
+                        offer = OfferExtensionSerializer(data=request.data["offerex"],
+                                                         many=True)
+                        if offer.is_valid(raise_exception=True):
+                            offer = offer.save()
+                    if "socialex" in request.data:
+                        #
+                        #
+                        #
+                        #
+                        # Extensions are stored and updated
+                        s_ex = SocialMediaExtensionSerializer(data=request.data["socialex"],
+                                                              many=True)
+                        if s_ex.is_valid(raise_exception=True):
+                            social = s_ex.save()
+
                     ad = serializer.save(image_content=img,
-                                         image_url=img.get_absolute_url() if img is not None else None)
-                    # Update ad by campaign
-                    ad.update(campaign=camp)
-                    ad.save()
-                    return JSONResponse(serializer.data,
+                                         image_url=img_url)
+                    ad.update(offerex=offer,
+                              socialex=social,
+                              campaign=camp)
+                    # Successful
+                    return JSONResponse(str(ad.id),
                                         status=HTTP_201_CREATED)
-                return JSONResponse("Unknown error processing %s ." % campaign_id,
+                return JSONResponse("Unknown error processing %s (%s) ." % (
+                                            campaign_id, serializer.errors),
                                     status=HTTP_400_BAD_REQUEST)
         except DoesNotExist as e:
             print e

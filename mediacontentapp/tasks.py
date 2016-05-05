@@ -45,20 +45,6 @@ class BasicSearchTask(Task):
         return _srjson
 
 
-class OfferIndexingTask(Task):
-    ignore_errors = True
-
-    # instancename=, object=
-    def run(self, *args, **kwargs):
-        start = datetime.datetime.now()
-        print 'Creating index for offer : %s ...' % (
-                                kwargs['instancename'])
-        obj = kwargs['offer']
-        if isinstance(obj, OfferExtension):
-            # Create index
-            pass
-
-
 class CampaignIndexingTask(Task):
     ignore_errors = True
     _es = None
@@ -86,6 +72,68 @@ class CampaignIndexingTask(Task):
                                 "external")
         except Exception as e:
             print "Failed creating index for campaign : %s" % (
+                                    kwargs['instancename'])
+            print "Exception : %s" % str(e)
+
+
+class OfferIndexingTask(Task):
+    ignore_errors = True
+    _es = None
+
+    @property
+    def es(self):
+        if self._es is None:
+            self._es = IndexingService()
+        return self._es
+
+    # instancename=, object=
+    def run(self, *args, **kwargs):
+        start = datetime.datetime.now()
+        print 'Creating index for offer : %s ...' % (
+                                kwargs['instancename'])
+        if 'many' in kwargs and kwargs['many'] == True:
+            data = {'root': kwargs['offer']}
+        else:
+            data = kwargs['offer']
+        print data
+        try:
+            self.es.connection.index(
+                                data,
+                                "offer",
+                                "external")
+        except Exception as e:
+            print "Failed creating index for offer : %s" % (
+                                    kwargs['instancename'])
+            print "Exception : %s" % str(e)
+
+
+class AdIndexingTask(Task):
+    ignore_errors = True
+    _es = None
+
+    @property
+    def es(self):
+        if self._es is None:
+            self._es = IndexingService()
+        return self._es
+
+    # instancename=, object=
+    def run(self, *args, **kwargs):
+        start = datetime.datetime.now()
+        print 'Creating index for Ad : %s ...' % (
+                                kwargs['instancename'])
+        if 'many' in kwargs and kwargs['many'] == True:
+            data = {'root': kwargs['ad']}
+        else:
+            data = kwargs['ad']
+        print data
+        try:
+            self.es.connection.index(
+                                data,
+                                "ad",
+                                "external")
+        except Exception as e:
+            print "Failed creating index for ad : %s" % (
                                     kwargs['instancename'])
             print "Exception : %s" % str(e)
 

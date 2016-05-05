@@ -6,8 +6,8 @@ Created on Apr 18, 2016
 
 from pyes import ES
 from pyes import MatchAllQuery, QueryStringQuery, MultiMatchQuery
-from mediaresearchapp.querymapper import multifield_querymapper
-from mediacontentapp.models import Campaign
+# from mediaresearchapp.querymapper import multifield_querymapper
+# from mediacontentapp.models import Campaign
 
 
 if __name__ == '__main__':
@@ -34,22 +34,22 @@ if __name__ == '__main__':
 
 # Basic 3
     q3 = MultiMatchQuery(fields=["tag^3", "description"],
-                         text="joggers airfare")
+                         text="banking ")
     print q3
     resultset = es.search(q3)
     for r in resultset:
         print r
 
 # Basic
-    wfields = {"category": 4, "tag": 3, "description": 1}
-    qm = multifield_querymapper(wfields)
-    q4 = qm.create_query("the joggers park with some")
-    print q4
-    resultset = es.search(q4)
-    ids = [r['id'] for r in resultset]
-    print ids
-    camps = Campaign.objects.filter(id__in=set(ids))
-    print camps
+#     wfields = {"category": 4, "tag": 3, "description": 1}
+#     qm = multifield_querymapper(wfields)
+#     q4 = qm.create_query("the joggers park with some")
+#     print str(q4)
+#     resultset = es.search(q4)
+#     ids = [r['id'] for r in resultset]
+#     print ids
+#     camps = Campaign.objects.filter(id__in=set(ids))
+#     print camps
 
 
 

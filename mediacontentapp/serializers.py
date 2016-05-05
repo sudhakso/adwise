@@ -3,8 +3,10 @@ from mediacontentapp.models import Ad, TextAd, ProductAd, DynamicSearchAd,\
 from mediacontentapp.models import CallOnlyAd, ImageAd
 from mediacontentapp.models import AdExtension,\
     LocationExtension, BusinessHoursExtension,\
-    OfferExtension, Period
+    OfferExtension, SocialExtension, T_C_Extension,\
+    Period
 from rest_framework_mongoengine import serializers
+from rest_framework.serializers import ListSerializer
 
 
 class CampaignSpecSerializer(serializers.DocumentSerializer):
@@ -59,6 +61,37 @@ class CampaignIndexSerializer(serializers.DocumentSerializer):
         return self.get_field_names(*args, **kwargs)
 
 
+class ImageAdIndexSerializer(serializers.DocumentSerializer):
+
+    class Meta:
+        model = ImageAd
+        fields = ('id',
+                  'ad_type',
+                  'ad_location_tag')
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class OfferIndexSerializer(serializers.DocumentSerializer):
+
+    class Meta:
+        model = OfferExtension
+        fields = ('id',
+                  'offer_type',
+                  'offer_code',
+                  'offer_description')
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
 class CampaignTrackingSerializer(serializers.DocumentSerializer):
     class Meta:
         model = CampaignTracking
@@ -70,15 +103,68 @@ class CampaignTrackingSerializer(serializers.DocumentSerializer):
         return self.get_field_names(*args, **kwargs)
 
 
+class OfferExtensionSerializer(serializers.DocumentSerializer):
+
+    class Meta:
+        model = OfferExtension
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class SocialMediaExtensionSerializer(serializers.DocumentSerializer):
+
+    class Meta:
+        model = SocialExtension
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class T_C_ExtensionSerializer(serializers.DocumentSerializer):
+
+    class Meta:
+        model = T_C_Extension
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class BusinessHoursExtensionSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = BusinessHoursExtension
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
 class AdSerializer(serializers.DocumentSerializer):
     campaign = CampaignSerializer(required=False, read_only=True)
+#     offerex = OfferExtensionSerializer(required=False,
+#                                        read_only=True,
+#                                        many=True)
+#     socialex = SocialMediaExtensionSerializer(required=False,
+#                                               read_only=True,
+#                                               many=True)
 
     class Meta:
         model = Ad
         fields = ('url', 'display_url', 'final_urls', 'mobile_urls',
                   'app_urls', 'thirdparty_tracking_url', 'adwise_tracking_url',
                   'ad_type', 'custom_parameters', 'device_preference',
-                  'campaign', 'extensions',)
+                  'campaign', 'offerex', 'socialex',)
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
@@ -121,7 +207,13 @@ class CallOnlyAdSerializer(serializers.DocumentSerializer):
 
 
 class ImageAdSerializer(serializers.DocumentSerializer):
-    campaign = CampaignSerializer(required=False)
+#    campaign = CampaignSerializer(required=False, read_only=True)
+    offerex = OfferExtensionSerializer(required=False,
+                                       many=True,
+                                       read_only=True)
+    socialex = SocialMediaExtensionSerializer(required=False,
+                                              many=True,
+                                              read_only=True)
 
     class Meta:
         model = ImageAd
@@ -132,6 +224,15 @@ class ImageAdSerializer(serializers.DocumentSerializer):
 
     def _get_default_field_names(self, *args, **kwargs):
         return self.get_field_names(*args, **kwargs)
+
+#     def create(self, validated_data):
+#         user = User(
+#             email=validated_data['email'],
+#             username=validated_data['username']
+#         )
+#         user.set_password(validated_data['password'])
+#         user.save()
+#         return user
 
 
 class ImageContentSerializer(serializers.DocumentSerializer):
@@ -192,29 +293,6 @@ class LocationExtensionSerializer(serializers.DocumentSerializer):
 class PeriodSerializer(serializers.DocumentSerializer):
     class Meta:
         model = Period
-
-    def _include_additional_options(self, *args, **kwargs):
-        return self.get_extra_kwargs()
-
-    def _get_default_field_names(self, *args, **kwargs):
-        return self.get_field_names(*args, **kwargs)
-
-
-class OfferExtensionSerializer(serializers.DocumentSerializer):
-
-    class Meta:
-        model = OfferExtension
-
-    def _include_additional_options(self, *args, **kwargs):
-        return self.get_extra_kwargs()
-
-    def _get_default_field_names(self, *args, **kwargs):
-        return self.get_field_names(*args, **kwargs)
-
-
-class BusinessHoursExtensionSerializer(serializers.DocumentSerializer):
-    class Meta:
-        model = BusinessHoursExtension
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

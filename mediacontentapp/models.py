@@ -370,36 +370,39 @@ class Ad(Document):
     Represents the base class for possible advertisement
     impression types.
     """
-    url = StringField()
-    display_url = StringField()
+    url = StringField(required=False)
+    display_url = StringField(required=False)
 
     # TBD (Sonu): Collection of product urls
-    final_urls = StringField()
-    mobile_urls = StringField()
-    app_urls = StringField()
+    final_urls = StringField(required=False)
+    mobile_urls = StringField(required=False)
+    app_urls = StringField(required=False)
 
     # Customer trusted tracking
-    thirdparty_tracking_url = StringField()
+    thirdparty_tracking_url = StringField(required=False)
 
     # AdWise tracking
-    adwise_tracking_url = StringField()
+    adwise_tracking_url = StringField(required=False)
 
     # Location tag
     # TBD: Make tags very generic by nature.
     # For example, tags should be search'able- location,
     # genre, keywords etc.
-    ad_location_tag = GeoPointField()
+    ad_location_tag = GeoPointField(required=False)
 
     # Meta
-    ad_type = StringField()
-    custom_parameters = DictField()
-    device_preference = IntegerField()
+    ad_type = StringField(required=False)
+    custom_parameters = DictField(required=False)
+    device_preference = IntegerField(required=False)
 
     # Campaign this Ad refers to.
-    campaign = ReferenceField('Campaign')
+    campaign = ReferenceField('Campaign',
+                              required=False)
     # List of extension
-    extensions = ListField(ReferenceField('AdExtension'))
-
+    offerex = ListField(ReferenceField('OfferExtension'),
+                        required=False)
+    socialex = ListField(ReferenceField('SocialExtension'),
+                         required=False)
     # reference - DRF field
     url = fields.URLField(source='get_absolute_url', read_only=False)
 
@@ -624,6 +627,39 @@ class OfferExtension(AdExtension):
 
     def get_absolute_url(self):
         return "/mediacontent/ads/extension/offer/%i/" % self.id
+
+
+class SocialExtension(AdExtension):
+    """
+    This extension adds social extension to the
+    advertisement impression.
+    """
+    # Discount, Introductory, festive etc,
+    # Search-tag
+    socialmedia_type = StringField(default='')
+    socialmedia_url = StringField()
+    # Search-tag
+    socialmedia_headline = StringField()
+    # Internal data, Stored in ad-wise
+    # not to be serialized
+    _meta = DictField()
+
+    def get_absolute_url(self):
+        return "/mediacontent/ads/extension/social/%i/" % self.id
+
+
+class T_C_Extension(AdExtension):
+    """
+    This extension adds Terms and Condition extension
+    to the advertisement impression.
+    """
+    t_c_text = StringField()
+    # Internal data, Stored in ad-wise
+    # not to be serialized
+    _meta = DictField()
+
+    def get_absolute_url(self):
+        return "/mediacontent/ads/extension/tc/%i/" % self.id
 
 
 class JpegImageContent(Document):
