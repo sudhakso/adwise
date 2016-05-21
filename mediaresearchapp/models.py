@@ -1,6 +1,6 @@
 from mongoengine.fields import ListField,\
     StringField, DateTimeField, FloatField,\
-    ReferenceField, GeoPointField
+    ReferenceField, GeoPointField, DictField
 # from django_mongodb_engine.fields import GridFSField
 from mongoengine.document import Document
 from mongoengine import connect
@@ -14,24 +14,26 @@ connect(_MONGODB_NAME, alias='default')
 All = 'everyone'
 
 
-# Leads for non-registered user
-class StartupLeads(Document):
-    # User email
-    email = StringField(required=False)
-    phone_number = StringField(required=False)
-    # Last activity
-    activity = DateTimeField(default=datetime.now())
-    # Attempts to use the product w/o reg.
-    attempts = FloatField(required=False)
-    # latest location tried
-    cordinates = GeoPointField(required=False)
+class ByFieldSearchQuery(Document):
+    userid = ObjectIdField(required=False)
+    # e.g. 15-20
+    search_string = StringField()
+    # e.g. target_group
+    query_field = StringField(required=True)
+    creation_time = DateTimeField(default=datetime.now())
+    query_runtime_duration = FloatField()
 
 
 class SearchQuery(Document):
     userid = ObjectIdField(required=False)
+    query_type = StringField(default="Campaign", required=False)
+    # e.g. 15-20, youth
     raw_strings = StringField()
-    query_fields = ListField(default=[])
-    query_values = ListField(default=[])
+    # e.g.
+    #        {"field-1":4,
+    #         "field-2":5}
+    # where, 4, 5 are the ranking
+    query_fields = DictField(default={})
     creation_time = DateTimeField(default=datetime.now())
     query_runtime_duration = FloatField()
 
@@ -44,4 +46,5 @@ class ResearchElement(Document):
 
 class ResearchResult(Document):
     campaigns = ListField(ReferenceField('Campaign'))
+    oohs = ListField(ReferenceField('OOHMediaSource'))
     query_runtime_duration = FloatField(default=0.0)

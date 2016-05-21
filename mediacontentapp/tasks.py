@@ -45,6 +45,36 @@ class BasicSearchTask(Task):
         return _srjson
 
 
+class OOHyticsIndexingTask(Task):
+    ignore_errors = True
+    _es = None
+
+    @property
+    def es(self):
+        if self._es is None:
+            self._es = IndexingService()
+        return self._es
+
+    # instancename=, object=
+    def run(self, *args, **kwargs):
+        print 'Creating index for OOH instance : %s ...' % (
+                                kwargs['instancename'])
+        if 'many' in kwargs and kwargs['many'] == True:
+            data = {'root': kwargs['oohytics']}
+        else:
+            data = kwargs['oohytics']
+        print data
+        try:
+            self.es.connection.index(
+                                data,
+                                "oohmediasource",
+                                "external")
+        except Exception as e:
+            print "Failed creating index for ooh  : %s" % (
+                                    kwargs['instancename'])
+            print "Exception : %s" % str(e)
+
+
 class CampaignIndexingTask(Task):
     ignore_errors = True
     _es = None

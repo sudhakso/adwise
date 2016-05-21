@@ -197,10 +197,12 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg" http://127.0.0.1:8000/mediacontent/ads/imageads/571a72741d41c8b297ff2e75/572704641d41c8e673f4848d/
 
 # Do a research
-while sleep 1; do curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"raw_strings": "swimming equipment", "query_fields":["category", "description"]}' http://localhost:8000/research/; done;
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"raw_strings": "helmet", "query_type": "Campaign", "query_fields":{"category":4, "description":2}}' http://127.0.0.1:8000/research/search/
 
-curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"raw_strings": "cricket", "query_fields":["category", "description"]}' http://localhost:8000/research/_search/
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"raw_strings": "helmet"}' http://127.0.0.1:8000/research/search/
 
+# Invoking search API internally, doesn't do any user validations.
+curl -H "Content-Type: application/json" -X POST -d '{"raw_strings": "fitness", "query_type": "OOHMediaSource", "query_fields":{"category":4, "description":2}}' http://127.0.0.1:8000/research/query/
 
 # Tools
 python ./campaign_import.py tabseparated_camp.data http://127.0.0.1:8000 /home/sonu/adimages/campaigns/

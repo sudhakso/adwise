@@ -10,7 +10,7 @@ import datetime
 import json
 from celery import shared_task
 from celery import Task
-from mediacontentapp.models import Campaign
+from mediacontentapp.models import Campaign, OOHMediaSource
 from mediaresearchapp.models import SearchQuery, ResearchResult
 from celery import Celery
 from mediaresearchapp.serializers import ResearchResultSerializer
@@ -43,26 +43,66 @@ class BasicSearchTask(Task):
         return _srjson
 
 
-class MultiFieldQuerySearchTask(Task):
+class CampaignQuerySearchTask(Task):
     ignore_errors = True
     # TBD (create the end-point through the controller)
-    es = ES("127.0.0.1:9200")
+    ignore_errors = True
+    _es = None
+
+    @property
+    def es(self):
+        if self._es is None:
+            self._es = ES("127.0.0.1:9200")
+        return self._es
 
     def run(self, *args, **kwargs):
+        wfields = {"category": 4, "tag": 3, "city": 2, "description": 1}
         start = datetime.datetime.now()
         print 'Searching %s ...' % kwargs['raw_strings']
         # Field ranking
-        # TBD (Note:Sonu) accept as configuration
-        wfields = {"category": 4, "tag": 3, "city": 2, "description": 1}
+        if 'fields' in kwargs:
+            wfields = kwargs['fields']
         qm = multifield_querymapper(wfields)
         q4 = qm.create_query(kwargs['raw_strings'])
-        resultset = MultiFieldQuerySearchTask.es.search(q4)
+        resultset = self.es.search(q4)
         ids = [r['id'] for r in resultset]
         print ids
         camps = Campaign.objects.filter(id__in=set(ids))
         end = datetime.datetime.now()
         elapsed_time = end - start
         _rr = ResearchResult(campaigns=camps,
+                             query_runtime_duration=elapsed_time.total_seconds(
+                                                            ))
+        rr = _rr.save()
+        ser = ResearchResultSerializer(rr, many=False)
+        _srjson = json.dumps(ser.data, encoding='utf-8')
+        print _srjson
+        return _srjson
+
+
+class OOHQuerySearchTask(Task):
+    ignore_errors = True
+    _es = None
+
+    @property
+    def es(self):
+        if self._es is None:
+            self._es = ES("127.0.0.1:9200")
+        return self._es
+
+    def run(self, *args, **kwargs):
+        start = datetime.datetime.now()
+        print 'Searching %s ...' % kwargs['raw_strings']
+        # Field ranking
+        qm = multifield_querymapper(kwargs['fields'])
+        q4 = qm.create_query(kwargs['raw_strings'])
+        resultset = self.es.search(q4)
+        ids = [r['id'] for r in resultset]
+        print 'Search returned following instances %s' % ids
+        oohs = OOHMediaSource.objects.filter(id__in=set(ids))
+        end = datetime.datetime.now()
+        elapsed_time = end - start
+        _rr = ResearchResult(oohs=oohs,
                              query_runtime_duration=elapsed_time.total_seconds(
                                                             ))
         rr = _rr.save()

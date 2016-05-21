@@ -4,18 +4,33 @@ Created on Dec 25, 2015
 @author: sonu
 '''
 import json
-from mediacontentapp.models import OOHMediaSource,\
+from mediacontentapp.models import OOHAnalyticalAttributes,\
     Campaign, OfferExtension, ImageAd
 from mongoengine import signals
 from mediacontentapp.tasks import CampaignIndexingTask, OfferIndexingTask,\
-    AdIndexingTask
+    AdIndexingTask, OOHyticsIndexingTask
 from mediacontentapp.serializers import CampaignIndexSerializer,\
     ImageAdIndexSerializer, OfferIndexSerializer
 from mediacontentapp.controller import IndexingService
+from mediacontentapp.sourceserializers import OOHAnalyticalAttributesSerializer
 
 
-def mediasource_handler(sender, document, created):
+def index_oohanalytics(sender, document, created):
     print "Placeholder for source analytics"
+    # Campaign Index task
+    if created:
+        oohytics = OOHAnalyticalAttributesSerializer(document, many=False)
+        task = OOHyticsIndexingTask()
+        rc = task.delay(args=[],
+                        instancename=str(document.source_ref.id),
+                        oohytics=json.dumps(oohytics.data),
+                        ignore_failures=True)
+        if rc.state == "SUCCESS":
+            print "index_oohanalytics task status: OK."
+        else:
+            print "index_oohanalytics task status: Not OK."
+    else:
+            print "index_oohanalytics: task status: Unchanged OK."
 
 
 def index_campaign(sender, document, created):
@@ -72,7 +87,7 @@ def index_ad(sender, document, created):
             print "index_ad: task status: Unchanged OK."
 
 # Register all model handlers
-signals.post_save.connect(mediasource_handler, OOHMediaSource)
+signals.post_save.connect(index_oohanalytics, OOHAnalyticalAttributes)
 signals.post_save.connect(index_campaign, Campaign)
 signals.post_save.connect(index_offer, OfferExtension)
 signals.post_save.connect(index_ad, ImageAd)

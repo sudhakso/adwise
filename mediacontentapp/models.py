@@ -174,6 +174,38 @@ class MediaSourceActivity(Document):
     activity_meta = StringField(default="", required=False)
 
 
+class SourceAnalyticalAttributes(Document):
+    """
+    Source analytical attributes
+    """
+    # e.g. food, travel
+    preferred_categories = StringField(required=False)
+    # e.g. youth, infants
+    genre_affinities = StringField(required=False)
+    # e.g. regular, tourists, distinct visitors, male, female
+    target_audience_types = StringField(required=False)
+    # e.g. regular:100 views/hour/day, male:50 v/s female: 300 v/s
+    avg_viewership_by_type = ListField(default=[], required=False)
+    # e.g. 1m, 10k
+    avg_viewership = FloatField(required=False)
+    # Meta
+    _created_time = DateTimeField(default=datetime.now)
+    _valid_days_from_creation_day = FloatField(default=30.0)
+    _source_id = StringField(default="unknown", required=False)
+
+    meta = {'allow_inheritance': True}
+
+    class Meta:
+        abstract = True
+
+
+class OOHAnalyticalAttributes(SourceAnalyticalAttributes):
+    # e.g. ooh
+    media_type = StringField(required=True)
+    # e.g. reference to instance
+    source_ref = ReferenceField('OOHMediaSource', required=True)
+
+
 class Booking(Document):
     """
     Booking/Reservation orders
@@ -219,6 +251,8 @@ class MediaSource(Document):
     display_name = StringField()
     caption = StringField()
     type = StringField()
+    # tag data
+    tags = StringField()
     # Can display
     enabled = BooleanField(default=True, required=False)
     # Verification,
@@ -265,6 +299,7 @@ class OOHMediaSource(MediaSource):
     lighting_type = StringField()
     ooh_type = StringField()
     area = FloatField()
+    min_booking_days = FloatField(default=15.0)
 
     # Pricing
     pricing = ReferenceField('Pricing', required=False)
