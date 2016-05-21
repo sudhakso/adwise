@@ -21,6 +21,7 @@ pytz==2015.7
 six==1.10.0
 urllib3==1.15.1
 wsgiref==0.1.2
+oslo.log
 
 ####
 # Additional dependencies, not covered in PIP
