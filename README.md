@@ -204,6 +204,14 @@ curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" 
 # Invoking search API internally, doesn't do any user validations.
 curl -H "Content-Type: application/json" -X POST -d '{"raw_strings": "fitness", "query_type": "OOHMediaSource", "query_fields":{"category":4, "description":2}}' http://127.0.0.1:8000/research/query/
 
+# Submitting OOH operational data for analytics (Bulk upload)
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '[{"visitor_total_count":170000, "breakups": {"age":{"15-20": 100, "20-28": 200, "28-35": 500}, "commute":{"bus":500,"cabs": 1200,"cars": 1500}, "target":{"profs":1200, "teens":5000, "biz":5000}}, "feed_timestamp":"2016-06-01T18:37:21.766000"}, {"visitor_total_count":3500, "breakups": {"age":{"15-20": 100, "20-28": 200, "28-35": 500}, "commute":{"bus":500,"cabs": 1200,"cars": 1500}, "target":{"profs":1200, "teens":5000, "biz":5000}}, "feed_timestamp":"2016-06-02T18:37:21.766000"}]' http://127.0.0.1:8000/mediacontent/etl/ooh/574d68571d41c8ba3f289e84/
+
+# Submitting OOH operational data for analytics (One sample)
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '[{"visitor_total_count":170000, "breakups": {"age":{"15-20": 100, "20-28": 200, "28-35": 500}, "commute":{"bus":500,"cabs": 1200,"cars": 1500}, "target":{"profs":1200, "teens":5000, "biz":5000}}, "feed_timestamp":"2016-06-01T18:37:21.766000"}]' http://127.0.0.1:8000/mediacontent/etl/ooh/574d68571d41c8ba3f289e84/
+
+
+Template: http://<localhost>:8000/mediacontent/etl/ooh/<ooh_instance_id>/
 # Tools
 python ./campaign_import.py tabseparated_camp.data http://127.0.0.1:8000 /home/sonu/adimages/campaigns/
 python ./ad_import.py tabseparated_ad.data http://127.0.0.1:8000 /home/sonu/adimages/campaigns/ 570746dd1d41c84bc448786b

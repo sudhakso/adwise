@@ -5,7 +5,7 @@ from userapp.serializers import UserSerializer
 from mediacontentapp.models import MediaSource, OOHMediaSource,\
         VODMediaSource, DigitalMediaSource, RadioMediaSource, Pricing,\
         Booking, MediaDashboard, MediaSourceActivity, SourceTag,\
-        OOHAnalyticalAttributes
+        OOHAnalyticalAttributes, OOHOperationalDailyDataFeed
 from datetime import timedelta
 from mediacontentapp.controller import ActivityManager
 
@@ -144,6 +144,17 @@ class BookingSerializer(serializers.DocumentSerializer):
 class PricingSerializer(serializers.DocumentSerializer):
     class Meta:
         model = Pricing
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class OOHOperationalDailyDataFeedSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = OOHOperationalDailyDataFeed
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

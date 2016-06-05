@@ -11,15 +11,15 @@ from userapp.session.sessionmanager import SessionManager
 from userapp.service.identityservice import IdentityManager
 from userapp.faults import UserNotAuthorizedException, UserAlreadyExist
 from oslo_config import cfg
-from oslo_log import log as logging
+# from oslo_log import log as logging
 
 
 session_mgr = SessionManager()
 auth_manager = IdentityManager()
-LOG = logging.getLogger(__name__)
+# LOG = logging.getLogger(__name__)
 CONF = cfg.CONF
 # logging.register_options(CONF)
-logging.setup(CONF, 'adwise')
+# logging.setup(CONF, 'adwise')
 
 # Handler to check user parameters success.
 def login(request):
@@ -37,10 +37,10 @@ def login(request):
         # to login caller.
         usr = MediaUser.objects.get(username=username, email=email)
         serializer = UserSerializer(usr, many=False)
-        LOG.info("Logged in successfully")
+#         LOG.info("Logged in successfully")
         return JSONResponse(serializer.data)
     except UserNotAuthorizedException as e:
-        LOG.exception(e)
+#         LOG.exception(e)
         print e
         return JSONResponse(str(e),
                             status=HTTP_401_UNAUTHORIZED)

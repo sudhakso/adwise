@@ -8,6 +8,7 @@ from atlas_ws.settings import _MONGODB_NAME
 from rest_framework import fields
 from rest_framework.fields import IntegerField
 from datetime import datetime
+from bson.json_util import default
 # TBD (Filters don't work out of the box)
 # import django_filters
 
@@ -177,6 +178,11 @@ class MediaSourceActivity(Document):
 class SourceAnalyticalAttributes(Document):
     """
     Source analytical attributes
+
+    These are categories of attributes that are set by 
+    administrator.
+    Other values like roi, daily_viewerships are calculate
+    by back-end analytics.
     """
     # e.g. food, travel
     preferred_categories = StringField(required=False)
@@ -184,13 +190,8 @@ class SourceAnalyticalAttributes(Document):
     genre_affinities = StringField(required=False)
     # e.g. regular, tourists, distinct visitors, male, female
     target_audience_types = StringField(required=False)
-    # e.g. regular:100 views/hour/day, male:50 v/s female: 300 v/s
-    avg_viewership_by_type = ListField(default=[], required=False)
-    # e.g. 1m, 10k
-    avg_viewership = FloatField(required=False)
     # Meta
     _created_time = DateTimeField(default=datetime.now)
-    _valid_days_from_creation_day = FloatField(default=30.0)
     _source_id = StringField(default="unknown", required=False)
 
     meta = {'allow_inheritance': True}
@@ -204,6 +205,52 @@ class OOHAnalyticalAttributes(SourceAnalyticalAttributes):
     media_type = StringField(required=True)
     # e.g. reference to instance
     source_ref = ReferenceField('OOHMediaSource', required=True)
+
+
+class OOHOperationalDailyDataFeed(Document):
+    """
+    Data can be fed to this class instance via
+    CLI or data upload tools.
+
+    Later this data will be aggregated by analytical
+    database to derive daily, weekly and monthly average etc.
+
+    This class is for each OOH instance on daily basis.
+    """
+    source_ref = ReferenceField('OOHMediaSource', required=False)
+    visitor_total_count = FloatField(default=0.0, required=False)
+    # {
+    #   "age" : {"12-30": 1500, "30-60": 2000},
+    #   "commute_types" : { "bus": 100, "cabs": 250, "cars": 100},
+    #   "target_types" : { "professionals" : 100,
+    #                      "drivers" : 200,
+    #                      "online_ready" : 1000,
+    #                      "leads_ready" : 1000},
+    # Recognized types = ['age', 'commute', 'target']
+    breakups = DictField(required=False)
+    feed_timestamp = DateTimeField(default=datetime.now())
+    trusted_source = BooleanField(default=False)
+
+
+class OOHProcessedAnalytics(Document):
+    """
+    Data is the result set of analytics operation.
+    For example, an outcome of R function.
+
+    This class is for each OOH instance.
+    """
+    # List of ROIs, trend showing increase and decrease of ROI by
+    # week/month/year.
+    # ROI  = ((daily_viewership)/(daily_avg_price)) * functional_weight
+    # where functional_weight = F(ad_type, ad_genere)
+    # is a function derived based on ad_category, and relevance of target
+    # viewer ship.
+    # [roi_1, roi_2,....]
+    roi = ListField()
+    roi_mean = FloatField()
+    start_time = DateTimeField()
+    end_time = DateTimeField()
+    period = FloatField()
 
 
 class Booking(Document):
