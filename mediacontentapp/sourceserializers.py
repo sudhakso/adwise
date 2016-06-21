@@ -5,7 +5,8 @@ from userapp.serializers import UserSerializer
 from mediacontentapp.models import MediaSource, OOHMediaSource,\
         VODMediaSource, DigitalMediaSource, RadioMediaSource, Pricing,\
         Booking, MediaDashboard, MediaSourceActivity, SourceTag,\
-        OOHAnalyticalAttributes, OOHOperationalDailyDataFeed
+        OOHAnalyticalAttributes, OOHOperationalDailyDataFeed,\
+        Amenity
 from datetime import timedelta
 from mediacontentapp.controller import ActivityManager
 
@@ -152,6 +153,18 @@ class PricingSerializer(serializers.DocumentSerializer):
         return self.get_field_names(*args, **kwargs)
 
 
+class AmenitySerializer(serializers.DocumentSerializer):
+
+    class Meta:
+        model = Amenity
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
 class OOHOperationalDailyDataFeedSerializer(serializers.DocumentSerializer):
     class Meta:
         model = OOHOperationalDailyDataFeed
@@ -198,6 +211,7 @@ class OOHMediaSourceSerializer(serializers.DocumentSerializer):
     # SSP details
     pricing = PricingSerializer(required=False, read_only=True)
     booking = BookingSerializer(required=False, read_only=True)
+    amenity = AmenitySerializer(required=False, read_only=True)
 
     class Meta:
         model = OOHMediaSource

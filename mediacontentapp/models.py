@@ -121,27 +121,19 @@ class SourceAdDetails(Document):
     pass
 
 
-class AmenityType(Document):
-    """
-    pre-defined amenity.
-    Rating system could consider amenity.
-    """
-    # pre-known types of amenity
-    typename = StringField()
-    weight = FloatField()
-
-
 class Amenity(Document):
     """
     Location specific amenities.
     Rating system could consider amenity.
     """
     # public roads, Community hall, leisure,
-    type = ReferenceField('AmenityType')
+    typename = StringField(required=True)
+    typeweight = FloatField(required=False, default=0.0)
     # Ring road, marriage, snack bar
-    classifier = StringField()
-    name = StringField(primary_key=True)
-    rating = FloatField()
+    category = StringField()
+    name1 = StringField(required=True)
+    name2 = StringField(required=False)
+    location = GeoPointField(required=True)
 
 
 # TBD
@@ -353,7 +345,7 @@ class OOHMediaSource(MediaSource):
     # Bookings
     booking = ReferenceField('Booking', required=False)
     # Amenity (ETL feed)
-    ammenities = ListField(ReferenceField('Amenity'), default=[])
+    amenity = ListField(ReferenceField('Amenity'), default=[])
     # Advanced parameters
     image_url = StringField()
     primary_image_content = ReferenceField('JpegImageContent')

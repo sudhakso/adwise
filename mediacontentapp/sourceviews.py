@@ -9,7 +9,7 @@ from mediacontentapp.sourceserializers import MediaSourceSerializer,\
         OOHMediaSourceSerializer, VODMediaSourceSerializer,\
         DigitalMediaSourceSerializer, RadioMediaSourceSerializer,\
         BookingSerializer, PricingSerializer, MediaSourceActivitySerializer,\
-        SourceTagSerializer
+        SourceTagSerializer, AmenitySerializer
 from mediacontentapp.serializers import JpegImageContentSerializer
 from mediacontentapp import IdentityService
 from userapp.faults import UserNotAuthorizedException
@@ -241,6 +241,7 @@ class OOHMediaSourceViewSet(APIView):
             img = None
             img_url = None
             pricing = None
+            amenities = None
 
             auth_user = auth_manager.do_auth(request)
             # TBD (Note:Sonu) : Differentiate the Service user,
@@ -266,6 +267,12 @@ class OOHMediaSourceViewSet(APIView):
                             data=request.data['pricing'])
                 if pricingserializer.is_valid():
                     pricing = pricingserializer.save()
+            # Store Pricing (optional)
+            if 'amenity' in request.data:
+                amenityserializer = AmenitySerializer(
+                            data=request.data['amenity'], many=True)
+                if amenityserializer.is_valid():
+                    amenities = amenityserializer.save()
             serializer = OOHMediaSourceSerializer(
                                 data=request.data)
             if serializer.is_valid():
@@ -274,14 +281,19 @@ class OOHMediaSourceViewSet(APIView):
                                       primary_image_content=img,
                                       image_url=img_url)
                 src.update(operated_by=operated_by, owner=operated_by,
-                           pricing=pricing, booking=bookings)
+                           pricing=pricing, booking=bookings,
+                           amenity=amenities)
                 src.save()
-                return JSONResponse(serializer.data,
+                return JSONResponse(serializer.validated_data,
                                     status=HTTP_201_CREATED)
         except UserNotAuthorizedException as e:
             print e
             return JSONResponse(str(e),
                                 status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
 
         return JSONResponse(serializer.errors,
                             status=HTTP_400_BAD_REQUEST)
