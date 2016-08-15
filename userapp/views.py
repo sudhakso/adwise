@@ -14,7 +14,7 @@ from datetime import datetime
 from userapp.session.sessionmanager import SessionManager
 from userapp.service.identityservice import IdentityManager
 from userapp.faults import UserNotAuthorizedException, UserAlreadyExist
-from oslo_config import cfg
+# from oslo_config import cfg
 # from oslo_log import log as logging
 from mongoengine.errors import DoesNotExist, MultipleObjectsReturned
 
