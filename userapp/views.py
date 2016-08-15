@@ -1,9 +1,13 @@
 # Create your views here.
 from models import MediaUser, Service, UserService, ServiceRequest
 from userapp.serializers import UserSerializer, UserServiceSerializer,\
-    ServiceRequestSerializer, UserCreateRequestSerializer
+    ServiceRequestSerializer, UserRoleSerializer,\
+    UserDevicePrefSerializer, ProjectSerializer,\
+    UserMediaPrefSerializer, UserPersonalPrefSerializer,\
+    UserLocationPrefSerializer
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
-    HTTP_500_INTERNAL_SERVER_ERROR, HTTP_401_UNAUTHORIZED
+    HTTP_500_INTERNAL_SERVER_ERROR, HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND,\
+    HTTP_300_MULTIPLE_CHOICES, HTTP_200_OK, HTTP_304_NOT_MODIFIED
 from userapp.JSONFormatter import JSONResponse
 from rest_framework.views import APIView
 from datetime import datetime
@@ -12,7 +16,7 @@ from userapp.service.identityservice import IdentityManager
 from userapp.faults import UserNotAuthorizedException, UserAlreadyExist
 from oslo_config import cfg
 # from oslo_log import log as logging
-
+from mongoengine.errors import DoesNotExist, MultipleObjectsReturned
 
 session_mgr = SessionManager()
 auth_manager = IdentityManager()
@@ -20,6 +24,7 @@ auth_manager = IdentityManager()
 CONF = cfg.CONF
 # logging.register_options(CONF)
 # logging.setup(CONF, 'adwise')
+
 
 # Handler to check user parameters success.
 def login(request):
@@ -37,17 +42,19 @@ def login(request):
         # to login caller.
         usr = MediaUser.objects.get(username=username, email=email)
         serializer = UserSerializer(usr, many=False)
-#         LOG.info("Logged in successfully")
-        return JSONResponse(serializer.data)
+        return JSONResponse(serializer.data, status=HTTP_200_OK)
     except UserNotAuthorizedException as e:
-#         LOG.exception(e)
         print e
         return JSONResponse(str(e),
                             status=HTTP_401_UNAUTHORIZED)
-    except Exception as e:
+    except MultipleObjectsReturned as e:
         print e
         return JSONResponse(str(e),
-                            status=HTTP_401_UNAUTHORIZED)
+                            status=HTTP_300_MULTIPLE_CHOICES)
+    except DoesNotExist as e:
+        print e
+        return JSONResponse(str(e),
+                            status=HTTP_404_NOT_FOUND)
     except Exception as e:
         print e
         return JSONResponse(str(e),
@@ -61,56 +68,216 @@ class UserViewSet(APIView):
     serializer_class = UserSerializer
     model = MediaUser
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, userid=None):
         """ Returns a list of users
          ---
          response_serializer: UserSerializer
         """
         try:
             auth_manager.do_auth(request)
-            # Request Get, all users
-            usrs = MediaUser.objects.all()
-            serializer = UserSerializer(usrs, many=True)
-            return JSONResponse(serializer.data)
+            if userid is None:
+                # Request Get, all users
+                usrs = MediaUser.objects.all()
+                serializer = UserSerializer(usrs, many=True)
+                return JSONResponse(serializer.data)
+            else:
+                usrs = MediaUser.objects.get(id=userid)
+                serializer = UserSerializer(usrs)
+                return JSONResponse(serializer.data)
         except UserNotAuthorizedException as e:
             print e
             return JSONResponse(str(e),
                                 status=HTTP_401_UNAUTHORIZED)
-        except Exception as e:
+        except DoesNotExist as e:
             print e
             return JSONResponse(str(e),
-                                status=HTTP_401_UNAUTHORIZED)
+                                status=HTTP_404_NOT_FOUND)
+        except MultipleObjectsReturned as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_300_MULTIPLE_CHOICES)
         except Exception as e:
             print e
             return JSONResponse(str(e),
                                 status=HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def post(self, request, *args, **kwargs):
-        """ Creates a user
+    # Update a user instance
+    def post_update(self, userobj, request):
+
+        project_id = role = device_pref = personal_pref = media_pref = None
+        loc_pref = None
+        ser = None
+        try:
+            # Construct the objects
+            if "project" in request.data:
+                projserializer = ProjectSerializer(
+                                        data=request.data["project"],
+                                        partial=True)
+                if projserializer.is_valid(raise_exception=True):
+                    if userobj.project_id:
+                        project_id = projserializer.update(
+                                                    userobj.project_id,
+                                                    projserializer.validated_data)
+                    else:
+                        project_id = projserializer.save()
+                        userobj.project_id = project_id
+            if "role" in request.data:
+                roleserializer = UserRoleSerializer(
+                                        data=request.data["role"], partial=True)
+                if roleserializer.is_valid(raise_exception=True):
+                    if userobj.role:
+                        role = roleserializer.update(
+                                                    userobj.role,
+                                                    roleserializer.validated_data)
+                    else:
+                        role = roleserializer.save()
+                        userobj.role = role
+
+            if "device_pref" in request.data:
+                devserializer = UserDevicePrefSerializer(
+                                        data=request.data["device_pref"],
+                                        partial=True, many=True)
+                if devserializer.is_valid(raise_exception=True):
+                    device_pref = devserializer.save()
+                    userobj.device_pref = device_pref
+
+            if "personal_pref" in request.data:
+                personalserializer = UserPersonalPrefSerializer(
+                                                data=request.data["personal_pref"],
+                                                partial=True, many=True)
+                if personalserializer.is_valid(raise_exception=True):
+                    personal_pref = personalserializer.save()
+                    userobj.personal_pref = personal_pref
+
+            if "media_pref" in request.data:
+                mediaserializer = UserMediaPrefSerializer(
+                                                data=request.data["media_pref"],
+                                                partial=True, many=True)
+                if mediaserializer.is_valid(raise_exception=True):
+                    media_pref = mediaserializer.save()
+                    userobj.media_pref = media_pref
+
+            if "loc_pref" in request.data:
+                locserializer = UserLocationPrefSerializer(
+                                                data=request.data["loc_pref"],
+                                                partial=True, many=True)
+                if locserializer.is_valid(raise_exception=True):
+                    loc_pref = locserializer.save()
+                    userobj.loc_pref = loc_pref
+
+            if "user" in request.data:
+                userserializer = UserSerializer(
+                                            data=request.data["user"],
+                                            partial=True)
+                if userserializer.is_valid(raise_exception=True):
+                    user = userserializer.update(
+                                            userobj,
+                                            userserializer.validated_data)
+            userobj.save(last_updated=datetime.now(),
+                         last_activity=datetime.now())
+            ret_data = UserSerializer(userobj)
+            # Updated User successfully.
+            return JSONResponse(ret_data.data,
+                                status=HTTP_200_OK)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_304_NOT_MODIFIED)
+
+    def post(self, request, userid=None):
+        """ Creates or updates a user
          ---
-         request_serializer: UserCreateRequestSerializer
-         response_serializer: UserCreateRequestSerializer
+         request_serializer: UserSerializer
+         response_serializer: UserSerializer
         """
         # Request Post, create user
         try:
+            if 'user' not in request.data:
+                return JSONResponse("User field must be present.",
+                                    status=HTTP_400_BAD_REQUEST)
+
+            # If user exists, updates the user
+            if userid:
+                auth_manager.do_auth(request)
+                usr = MediaUser.objects.get(id=userid)
+                return self.post_update(usr, request)
+
             # Pass header for authentication
             auth_manager.do_create(request)
-            serializer = UserCreateRequestSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                LOG.info("Created user %s", request.data)
-                return JSONResponse(serializer.data,
+            project_id = role = device_pref = personal_pref = media_pref = None
+            loc_pref = None
+            ser = None
+            # Construct the objects
+            if 'project' in request.data:
+                # Create project
+                ser = ProjectSerializer(data=request.data['project'])
+                if ser.is_valid(raise_exception=True):
+                    project_id = ser.save()
+
+            if 'role' in request.data:
+                # Create role
+                ser = UserRoleSerializer(data=request.data['role'])
+                if ser.is_valid(raise_exception=True):
+                    role = ser.save()
+
+            if 'device_pref' in request.data:
+                # Apply device preference
+                ser = UserDevicePrefSerializer(data=request.data['device_pref'],
+                                               many=True)
+                if ser.is_valid(raise_exception=True):
+                    device_pref = ser.save()
+
+            if 'personal_pref' in request.data:
+                # Apply personal preference
+                ser = UserPersonalPrefSerializer(data=request.data['personal_pref'],
+                                                 many=True)
+                if ser.is_valid(raise_exception=True):
+                    personal_pref = ser.save()
+
+            if 'media_pref' in request.data:
+                # Apply media preference
+                ser = UserMediaPrefSerializer(data=request.data['media_pref'],
+                                              many=True)
+                if ser.is_valid(raise_exception=True):
+                    media_pref = ser.save()
+
+            if 'loc_pref' in request.data:
+                # Apply location preference
+                ser = UserLocationPrefSerializer(data=request.data['loc_pref'],
+                                                 many=True)
+                if ser.is_valid(raise_exception=True):
+                    loc_pref = ser.save()
+
+            # Finally, create the User
+            ser = UserSerializer(data=request.data['user'])
+            if ser.is_valid(raise_exception=True):
+                usr = ser.save(date_joined=datetime.now(),
+                               last_updated=datetime.now(),
+                               last_activity=datetime.now())
+                # Update reference fields
+                usr.update(project_id=project_id,
+                           role=role,
+                           device_pref=device_pref,
+                           personal_pref=personal_pref,
+                           media_pref=media_pref,
+                           loc_pref=loc_pref)
+                saved_usr = usr.save()
+                ser = UserSerializer(saved_usr)
+                # Created the User successfully.
+                return JSONResponse(ser.data,
                                     status=HTTP_201_CREATED)
-            else:
-                # Clear the temporary Auth session created.
-                auth_manager.remove_expired_session(request)
-                LOG.error("Could not create user %s", serializer.errors)
-                return JSONResponse(serializer.errors,
-                                    status=HTTP_400_BAD_REQUEST)
         except UserAlreadyExist as e:
             print e
             return JSONResponse(str(e),
                                 status=HTTP_400_BAD_REQUEST)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except MultipleObjectsReturned as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_300_MULTIPLE_CHOICES)
         except Exception as e:
             print e
             # Remove the created user.

@@ -121,22 +121,6 @@ class SourceAdDetails(Document):
     pass
 
 
-class Amenity(Document):
-    """
-    Location specific amenities.
-    Rating system could consider amenity.
-    """
-    # public roads, Community hall, leisure,
-    typename = StringField(required=True)
-    typeweight = FloatField(required=False, default=0.0)
-    # Ring road, marriage, snack bar
-    category = StringField()
-    name1 = StringField(required=True)
-    name2 = StringField(required=False)
-    location = GeoPointField(required=True)
-
-
-# TBD
 class Subscription(Document):
     pass
 
@@ -171,7 +155,7 @@ class SourceAnalyticalAttributes(Document):
     """
     Source analytical attributes
 
-    These are categories of attributes that are set by 
+    These are categories of attributes that are set by
     administrator.
     Other values like roi, daily_viewerships are calculate
     by back-end analytics.
@@ -315,6 +299,58 @@ class MediaSource(Document):
         return "/mediasource/%i/" % self.id
 
 
+class AmenityType(Document):
+    """
+    Amenity types
+    """
+    # road, marriage-hall, shopping-mall,
+    typename = StringField(required=True)
+    category = StringField(required=True)
+    # Any specifications
+    typespec = DictField(required=False)
+    typedesc = StringField()
+    # Icon
+    typeicon_image_url = StringField()
+    typeicon_content = ReferenceField('JpegImageContent')
+
+    def get_absolute_url(self):
+        return "/amenity_types/%i/" % self.id
+
+
+class Amenity(Document):
+    """
+    Location specific amenities.
+    Every Amenity could could contain one or more
+    Media sources
+    """
+    # Type
+    typespec = ReferenceField('AmenityType')
+    # Demographic properties
+    name = StringField(required=True)
+    display_name = StringField(required=True)
+    survey_name = StringField(required=True)
+    address1 = StringField(required=True)
+    address2 = StringField(required=True)
+    city = StringField(required=True)
+    state = StringField(required=True)
+    country = StringField(required=True)
+    # geo-enabled properties
+    location = GeoPointField(required=True)
+    poi_marker_data = DictField(required=False)
+    # IoT properties
+    internet_settings = DictField(required=False)
+    # Image properties
+    icon_image_url = StringField()
+    icon_content = ReferenceField('JpegImageContent')
+    image_url = StringField()
+    image_content = ReferenceField('JpegImageContent')
+    # Media Sources
+    sourcelist = ListField(ReferenceField('MediaSource'))
+
+    def get_absolute_url(self):
+        return "/amenity/%i/" % self.id
+
+
 class OOHMediaSource(MediaSource):
     """
     Out of house advertising media type.
@@ -344,13 +380,9 @@ class OOHMediaSource(MediaSource):
     pricing = ReferenceField('Pricing', required=False)
     # Bookings
     booking = ReferenceField('Booking', required=False)
-    # Amenity (ETL feed)
-    amenity = ListField(ReferenceField('Amenity'), default=[])
     # Advanced parameters
     image_url = StringField()
     primary_image_content = ReferenceField('JpegImageContent')
-#
-#     current_content = ListField(ReferenceField('Playing'))
 
     def get_absolute_url(self):
         return "/mediasource/ooh/%i/" % self.id

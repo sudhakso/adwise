@@ -1,5 +1,3 @@
-from django.db import models
-from django.db.models.fields.related import ForeignKey
 from mongoengine.fields import GeoPointField, DictField, ListField,\
     DateTimeField, StringField, EmailField, BooleanField,\
     ReferenceField
@@ -40,23 +38,57 @@ class Project(Document):
     url = fields.URLField(source='get_absolute_url', read_only=False)
 
 
+class UserPersonalPref(Document):
+    type = 'personal'
+    personal_name = StringField(max_length=30)
+    value = StringField(max_length=30)
+    # Person's behavior related opaque data
+    personal_info = DictField(required=False)
+
+
+class UserDevicePref(Document):
+    type = 'device'
+    device_tag = StringField(max_length=30)
+    device_type = StringField(max_length=30)
+    # Device specific data
+    device_info = DictField(required=False)
+
+
+class UserMediaPref(Document):
+    type = 'media'
+    media_tag = StringField(max_length=30)
+    media_type = StringField(max_length=30)
+    # Device specific data
+    media_info = DictField(required=False)
+
+
+class UserLocationPref(Document):
+    type = 'location'
+    # 'work', 'home' etc.
+    location_name = StringField(max_length=30)
+    # Device specific data
+    loc = GeoPointField(required=True)
+
+
 # Any user in the AdWise system
 class MediaUser(Document):
+    # Friendly name
+    name = StringField(required=True)
     # Identity
-    username = StringField()
-    password = StringField()
+    username = StringField(required=True)
+    password = StringField(required=True)
     # e-correspondence
     phone_number = StringField(required=True)
     email = EmailField(verbose_name='email', required=True)
-    gender = StringField(required=True)
+    gender = StringField(required=False)
     # correspondence
     address = StringField(verbose_name='address', required=False,
                           max_length=256)
-    city = StringField(verbose_name='city', required=True, max_length=80)
-    state = StringField(verbose_name='state', required=True, max_length=80)
-    pin = StringField(verbose_name='pin', required=True, max_length=80)
-    # Organization location/geo-spatial field
-    point = GeoPointField()
+    city = StringField(verbose_name='city', required=False, max_length=80)
+    state = StringField(verbose_name='state', required=False, max_length=80)
+    pin = StringField(verbose_name='pin', required=False, max_length=80)
+    # current location
+    point = GeoPointField(required=False)
     # Records
     date_joined = DateTimeField(default=datetime.now())
     last_updated = DateTimeField(default=datetime.now())
@@ -69,6 +101,13 @@ class MediaUser(Document):
     project_id = ReferenceField(Project, required=False)
     # TBD (Note:Sonu) More role association
     role = ReferenceField(UserRole, required=False)
+    # Preferences
+    device_pref = ListField(ReferenceField('UserDevicePref'), required=False)
+    personal_pref = ListField(ReferenceField('UserPersonalPref'),
+                              required=False)
+    media_pref = ListField(ReferenceField('UserMediaPref'), required=False)
+    loc_pref = ListField(ReferenceField('UserLocationPref'), required=False)
+
     # Reference - DRF field
     url = fields.URLField(source='get_absolute_url', read_only=False)
 
@@ -89,44 +128,6 @@ class MediaUser(Document):
 
     def get_absolute_url(self):
         return "/users/%i/" % self.id
-
-
-class PreferenceCategory(Document):
-    # ['Arts and Entertainment', 'Food', 'Sports',
-    # 'Travel', 'shop', 'outdoor', 'Home',
-    # 'work', 'others'...]
-    name = StringField(max_length=30)
-
-
-class PreferenceSubCategory(Document):
-    # e.g Food as Category
-    # name = Cuisine, values = 'Italian, Indian'
-    name = StringField(max_length=30)
-    values = ListField()
-    category_ref = ForeignKey('PreferenceCategory')
-
-
-class UserPersonalPref(Document):
-    preferences = ListField(ReferenceField('PreferenceSubCategory'))
-    user_ref = ForeignKey('MediaUser')
-
-
-class UserDevicePref(Document):
-    device_tag = StringField(max_length=30)
-    device_type = StringField(max_length=30)
-    # Device specific data
-    device_info = DictField()
-    # Primary user who owns device
-    user_ref = ForeignKey('MediaUser')
-
-
-class UserMediaPref(Document):
-    media_tag = StringField(max_length=30)
-    media_type = StringField(max_length=30)
-    # Device specific data
-    media_info = DictField()
-    # Primary user who owns device
-    user_ref = ForeignKey('MediaUser')
 
 
 class UserService(Document):
@@ -170,12 +171,6 @@ class Location(Document):
 
 class Meter(Document):
     service_key = StringField()
-
-
-class UserCreateRequest(Document):
-    project = ReferenceField('Project', required=False)
-    user = ReferenceField('MediaUser', required=True)
-    role = ReferenceField('UserRole', required=False)
 
 
 # Token that is passed when a user is added by

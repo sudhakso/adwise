@@ -11,6 +11,7 @@ urlpatterns = [
         views.UserServiceViewSet.as_view()),
     url(r'^services/(?P<service_key>[0-9a-zA-Z]+)/',
         views.UserServiceHandlerViewSet.as_view()),
+    url(r'^(?P<userid>[0-9a-zA-Z]+)/$', views.UserViewSet.as_view()),
     url(r'^', views.UserViewSet.as_view())
     ]
 

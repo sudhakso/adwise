@@ -99,6 +99,16 @@ sudo curl -H "Content-Type: application/json" -H "username:demouser@series-5.com
 # Create agency/project and a user together
  sudo curl -H "Content-Type: application/json" -H "username:lion4" -H "password:lion1234" -H "email:lion4@jungle.com" -X POST -d '{ "user": {"username": "lion4","password":"lion1234","address": "742 Evergreen Terrace","city":"Springfield","state":"Oregon","point": [-123.0208, 44.0464], "phone_number":"roar", "email":"lion4@jungle.com", "gender": "Male", "pin": "560077"}, "project": {"name": "somename", "type": "Media Agency", "address": "somelocation", "city": "Bangalore", "state": "Karnataka", "pin":"560077"}, "role" : {"name":"r1"}}' http://localhost:8000/users/
 
+# Create agency/project, preferences and a user - all in one command.
+sudo curl -H "Content-Type: application/json" -H "username:sonu@series-5.com" -H "password:sonu123" -H "email:sonu@series-5.com" -X POST -d '{ "user": {"name": "sonu", "username": "sonu@series-5.com","password":"sonu123","address": "742 Evergreen Terrace","city":"Springfield","state":"Oregon","point": [-123.0208, 44.0464], "phone_number":"9880563410", "email":"sonu@series-5.com", "gender": "Male", "pin": "560077"}, "project": {"name": "somename", "type": "Media Agency", "address": "somelocation", "city": "Bangalore", "state": "Karnataka", "pin":"560077"}, "role" : {"name":"r1"}, "device_pref": [{"device_tag": "tag1", "device_type": "tab", "device_info": {}}, {"device_tag": "tag1", "device_type": "tab", "device_info": {"a":"b"}}], "loc_pref": [{"location_name": "work", "loc": [0.0, 2.0]}], "personal_pref": [{"personal_name":"pref1", "value": "value1", "personal_info": {"c":"d"}}], "media_pref": [{"media_tag":"tag1", "media_type":"leisure", "media_info":{"e":"f"}}]}' http://localhost:8000/users/
+
+# Get a previous known user by Id
+
+curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "Content-Type: application/json" -H "username:sonu1@series-5.com" -H "password:sonu123" -H "email:sonu1@series-5.com" -X GET http://127.0.0.1:8000/users/$object-id/
+
+where $object_id is the Id, you get when you had created the user first time.
+
+
 # Login user
 curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://localhost:8000/users/login/
 
