@@ -21,7 +21,7 @@ from mongoengine.errors import DoesNotExist, MultipleObjectsReturned
 session_mgr = SessionManager()
 auth_manager = IdentityManager()
 # LOG = logging.getLogger(__name__)
-CONF = cfg.CONF
+# CONF = cfg.CONF
 # logging.register_options(CONF)
 # logging.setup(CONF, 'adwise')
 
