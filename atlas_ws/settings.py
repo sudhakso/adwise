@@ -18,7 +18,6 @@ from __future__ import absolute_import
 import os
 import sys
 from django.conf.global_settings import MEDIA_ROOT
-from oslo_config import cfg
 
 # from kombu import serialization
 # serialization.registry._decoders.pop("application/x-python-serialize")
@@ -163,50 +162,3 @@ LOGGING = {
    }
  }
 }
-
-logging_options = [
-        cfg.StrOpt("verbose",
-                   default=True,
-                   help="To enable INFO logs"),
-        cfg.StrOpt("debug",
-                   default=False,
-                   help="To enable DEBUG logs"),
-        cfg.StrOpt("log_dir",
-                   default="/var/log/adwise",
-                   help="Path to create log files"),
-        cfg.StrOpt("log_config_append",
-                   default=None,
-                   help="Path to log config files"),
-        cfg.StrOpt("log_file",
-                   default=None,
-                   help="Name of the log file"),
-        cfg.BoolOpt("watch_log_file",
-                   default=False,
-                   help=""),
-        cfg.BoolOpt("use_stderr",
-                   default=False,
-                   help=""),
-        cfg.BoolOpt("use_syslog",
-                   default=False,
-                   help=""),
-        cfg.BoolOpt("publish_errors",
-                   default=False,
-                   help=""),
-        cfg.StrOpt("log_date_format",
-                   default="%Y-%m-%d %H:%M:%S",
-                   help="Date format"),
-        cfg.StrOpt("logging_default_format_string",
-                   default="%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [-] %(message)s",
-                   help="Default log format"),
-        cfg.StrOpt("logging_exception_prefix",
-                   default="%(asctime)s.%(msecs)03d %(process)d ERROR %(name)s ",
-                   help="Exception log prefix format"),
-         cfg.StrOpt("logging_debug_format_suffix",
-                   default="%(funcName)s %(pathname)s:%(lineno)d ",
-                   help="Debug log format"),
-        cfg.ListOpt("default_log_levels",
-                   default="adwise=WARN",
-                   help="Default logging level"),
-                   ]
-
-cfg.CONF.register_opts(logging_options)
