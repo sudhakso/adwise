@@ -218,7 +218,9 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg" http://127.0.0.1:8000/mediacontent/ads/imageads/571a72741d41c8b297ff2e75/572704641d41c8e673f4848d/
 
 # Do a research
-curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"raw_strings": "helmet", "query_type": "Campaign", "query_fields":{"category":4, "description":2}}' http://127.0.0.1:8000/research/search/
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"raw_strings": "helmet", "query_type": "multifield", "query_object_type": "Campaign", "query_fields":{"category":4, "description":2}}' http://127.0.0.1:8000/research/search/
+
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"raw_strings": "hel.*", "query_type": "regexp", "query_object_type": "Campaign", "query_fields":{"category":4}}' http://127.0.0.1:8000/research/search/
 
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"raw_strings": "helmet"}' http://127.0.0.1:8000/research/search/
 
@@ -234,5 +236,9 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 
 Template: http://<localhost>:8000/mediacontent/etl/ooh/<ooh_instance_id>/
 # Tools
+# Tool for creating campaign
 python ./campaign_import.py tabseparated_camp.data http://127.0.0.1:8000 /home/sonu/adimages/campaigns/
+# Tool for importing Ads to a campaign
 python ./ad_import.py tabseparated_ad.data http://127.0.0.1:8000 /home/sonu/adimages/campaigns/ 570746dd1d41c84bc448786b
+
+# __END__
