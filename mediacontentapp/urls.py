@@ -16,6 +16,18 @@ urlpatterns = [
         sourceviews.MediaSourceActivityTracker.as_view()),
     url(r'^mediasource/tags/(?P<id>[0-9a-zA-Z]+)',
         sourceviews.MediaSourceTagViewSet.as_view()),
+    # Media aggregate types
+    url(r'^mediaaggregates/types/$',
+        sourceviews.MediaAggregateTypeViewSet.as_view()),
+    url(r'^mediaaggregates/types/(?P<type_id>[0-9a-zA-Z]+)',
+        sourceviews.MediaAggregateTypeViewSet.as_view()),
+    # Media aggregates
+    url(r'^mediaaggregates/(?P<aggregate_id>[0-9a-zA-Z]+)/addsource/(?P<source_type>[a-zA-Z]+)/(?P<source_id>[0-9a-zA-Z]+)',
+        sourceviews.MediaAggregateSourceAddViewSet.as_view()),
+    url(r'^mediaaggregates/(?P<aggregate_id>[0-9a-zA-Z]+)/',
+        sourceviews.MediaAggregateViewSet.as_view()),
+    url(r'^mediaaggregates/',
+        sourceviews.MediaAggregateViewSet.as_view()),
     # Media source
     url(r'^mediasource/ooh/(?P<id>[0-9a-zA-Z]+)',
         sourceviews.OOHMediaSourceViewSet.as_view()),

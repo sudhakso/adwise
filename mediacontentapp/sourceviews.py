@@ -3,29 +3,266 @@ from rest_framework.views import APIView
 from mediacontentapp.models import MediaSource, OOHMediaSource
 from mediacontentapp.models import DigitalMediaSource, VODMediaSource,\
         RadioMediaSource
+from mediacontentapp.models import MediaAggregator, MediaAggregatorType
 from mediacontentapp.models import MediaDashboard, MediaSourceActivity,\
         SourceTag
 from mediacontentapp.sourceserializers import MediaSourceSerializer,\
         OOHMediaSourceSerializer, VODMediaSourceSerializer,\
         DigitalMediaSourceSerializer, RadioMediaSourceSerializer,\
         BookingSerializer, PricingSerializer, MediaSourceActivitySerializer,\
-        SourceTagSerializer, AmenitySerializer
+        SourceTagSerializer, MediaAggregatorSerializer,\
+        MediaAggregatorTypeSerializer
 from mediacontentapp.serializers import JpegImageContentSerializer
 from mediacontentapp import IdentityService
 from userapp.faults import UserNotAuthorizedException
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
-    HTTP_500_INTERNAL_SERVER_ERROR, HTTP_401_UNAUTHORIZED, HTTP_200_OK
+    HTTP_500_INTERNAL_SERVER_ERROR, HTTP_401_UNAUTHORIZED, HTTP_200_OK,\
+    HTTP_404_NOT_FOUND
 from datetime import datetime
 from userapp.models import MediaUser
+from templates import DigitalMediaSourceTemplate
 
 from controller import ActivityManager, TagManager
+from typemanager import MediaTypeManager
+
 import logging
+from mongoengine.errors import DoesNotExist
 
 # These managers are acting like utilities, and mostly
 # contain static methods to server controlling requests.
 auth_manager = IdentityService.IdentityManager()
 activity_manager = ActivityManager()
 tag_manager = TagManager()
+category_types = MediaTypeManager()
+
+
+class MediaAggregateSourceAddViewSet(APIView):
+    pass
+
+
+class MediaAggregateTypeViewSet(APIView):
+    """ Media aggregator types """
+
+    def get(self, request, type_id=None):
+
+        """ Returns media aggregator type
+        identified by type_id.
+        If type_id is None, it returns all
+        types defined in the system.
+         ---
+         response_serializer: MediaAggregatorTypeSerializer
+        """
+        try:
+            many = True
+            auth_manager.do_auth(request)
+            if type_id is not None:
+                many = False
+                type = MediaAggregatorType.objects.get(typename=type_id)
+            else:
+                type = MediaAggregatorType.objects.all()
+            # valid activity
+            serializer = MediaAggregatorTypeSerializer(type, many=many)
+            return JSONResponse(serializer.data)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class MediaAggregateViewSet(APIView):
+    """ Media source aggregator """
+
+    def get(self, request, aggregate_id=None):
+
+        """ Returns media aggregator of media instances
+        identified by aggregator_id.
+         ---
+         response_serializer: MediaAggregatorSerializer
+        """
+        try:
+            many = True
+            auth_manager.do_auth(request)
+            if aggregate_id is not None:
+                many = False
+                amenity = MediaAggregator.objects.get(id=aggregate_id)
+            else:
+                amenity = MediaAggregator.objects.all()
+            # valid activity
+            serializer = MediaAggregatorSerializer(amenity, many=many)
+            return JSONResponse(serializer.data)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def handle_update(self, request, amenity):
+        """ Registers a Media aggregate
+         ---
+         request_serializer: MediaAggregatorSerializer
+         response_serializer: MediaAggregatorSerializer
+        """
+        try:
+            img = None
+            img_url = None
+            icon_img = None
+            icon_img_url = None
+
+            # Update existing  aggregator instance
+            # Store icon image
+            if 'icon_content' in request.data:
+                icon_img_ser = JpegImageContentSerializer(
+                            data=request.data['icon_content'])
+                if icon_img_ser.is_valid():
+                    icon_img = icon_img_ser.save()
+                    icon_img_url = icon_img.get_absolute_url()
+
+            # Store image
+            if 'image_content' in request.data:
+                img_ser = JpegImageContentSerializer(
+                            data=request.data['image_content'])
+                if img_ser.is_valid():
+                    img = img_ser.save()
+                    img_url = img.get_absolute_url()
+
+            if 'typespec' in request.data:
+                typesepc_ser = MediaAggregatorTypeSerializer(
+                            data=request.data['typespec'], partial=True)
+                if typesepc_ser.is_valid(raise_exception=True):
+                    typespec = typesepc_ser.save()
+
+            # Serialize the aggregator object
+            serializer = MediaAggregatorSerializer(
+                                data=request.data, partial=True)
+            # Check if serializer is valid
+            if serializer.is_valid(raise_exception=True):
+                srcobj = serializer.update(amenity,
+                                           updated_time=datetime.now(),
+                                           image_content=img,
+                                           image_url=img_url,
+                                           icon_content=icon_img,
+                                           icon_image_url=icon_img_url)
+                # (Note : Sonu)
+                # Update the default source if any property changed
+                DigitalMediaSourceTemplate.update_instance(
+                                    media_instance=amenity._default_source,
+                                    name=srcobj.name,
+                                    display_name=srcobj.display_name,
+                                    caption="default source",
+                                    type=srcobj.typespec.typename if srcobj.typespec else "",
+                                    tags=srcobj.typespec.category if srcobj.typespec else "",
+                                    source_internet_settings=srcobj.source_internet_settings,
+                                    category=srcobj.typespec.category if srcobj.typespec else "",
+                                    point=srcobj.location)
+                return JSONResponse(serializer.validated_data,
+                                    status=HTTP_200_OK)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def post(self, request, aggregate_id=None):
+
+        """ Registers a Media aggregate
+         ---
+         request_serializer: MediaAggregatorSerializer
+         response_serializer: MediaAggregatorSerializer
+        """
+        try:
+            img = None
+            img_url = None
+            icon_img = None
+            icon_img_url = None
+            typespec = None
+
+            # Authenticate the user
+            auth_user = auth_manager.do_auth(request)
+            creator = MediaUser.objects.get(username=auth_user.username)
+
+            if aggregate_id is not None:
+                # Updates an existing Amenity
+                amenity = MediaAggregator.objects.get(id=aggregate_id)
+                return self.handle_update(request, amenity)
+            # Create a new aggregator instance
+            # Lookup the type and assign the instance
+            if 'typespecname' in request.data:
+                typespec = MediaAggregatorType.objects.get(
+                                            typename=request.data['typespecname'])
+            # Store icon image
+            if 'icon_content' in request.data:
+                icon_img_ser = JpegImageContentSerializer(
+                            data=request.data['icon_content'])
+                if icon_img_ser.is_valid(raise_exception=True):
+                    icon_img = icon_img_ser.save()
+                    icon_img_url = icon_img.get_absolute_url()
+
+            # Store image
+            if 'image_content' in request.data:
+                img_ser = JpegImageContentSerializer(
+                            data=request.data['image_content'])
+                if img_ser.is_valid():
+                    img = img_ser.save()
+                    img_url = img.get_absolute_url()
+
+            # Serialize the aggregator object
+            serializer = MediaAggregatorSerializer(
+                                data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                srcobj = serializer.save(created_time=datetime.now(),
+                                         image_content=img,
+                                         image_url=img_url,
+                                         icon_content=icon_img,
+                                         icon_image_url=icon_img_url)
+                srcobj.update(owner=creator, typesepc=typespec)
+                # (Note : Sonu)
+                # Create a default source and attach it to Aggregator,
+                # This default source will host all campaigns for the
+                # aggregator by default.
+                # Additional sources can be handled by the Aggregator
+                # admin
+                srcobj._default_source =\
+                    DigitalMediaSourceTemplate.create_instance(
+                                                name=srcobj.name,
+                                                display_name=srcobj.display_name,
+                                                caption="default source",
+                                                type=srcobj.typespec.typename if srcobj.typespec else "",
+                                                tags=srcobj.typespec.category if srcobj.typespec else "",
+                                                source_internet_settings=srcobj.source_internet_settings,
+                                                category=srcobj.typespec.category if srcobj.typespec else "",
+                                                point=srcobj.location)
+                return JSONResponse(serializer.validated_data,
+                                    status=HTTP_201_CREATED)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class MediaSourceTagViewSet(APIView):
@@ -231,7 +468,7 @@ class OOHMediaSourceViewSet(APIView):
         """
         # If it is an update request mentioning id.
         if id:
-            return self._update(request, id)
+            return self.handle_update(request, id)
 
         # curl -X POST -S -H 'Accept: application/json'\
         # -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg"\
@@ -267,12 +504,6 @@ class OOHMediaSourceViewSet(APIView):
                             data=request.data['pricing'])
                 if pricingserializer.is_valid():
                     pricing = pricingserializer.save()
-            # Store Pricing (optional)
-            if 'amenity' in request.data:
-                amenityserializer = AmenitySerializer(
-                            data=request.data['amenity'], many=True)
-                if amenityserializer.is_valid():
-                    amenities = amenityserializer.save()
             serializer = OOHMediaSourceSerializer(
                                 data=request.data)
             if serializer.is_valid():
@@ -298,7 +529,7 @@ class OOHMediaSourceViewSet(APIView):
         return JSONResponse(serializer.errors,
                             status=HTTP_400_BAD_REQUEST)
 
-    def _update(self, request, id):
+    def handle_update(self, request, id):
 
         """ Updatees given OOH media source
          ---

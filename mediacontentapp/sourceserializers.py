@@ -6,7 +6,7 @@ from mediacontentapp.models import MediaSource, OOHMediaSource,\
         VODMediaSource, DigitalMediaSource, RadioMediaSource, Pricing,\
         Booking, MediaDashboard, MediaSourceActivity, SourceTag,\
         OOHAnalyticalAttributes, OOHOperationalDailyDataFeed,\
-        Amenity
+        MediaAggregator, MediaAggregatorType
 from datetime import timedelta
 from mediacontentapp.controller import ActivityManager
 
@@ -153,18 +153,6 @@ class PricingSerializer(serializers.DocumentSerializer):
         return self.get_field_names(*args, **kwargs)
 
 
-class AmenitySerializer(serializers.DocumentSerializer):
-
-    class Meta:
-        model = Amenity
-
-    def _include_additional_options(self, *args, **kwargs):
-        return self.get_extra_kwargs()
-
-    def _get_default_field_names(self, *args, **kwargs):
-        return self.get_field_names(*args, **kwargs)
-
-
 class OOHOperationalDailyDataFeedSerializer(serializers.DocumentSerializer):
     class Meta:
         model = OOHOperationalDailyDataFeed
@@ -211,7 +199,6 @@ class OOHMediaSourceSerializer(serializers.DocumentSerializer):
     # SSP details
     pricing = PricingSerializer(required=False, read_only=True)
     booking = BookingSerializer(required=False, read_only=True)
-    amenity = AmenitySerializer(required=False, read_only=True)
 
     class Meta:
         model = OOHMediaSource
@@ -265,6 +252,43 @@ class MediaSourceActivitySerializer(serializers.DocumentSerializer):
     class Meta:
         model = MediaSourceActivity
         exclude = ('interacting_user', 'mediasource')
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class MediaAggregatorTypeSerializer(serializers.DocumentSerializer):
+
+    class Meta:
+        model = MediaAggregatorType
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class MediaAggregatorSerializer(serializers.DocumentSerializer):
+    # Serializes amenity
+    _default_source = DigitalMediaSourceSerializer(required=False,
+                                                   read_only=True)
+    digital_sourcelist = DigitalMediaSourceSerializer(required=False,
+                                                      read_only=True)
+    ooh_sourcelist = OOHMediaSourceSerializer(required=False,
+                                              read_only=True,
+                                              many=True)
+    radio_sourcelist = RadioMediaSourceSerializer(required=False,
+                                                  read_only=True,
+                                                  many=True)
+    typespec = MediaAggregatorTypeSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = MediaAggregator
+        exclude = ('icon_content', 'image_content',)
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

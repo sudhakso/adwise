@@ -299,12 +299,12 @@ class MediaSource(Document):
         return "/mediasource/%i/" % self.id
 
 
-class AmenityType(Document):
+class MediaAggregatorType(Document):
     """
-    Amenity types
+    MediaAggregator types
     """
-    # road, marriage-hall, shopping-mall,
-    typename = StringField(required=True)
+    # mall, hospital
+    typename = StringField(primary_key=True, required=True)
     category = StringField(required=True)
     # Any specifications
     typespec = DictField(required=False)
@@ -314,17 +314,17 @@ class AmenityType(Document):
     typeicon_content = ReferenceField('JpegImageContent')
 
     def get_absolute_url(self):
-        return "/amenity_types/%i/" % self.id
+        return "/mediaaggregates/types/%i/" % self.id
 
 
-class Amenity(Document):
+class MediaAggregator(Document):
     """
     Location specific amenities.
-    Every Amenity could could contain one or more
+    Every MediaAggregator could could contain one or more
     Media sources
     """
     # Type
-    typespec = ReferenceField('AmenityType')
+    typespec = ReferenceField('MediaAggregatorType', required=False)
     # Demographic properties
     name = StringField(required=True)
     display_name = StringField(required=True)
@@ -334,21 +334,35 @@ class Amenity(Document):
     city = StringField(required=True)
     state = StringField(required=True)
     country = StringField(required=True)
+    # Creation attributes
+    owner = ReferenceField('MediaUser', required=False)
+    created_time = DateTimeField(default=datetime.now())
+    updated_time = DateTimeField(required=False)
+
     # geo-enabled properties
     location = GeoPointField(required=True)
     poi_marker_data = DictField(required=False)
     # IoT properties
     internet_settings = DictField(required=False)
     # Image properties
-    icon_image_url = StringField()
-    icon_content = ReferenceField('JpegImageContent')
-    image_url = StringField()
-    image_content = ReferenceField('JpegImageContent')
-    # Media Sources
-    sourcelist = ListField(ReferenceField('MediaSource'))
+    icon_image_url = StringField(default="")
+    icon_content = ReferenceField('JpegImageContent', required=False)
+    image_url = StringField(default="")
+    image_content = ReferenceField('JpegImageContent', required=False)
+    # e.g. Mall as the media-source
+    _default_source = ReferenceField('DigitalMediaSource', required=False)
+    # retail sources inside a MediaAggregator
+    digital_sourcelist = ListField(ReferenceField('DigitalMediaSource'),
+                                   default=[], required=False)
+    # OOH advertisement source for MediaAggregator
+    ooh_sourcelist = ListField(ReferenceField('OOHMediaSource'),
+                               default=[], required=False)
+    # Radio advertisement source for MediaAggregator
+    radio_sourcelist = ListField(ReferenceField('RadioMediaSource'),
+                                 default=[], required=False)
 
     def get_absolute_url(self):
-        return "/amenity/%i/" % self.id
+        return "/mediaaggregates/%i/" % self.id
 
 
 class OOHMediaSource(MediaSource):
@@ -390,17 +404,13 @@ class OOHMediaSource(MediaSource):
 
 class DigitalMediaSource(MediaSource):
     """
-    Digital media inside home advertising media type.
-    For example, Televisions, DTH etc.
+    Digital media inside home/mall advertising media type.
+    For example, retail outlets,  etc.
     """
     type = 'digital'
-    # DTH:Aritel
-    broadcaster_name = StringField()
-    tune_number = FloatField()
-    tune_name = StringField()
-    broadcaster_url = URLField()
-    broadcaster_api_url = URLField()
-    broadcaster_api_key = StringField()
+    source_internet_settings = DictField(required=True)
+    category = StringField(required=True)
+    point = GeoPointField()
 
     def get_absolute_url(self):
         return "/mediasource/digital/%i/" % self.id
@@ -430,17 +440,32 @@ class RadioMediaSource(MediaSource):
 
 class Playing(Document):
     """
-    At a given time, a media source plays an advertisement
-    for a sourceAdDetail. The time is captured as start and end,
-    where the relationship is valid.
-    This class realizes such relationship.
-    """
+    At a given time, a media source could play multiple Campaigns.
+    The time is captured as start and end, where the relationship is valid.
+    This class realizes a  relationship.
 
-    media_source = ReferenceField('MediaSource')
-    media_content = ReferenceField('Ad')
-    media_type = StringField()
+    If the media owner decides to abrupt the campaign, he sets the flag
+    is_valid to False through Media dash-board. deletion_date will be updated
+    for records.
+    """
+    # for e.g. Mall's default source
+    primary_media_source = ReferenceField('MediaSource', required=True)
+    # for e.g. retail store within a Mall
+    secondary_media_source = ReferenceField('MediaSource', required=False)
+    playing_content = ListField(ReferenceField('Campaign'))
+    # for e.g. VOD, OOH etc.
+    source_type = StringField()
+    # control knob
+    is_valid = BooleanField(default=True)
+    # official start-end date
     start_date = DateTimeField()
     end_date = DateTimeField()
+    # book-keeping entries
+    creation_date = DateTimeField()
+    deletion_date = DateTimeField()
+
+    def get_absolute_url(self):
+        return "/mediacontent/playing/%i/" % self.id
 
 
 class Period(Document):

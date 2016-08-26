@@ -68,12 +68,6 @@ class CampaignManager():
         pass
 
 
-class MediaSourceController():
-
-    def process_query(self, *args):
-        pass
-
-
 class DashboardController():
 
     def update_dashboard(self, dash, args):

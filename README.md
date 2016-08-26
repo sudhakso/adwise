@@ -91,10 +91,10 @@ Note: Here are few examples of using the REST API(s). Where-ever instance GUIDs
 replace it with the real GUIDs in your system.
 
 # Create a service User
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{ "user": {"username": "serviceuser@series-5.com","password":"adwise123","address": "TBD","city":"Bangalore","state":"Karnataka","point": [0.0, 0.0], "phone_number":"9880563410", "email":"serviceuser@series-5.com", "gender": "Male", "pin": "560048"}}' http://localhost:8000/users/
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{ "user": {"name": "serviceuser", "username": "serviceuser@series-5.com","password":"adwise123","address": "TBD","city":"Bangalore","state":"Karnataka","point": [0.0, 0.0], "phone_number":"9880563410", "email":"serviceuser@series-5.com", "gender": "Male", "pin": "560048"}}' http://localhost:8000/users/
 
 # Create a demo User
-sudo curl -H "Content-Type: application/json" -H "username:demouser@series-5.com" -H "password:demo123" -H "email:demouser@series-5.com" -X POST -d '{ "user": {"username": "demouser@series-5.com","password":"demo123","address": "TBD","city":"Bangalore","state":"Karnataka","point": [0.0, 0.0], "phone_number":"9880563410", "email":"demouser@series-5.com", "gender": "Male", "pin": "560048"}}' http://localhost:8000/users/
+sudo curl -H "Content-Type: application/json" -H "username:demouser@series-5.com" -H "password:demo123" -H "email:demouser@series-5.com" -X POST -d '{ "user": { "name": "demouser", "username": "demouser@series-5.com","password":"demo123","address": "TBD","city":"Bangalore","state":"Karnataka","point": [0.0, 0.0], "phone_number":"9880563410", "email":"demouser@series-5.com", "gender": "Male", "pin": "560048"}}' http://localhost:8000/users/
 
 # Create agency/project and a user together
  sudo curl -H "Content-Type: application/json" -H "username:lion4" -H "password:lion1234" -H "email:lion4@jungle.com" -X POST -d '{ "user": {"username": "lion4","password":"lion1234","address": "742 Evergreen Terrace","city":"Springfield","state":"Oregon","point": [-123.0208, 44.0464], "phone_number":"roar", "email":"lion4@jungle.com", "gender": "Male", "pin": "560077"}, "project": {"name": "somename", "type": "Media Agency", "address": "somelocation", "city": "Bangalore", "state": "Karnataka", "pin":"560077"}, "role" : {"name":"r1"}}' http://localhost:8000/users/
@@ -139,11 +139,19 @@ curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET
 # Create OOH (all properties except image)
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{ "name" : "kundanahalli_40x40", "type" : "ooh", "street_name" : "kundanahalli railway gate", "city" : "Bangalore", "state" : "Karnataka", "country" : "India", "point": [124.78, 32.0], "size": [10, 4], "pin" : "560057", "pricing" : { "name" : "diwali", "currency" : "INR", "unit" : "perSq.Ft.", "rate" : 5, "offer_start_time" : "2016-02-25T18:37:21.766000", "offer_end_time" : "2016-02-25T18:37:21.766000"}, "booking" : { "start_time" : "2016-02-25T18:37:21.766000", "duration" : 10, "type" : "educational"}}' http://127.0.0.1:8000/mediacontent/mediasource/ooh/
 
-# Create OOH (add amenity)
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{ "name" : "kundanahalli_40x40", "type" : "ooh", "street_name" : "kundanahalli railway gate", "city" : "Bangalore", "state" : "Karnataka", "country" : "India", "point": [124.78, 32.0], "size": [10, 4], "pin" : "560057", "pricing" : { "name" : "diwali", "currency" : "INR", "unit" : "perSq.Ft.", "rate" : 5, "offer_start_time" : "2016-02-25T18:37:21.766000", "offer_end_time" : "2016-02-25T18:37:21.766000"}, "booking" : { "start_time" : "2016-02-25T18:37:21.766000", "duration" : 10, "type" : "educational"}, "amenity" : [{"typename": "road", "typeweight": 0.0, "category": "public", "name1": "outer ring road", "name2": "Bangalore", "location": [124.78, 32.0]},{"typename": "community hall", "typeweight": 0.0, "category": "public gathering", "name1": "nancy marriage hall", "name2": "nancy community hall", "location": [124.78, 32.0]}]}' http://127.0.0.1:8000/mediacontent/mediasource/ooh/
+# Create OOH
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{ "name" : "kundanahalli_40x40", "type" : "ooh", "street_name" : "kundanahalli railway gate", "city" : "Bangalore", "state" : "Karnataka", "country" : "India", "point": [124.78, 32.0], "size": [10, 4], "pin" : "560057", "pricing" : { "name" : "diwali", "currency" : "INR", "unit" : "perSq.Ft.", "rate" : 5, "offer_start_time" : "2016-02-25T18:37:21.766000", "offer_end_time" : "2016-02-25T18:37:21.766000"}, "booking" : { "start_time" : "2016-02-25T18:37:21.766000", "duration" : 10, "type" : "educational"}}' http://127.0.0.1:8000/mediacontent/mediasource/ooh/
 
 # Update image for OOH
 curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg" http://127.0.0.1:8000/mediacontent/mediasource/ooh/56b5f4ca1d41c85e256e11c2/
+
+# Create MediaAggregates
+
+# Update MediaAggregates
+
+# Add additional sources to MediaAggregates
+
+# Get MediaAggregates
 
 # Creating/Updating a dashboard for the User - set approriate dashboard type. (Media Agency - "MA", Billboard Owner - "BO", On baording partner -> "Partner", Service User -> "Unknown")
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"dashboard_type":"MA"}' http://127.0.0.1:8000/mediacontent/dashboard/

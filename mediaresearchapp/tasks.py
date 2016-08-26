@@ -11,15 +11,11 @@ import json
 from celery import shared_task
 from celery import Task
 from mediacontentapp.models import Campaign, OOHMediaSource
-from mediaresearchapp.models import SearchQuery, ResearchResult
-from celery import Celery
+from mediaresearchapp.models import ResearchResult
 from mediaresearchapp.serializers import ResearchResultSerializer
-from rest_framework.renderers import JSONRenderer
-from django.core import serializers
-from mediacontentapp.serializers import CampaignSerializer
-from mediaresearchapp.querymapper import multifield_querymapper
+from mediaresearchapp.querymapper import multifield_querymapper,\
+ querytype_factory
 from pyes import ES
-from pyes import MatchAllQuery, QueryStringQuery, MultiMatchQuery
 
 
 class BasicSearchTask(Task):
@@ -44,29 +40,43 @@ class BasicSearchTask(Task):
 
 
 class CampaignQuerySearchTask(Task):
-    ignore_errors = True
     # TBD (create the end-point through the controller)
     ignore_errors = True
     _es = None
+    _qf = None
 
     @property
     def es(self):
         if self._es is None:
-            self._es = ES("127.0.0.1:9200")
+            self._es = ES("127.0.0.1:9200", default_indices='campaign')
         return self._es
 
+    @property
+    def qf(self):
+        if self._qf is None:
+            self._qf = querytype_factory()
+        return self._qf
+
     def run(self, *args, **kwargs):
-        wfields = {"category": 4, "tag": 3, "city": 2, "description": 1}
         start = datetime.datetime.now()
-        print 'Searching %s ...' % kwargs['raw_strings']
         # Field ranking
-        if 'fields' in kwargs:
+        if 'fields' in kwargs and kwargs['fields'].keys():
             wfields = kwargs['fields']
-        qm = multifield_querymapper(wfields)
+        else:
+            # default
+            wfields = {"category": 4}
+
+        print 'Searching %s ...' % kwargs['raw_strings']
+        print 'Fields for query %s ...' % wfields
+
+        qm = self.qf.create_mapper(kwargs['query_type'], wfields)
         q4 = qm.create_query(kwargs['raw_strings'])
         resultset = self.es.search(q4)
         ids = [r['id'] for r in resultset]
-        print ids
+
+        print 'Search returned following campaigns %s ...' % ids
+
+        # Get all campaing objects
         camps = Campaign.objects.filter(id__in=set(ids))
         end = datetime.datetime.now()
         elapsed_time = end - start

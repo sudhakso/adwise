@@ -26,7 +26,8 @@ class ByFieldSearchQuery(Document):
 
 class SearchQuery(Document):
     userid = ObjectIdField(required=False)
-    query_type = StringField(default="Campaign", required=False)
+    query_object_type = StringField(default="Campaign", required=False)
+    query_type = StringField(default='multifield', required=False)
     # e.g. 15-20, youth
     raw_strings = StringField()
     # e.g.

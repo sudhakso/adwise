@@ -51,7 +51,6 @@ class CampaignResearchViewSet(APIView):
          response_serializer: ResearchResultSerializer
         """
         try:
-            query_type = 'Campaign'
             user = _log_user(request)
             _id = user['userid'] if 'userid' in user else None
             # return the dash-board for the user
@@ -59,18 +58,20 @@ class CampaignResearchViewSet(APIView):
             if sql.is_valid():
                 # Push the sql to search pipeline
                 obj = sql.save(userid=_id)
-                print 'Search query for user {%s}. String {%s}, QueryFields {%s}' % (
+                print 'Search query by user {%s} for String {%s}\
+                 in QueryFields {%s} with QueryType {%s}.' % (
                                             user['username'],
                                             obj.raw_strings,
-                                            obj.query_fields)
-                # Multi-field query
+                                            obj.query_fields,
+                                            obj.query_type)
                 # Research result data (RRD)
-                if obj.query_type is not None:
-                    query_type = obj.query_type
+                if obj.query_object_type is not None:
+                    query_type = obj.query_object_type
                 task = qc.create_task(query_type)
                 rrd = task.delay(args=[],
                                  raw_strings=obj.raw_strings,
                                  fields=obj.query_fields,
+                                 query_type=obj.query_type,
                                  ignore_failures=True)
                 slept = 0
                 timeout = False
@@ -98,7 +99,7 @@ class CampaignResearchViewSet(APIView):
                                 status=HTTP_404_NOT_FOUND)
         except Exception as e:
             print e
-            return JSONResponse("Unknown error.",
+            return JSONResponse(str(e),
                                 status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -114,11 +115,11 @@ class QueryViewSet(APIView):
                 # Push the sql to search pipeline
                 obj = sql.save(userid=None)
                 print 'Query type {%s} Query {%s}, QueryFields {%s}' % (
-                                            obj.query_type,
+                                            obj.query_object_type,
                                             obj.raw_strings,
                                             obj.query_fields)
                 # Research result data (RRD)
-                task = qc.create_task(obj.query_type)
+                task = qc.create_task(obj.query_object_type)
                 rrd = task.delay(args=[],
                                  raw_strings=obj.raw_strings,
                                  fields=obj.query_fields,

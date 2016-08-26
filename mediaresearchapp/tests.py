@@ -6,12 +6,20 @@ Created on Apr 18, 2016
 
 from pyes import ES
 from pyes import MatchAllQuery, QueryStringQuery, MultiMatchQuery
+from pyes import RegexTermQuery, TermQuery
+from pyes.filters import RegexTermFilter
 # from mediaresearchapp.querymapper import multifield_querymapper
 # from mediacontentapp.models import Campaign
 
 
 if __name__ == '__main__':
     es = ES("127.0.0.1:9200")
+
+    q4 = RegexTermQuery('city', 'bang.*')
+    print q4
+    resultset = es.search(q4)
+    for r in resultset:
+        print r
 
 # Basic 1
     q2 = MatchAllQuery().search()
@@ -31,6 +39,7 @@ if __name__ == '__main__':
     for r in resultset:
         print r
         break
+
 
 # Basic 3
     q3 = MultiMatchQuery(fields=["tag^3", "description"],
