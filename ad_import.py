@@ -70,7 +70,7 @@ def load_ad(fields, ignore_fields, row):
             misc[field] = row[index]
         index = index + 1
     if offer:
-        ad['offerex'] = offer
+        ad['offerex'] = [offer]
     return (misc, ad)
 
 
