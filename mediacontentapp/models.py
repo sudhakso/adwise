@@ -310,8 +310,8 @@ class MediaAggregatorType(Document):
     typespec = DictField(required=False)
     typedesc = StringField()
     # Icon
-    typeicon_image_url = StringField()
-    typeicon_content = ReferenceField('JpegImageContent')
+    typeicon_image_url = StringField(default="", required=False)
+    typeicon_content = ReferenceField('JpegImageContent', required=False)
 
     def get_absolute_url(self):
         return "/mediaaggregates/types/%i/" % self.id

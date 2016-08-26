@@ -264,6 +264,7 @@ class MediaAggregatorTypeSerializer(serializers.DocumentSerializer):
 
     class Meta:
         model = MediaAggregatorType
+        exclude = ('typeicon_image_url', 'typeicon_content')
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
