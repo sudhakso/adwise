@@ -304,7 +304,7 @@ class MediaAggregatorType(Document):
     MediaAggregator types
     """
     # mall, hospital
-    typename = StringField(primary_key=True, required=True)
+    typename = StringField()
     category = StringField(required=True)
     # Any specifications
     typespec = DictField(required=False)

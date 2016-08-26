@@ -59,6 +59,7 @@ class MediaTypeManager(object):
                 typeobj = getattr(provider, type[0])()
                 try:
                     if typeobj.typename:
+                        print('Checking if type %s already exists' % typeobj.typename)
                         obj = MediaAggregatorType.objects.get(
                                                 typename=typeobj.typename)
                         print('Type %s already defined by the driver %s - Type exists'

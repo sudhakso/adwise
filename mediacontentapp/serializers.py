@@ -151,7 +151,7 @@ class BusinessHoursExtensionSerializer(serializers.DocumentSerializer):
 
 
 class AdSerializer(serializers.DocumentSerializer):
-    campaign = CampaignSerializer(required=False, read_only=True)
+#    campaign = CampaignSerializer(required=False, read_only=True)
 #     offerex = OfferExtensionSerializer(required=False,
 #                                        read_only=True,
 #                                        many=True)
@@ -207,7 +207,7 @@ class CallOnlyAdSerializer(serializers.DocumentSerializer):
 
 
 class ImageAdSerializer(serializers.DocumentSerializer):
-#    campaign = CampaignSerializer(required=False, read_only=True)
+    campaign = CampaignSerializer(required=False, read_only=True)
     offerex = OfferExtensionSerializer(required=False,
                                        many=True,
                                        read_only=True)
@@ -224,15 +224,6 @@ class ImageAdSerializer(serializers.DocumentSerializer):
 
     def _get_default_field_names(self, *args, **kwargs):
         return self.get_field_names(*args, **kwargs)
-
-#     def create(self, validated_data):
-#         user = User(
-#             email=validated_data['email'],
-#             username=validated_data['username']
-#         )
-#         user.set_password(validated_data['password'])
-#         user.save()
-#         return user
 
 
 class ImageContentSerializer(serializers.DocumentSerializer):

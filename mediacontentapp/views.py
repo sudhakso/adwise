@@ -551,6 +551,7 @@ class ImageAdViewSet(AdViewSet):
                                                 serializer.validated_data)
                 # Other reference fields
                 # Store image'
+                print '1'
                 if "image" in request.data:
                     imageserializer = ImageContentSerializer(
                             data=request.data)
@@ -559,6 +560,7 @@ class ImageAdViewSet(AdViewSet):
                         img_url = img.get_absolute_url()
                         updated_obj.update(image_content=img,
                                            image_url=img_url)
+                print '2'
                 if "offerex" in request.data:
                     #
                     #
@@ -571,6 +573,7 @@ class ImageAdViewSet(AdViewSet):
                     if offer.is_valid(raise_exception=True):
                         ofs = offer.save()
                         updated_obj.update(offerex=ofs)
+                print '3'
                 if "socialex" in request.data:
                     #
                     #
@@ -583,9 +586,11 @@ class ImageAdViewSet(AdViewSet):
                     if social.is_valid(raise_exception=True):
                         s_exs = social.save()
                         updated_obj.update(socialex=s_exs)
+                print '4'
                 updated_obj.save()
                 return JSONResponse(str(updated_obj.id),
                                     status=HTTP_202_ACCEPTED)
+            print '5'
             # Bad request
             return JSONResponse(str(serializer.errors),
                                 status=HTTP_400_BAD_REQUEST)
@@ -628,10 +633,9 @@ class ImageAdViewSet(AdViewSet):
                     if imageserializer.is_valid():
                         img = imageserializer.save()
                         img_url = img.get_absolute_url()
-
                 serializer = ImageAdSerializer(
                                 data=request.data)
-                if serializer.is_valid():
+                if serializer.is_valid(raise_exception=True):
                     # Add other elements
                     if "offerex" in request.data:
                         #
