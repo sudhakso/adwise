@@ -29,7 +29,7 @@ class querytype_controller():
             _type, driver = e.split(':')
             self._query_typemaps[_type] = driver
 
-    def create_task(self, type):
+    def create_task(self, typename):
         # TBD (Note:Sonu) Load once
-        class_ = getattr(self.tasks_, self._query_typemaps[type])
+        class_ = getattr(self.tasks_, self._query_typemaps[typename])
         return class_()

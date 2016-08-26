@@ -16,6 +16,8 @@ class querytype_factory():
         '''
         self._current_ = sys.modules[__name__]
 
+    # Factory can create mappers that are in this module.
+    # TBD (Note: Sonu) Extend this to other module mappers.
     def create_mapper(self, mappertype, args):
         class_ = getattr(self._current_, '%s_%s' % (
                                             mappertype, 'querymapper'))

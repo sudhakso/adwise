@@ -18,27 +18,6 @@ from mediaresearchapp.querymapper import multifield_querymapper,\
 from pyes import ES
 
 
-class BasicSearchTask(Task):
-    ignore_errors = True
-
-    def run(self, *args, **kwargs):
-        start = datetime.datetime.now()
-        print 'Searching %s ...' % kwargs['raw_strings']
-        # Get all campaigns
-        queryset = Campaign.objects.all()
-        camps = []
-        for acamp in queryset:
-            camps.append(acamp)
-        end = datetime.datetime.now()
-        elapsed_time = end - start
-        _rr = ResearchResult(campaigns=camps,
-                             query_runtime_duration=elapsed_time.total_seconds())
-        rr = _rr.save()
-        ser = ResearchResultSerializer(rr, many=False)
-        _srjson = json.dumps(ser.data)
-        return _srjson
-
-
 class CampaignQuerySearchTask(Task):
     # TBD (create the end-point through the controller)
     ignore_errors = True
@@ -97,7 +76,7 @@ class OOHQuerySearchTask(Task):
     @property
     def es(self):
         if self._es is None:
-            self._es = ES("127.0.0.1:9200")
+            self._es = ES("127.0.0.1:9200", default_indices='mediasource')
         return self._es
 
     def run(self, *args, **kwargs):

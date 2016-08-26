@@ -1,15 +1,15 @@
-from mediacontentapp.models import Ad, TextAd, ProductAd, DynamicSearchAd,\
-    Campaign, ImageContent, JpegImageContent, CampaignSpec, CampaignTracking
-from mediaresearchapp.models import ResearchElement, ResearchResult,\
-    SearchQuery
+from mediaresearchapp.models import ResearchResult,\
+    SearchQuery, CampaignResearchResult
 from rest_framework_mongoengine import serializers
 from mediacontentapp.serializers import CampaignSerializer
 from mediacontentapp.sourceserializers import OOHMediaSourceSerializer
 
 
-class ResearchElementSerializer(serializers.DocumentSerializer):
+class CampaignResearchResultSerializer(serializers.DocumentSerializer):
+    campaigns = CampaignSerializer(many=True, read_only=True)
+
     class Meta:
-        model = ResearchElement
+        model = CampaignResearchResult
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
