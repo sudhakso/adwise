@@ -56,7 +56,7 @@ class ResearchViewSet(APIView):
             _id = user['userid'] if 'userid' in user else None
             # return the dash-board for the user
             sql = SearchQuerySerializer(data=request.data)
-            if sql.is_valid():
+            if sql.is_valid(raise_exception=True):
                 # Push the sql to search pipeline
                 obj = sql.save(userid=_id)
                 print 'Search query by user {%s} for String {%s}\

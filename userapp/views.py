@@ -333,7 +333,7 @@ class UserServiceViewSet(APIView):
                 if user and svc:
                     serializer = ServiceRequestSerializer(
                                                 data=request.data)
-                    if serializer.is_valid():
+                    if serializer.is_valid(raise_exception=True):
                         serializer.save(request_time=tm,
                                         target_service_id=svc,
                                         requesting_user_id=user,
@@ -376,7 +376,7 @@ class UserServiceHandlerViewSet(APIView):
         try:
             tm = datetime.now()
             serializer = ServiceRequestSerializer(data=request.data)
-            if service_key is None or serializer.is_valid():
+            if service_key is None or serializer.is_valid(raise_exception=True):
                 req = ServiceRequest.objects.create(**serializer.data)
                 # Request logs can grow huge,
                 # each request data is logged anyways.

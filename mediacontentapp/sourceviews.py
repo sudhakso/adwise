@@ -128,7 +128,7 @@ class MediaAggregateViewSet(APIView):
             if 'icon_content' in request.data:
                 icon_img_ser = JpegImageContentSerializer(
                             data=request.data['icon_content'])
-                if icon_img_ser.is_valid():
+                if icon_img_ser.is_valid(raise_exception=True):
                     icon_img = icon_img_ser.save()
                     icon_img_url = icon_img.get_absolute_url()
 
@@ -136,7 +136,7 @@ class MediaAggregateViewSet(APIView):
             if 'image_content' in request.data:
                 img_ser = JpegImageContentSerializer(
                             data=request.data['image_content'])
-                if img_ser.is_valid():
+                if img_ser.is_valid(raise_exception=True):
                     img = img_ser.save()
                     img_url = img.get_absolute_url()
 
@@ -219,7 +219,7 @@ class MediaAggregateViewSet(APIView):
             if 'image_content' in request.data:
                 img_ser = JpegImageContentSerializer(
                             data=request.data['image_content'])
-                if img_ser.is_valid():
+                if img_ser.is_valid(raise_exception=True):
                     img = img_ser.save()
                     img_url = img.get_absolute_url()
 
@@ -307,7 +307,7 @@ class MediaSourceTagViewSet(APIView):
                 source = OOHMediaSource.objects.get(id=id)
                 serializer = SourceTagSerializer(data=request.data)
                 # Save the activity record
-                if serializer.is_valid():
+                if serializer.is_valid(raise_exception=True):
                     serializer.save(source_ref=source)
                     return JSONResponse(str('success'),
                                         status=HTTP_201_CREATED)
@@ -374,7 +374,7 @@ class MediaSourceActivityTracker(APIView):
                 source = OOHMediaSource.objects.get(id=id)
                 serializer = MediaSourceActivitySerializer(data=request.data)
                 # Save the activity record
-                if serializer.is_valid():
+                if serializer.is_valid(raise_exception=True):
                     serializer.save(interacting_user=user,
                                     mediasource=source,
                                     activity_type=activity_type,
@@ -488,7 +488,7 @@ class OOHMediaSourceViewSet(APIView):
             # Store image'
             imageserializer = JpegImageContentSerializer(
                         data=request.data)
-            if imageserializer.is_valid():
+            if imageserializer.is_valid(raise_exception=True):
                 img = imageserializer.save()
                 img_url = img.get_absolute_url()
 
@@ -496,17 +496,17 @@ class OOHMediaSourceViewSet(APIView):
             if 'booking' in request.data:
                 bookingserializer = BookingSerializer(
                             data=request.data['booking'])
-                if bookingserializer.is_valid():
+                if bookingserializer.is_valid(raise_exception=True):
                     bookings = bookingserializer.save()
             # Store Pricing (optional)
             if 'pricing' in request.data:
                 pricingserializer = PricingSerializer(
                             data=request.data['pricing'])
-                if pricingserializer.is_valid():
+                if pricingserializer.is_valid(raise_exception=True):
                     pricing = pricingserializer.save()
             serializer = OOHMediaSourceSerializer(
                                 data=request.data)
-            if serializer.is_valid():
+            if serializer.is_valid(raise_exception=True):
                 src = serializer.save(created_time=datetime.now(),
                                       updated_time=datetime.now(),
                                       primary_image_content=img,
@@ -567,14 +567,14 @@ class OOHMediaSourceViewSet(APIView):
             # partial updates
             serializer = OOHMediaSourceSerializer(
                                 data=request.data, partial=True)
-            if serializer.is_valid():
+            if serializer.is_valid(raise_exception=True):
                 updated_obj = serializer.update(inst,
                                                 serializer.validated_data)
                 # Other reference fields
                 # Store image'
                 imageserializer = JpegImageContentSerializer(
                             data=request.data)
-                if imageserializer.is_valid():
+                if imageserializer.is_valid(raise_exception=True):
                     img = imageserializer.save()
                     img_url = img.get_absolute_url()
                     updated_obj.update(primary_image_content=img,
@@ -583,14 +583,14 @@ class OOHMediaSourceViewSet(APIView):
                 if 'booking' in request.data:
                     bookingserializer = BookingSerializer(
                                 data=request.data['booking'])
-                    if bookingserializer.is_valid():
+                    if bookingserializer.is_valid(raise_exception=True):
                         bookings = bookingserializer.save()
                         updated_obj.update(booking=bookings)
                 # Store Pricing (optional)
                 if 'pricing' in request.data:
                     pricingserializer = PricingSerializer(
                                 data=request.data['pricing'])
-                    if pricingserializer.is_valid():
+                    if pricingserializer.is_valid(raise_exception=True):
                         pricing = pricingserializer.save()
                         updated_obj.update(pricing=pricing)
                 # Verify if Owner change operation is expected.
@@ -708,7 +708,7 @@ class DigitalMediaSourceViewSet(APIView):
         if request.method == 'POST':
             try:
                 serializer = DigitalMediaSourceSerializer(data=request.data)
-                if serializer.is_valid():
+                if serializer.is_valid(raise_exception=True):
                     serializer.save()
                     return JSONResponse(serializer.data,
                                         status=HTTP_201_CREATED)
@@ -754,7 +754,7 @@ class RadioMediaSourceViewSet(APIView):
         if request.method == 'POST':
             try:
                 serializer = RadioMediaSourceSerializer(data=request.data)
-                if serializer.is_valid():
+                if serializer.is_valid(raise_exception=True):
                     serializer.save()
                     return JSONResponse(serializer.data,
                                         status=HTTP_201_CREATED)
@@ -800,7 +800,7 @@ class VODMediaSourceViewSet(APIView):
         if request.method == 'POST':
             try:
                 serializer = VODMediaSourceSerializer(data=request.data)
-                if serializer.is_valid():
+                if serializer.is_valid(raise_exception=True):
                     serializer.save()
                     return JSONResponse(serializer.data,
                                         status=HTTP_201_CREATED)

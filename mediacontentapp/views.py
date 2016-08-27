@@ -79,7 +79,7 @@ class DashboardViewSet(APIView):
                                     user.role.name if user.role else None)
                 # Create for the user
                 serializer = MediaDashboardSerializer(data=request.data)
-                if serializer.is_valid():
+                if serializer.is_valid(raise_exception=True):
                     # Create one.
                     inst = serializer.save(user=user,
                                            dashboard_type=dash_typ)
@@ -192,7 +192,7 @@ class CampaignViewSet(APIView):
             if 'spec' in request.data:
                 cspecserializer = CampaignSpecSerializer(
                                             data=request.data['spec'])
-                if cspecserializer.is_valid():
+                if cspecserializer.is_valid(raise_exception=True):
                     spec = cspecserializer.save()
 
             img = None
@@ -200,13 +200,13 @@ class CampaignViewSet(APIView):
             if 'image' in request.data:
                 imageserializer = ImageContentSerializer(
                         data=request.data)
-                if imageserializer.is_valid():
+                if imageserializer.is_valid(raise_exception=True):
                     img = imageserializer.save()
 
             # Serialize the Campaign
             serializer = CampaignSerializer(
                                         data=request.data)
-            if serializer.is_valid():
+            if serializer.is_valid(raise_exception=True):
                 campaign = serializer.save(creation_time=create_time,
                                            creator=user)
                 # Campaign created.
@@ -222,7 +222,7 @@ class CampaignViewSet(APIView):
                                             spec=spec)
                 # Create tracker object
                 tracker = CampaignTrackingSerializer(data=request.data)
-                if tracker.is_valid():
+                if tracker.is_valid(raise_exception=True):
                     tracker.save(campaign=campaign)
                 return JSONResponse(serializer.data,
                                     status=HTTP_201_CREATED)
@@ -262,7 +262,7 @@ class CampaignViewSet(APIView):
             # partial updates
             serializer = CampaignSerializer(
                                 data=request.data, partial=True)
-            if serializer.is_valid():
+            if serializer.is_valid(raise_exception=True):
                 updated_obj = serializer.update(inst,
                                                 serializer.validated_data)
                 # Other reference fields
@@ -270,7 +270,7 @@ class CampaignViewSet(APIView):
                 if "spec" in request.data:
                     specserializer = CampaignSpecSerializer(
                                             data=request.data["spec"], partial=True)
-                    if specserializer.is_valid():
+                    if specserializer.is_valid(raise_exception=True):
                         spec = specserializer.update(updated_obj.spec,
                                                      specserializer.validated_data)
                 if "image" in request.data:
@@ -377,7 +377,7 @@ class TextAdViewSet(APIView):
             try:
                 auth_manager.do_auth(request.META)
                 serializer = TextAdSerializer(data=request.data)
-                if serializer.is_valid():
+                if serializer.is_valid(raise_exception=True):
                     serializer.save()
                     return JSONResponse(serializer.data,
                                         status=HTTP_201_CREATED)
@@ -429,7 +429,7 @@ class CallOnlyAdViewSet(AdViewSet):
             try:
                 auth_manager.do_auth(request.META)
                 serializer = CallOnlyAdSerializer(data=request.data)
-                if serializer.is_valid():
+                if serializer.is_valid(raise_exception=True):
                     serializer.save()
                     return JSONResponse(serializer.data,
                                         status=HTTP_201_CREATED)
@@ -546,7 +546,7 @@ class ImageAdViewSet(AdViewSet):
             # partial updates
             serializer = ImageAdSerializer(
                                 data=request.data, partial=True)
-            if serializer.is_valid():
+            if serializer.is_valid(raise_exception=True):
                 updated_obj = serializer.update(ad,
                                                 serializer.validated_data)
                 # Other reference fields
@@ -555,7 +555,7 @@ class ImageAdViewSet(AdViewSet):
                 if "image" in request.data:
                     imageserializer = ImageContentSerializer(
                             data=request.data)
-                    if imageserializer.is_valid():
+                    if imageserializer.is_valid(raise_exception=True):
                         img = imageserializer.save()
                         img_url = img.get_absolute_url()
                         updated_obj.update(image_content=img,
@@ -630,7 +630,7 @@ class ImageAdViewSet(AdViewSet):
                 if "image" in request.data:
                     imageserializer = ImageContentSerializer(
                             data=request.data["image"])
-                    if imageserializer.is_valid():
+                    if imageserializer.is_valid(raise_exception=True):
                         img = imageserializer.save()
                         img_url = img.get_absolute_url()
                 serializer = ImageAdSerializer(
