@@ -6,7 +6,7 @@ from mediacontentapp.models import MediaSource, OOHMediaSource,\
         VODMediaSource, DigitalMediaSource, RadioMediaSource, Pricing,\
         Booking, MediaDashboard, MediaSourceActivity, SourceTag,\
         OOHAnalyticalAttributes, OOHOperationalDailyDataFeed,\
-        MediaAggregator, MediaAggregatorType
+        MediaAggregate, MediaAggregateType
 from datetime import timedelta
 from mediacontentapp.controller import ActivityManager
 
@@ -260,10 +260,10 @@ class MediaSourceActivitySerializer(serializers.DocumentSerializer):
         return self.get_field_names(*args, **kwargs)
 
 
-class MediaAggregatorTypeSerializer(serializers.DocumentSerializer):
+class MediaAggregateTypeSerializer(serializers.DocumentSerializer):
 
     class Meta:
-        model = MediaAggregatorType
+        model = MediaAggregateType
         exclude = ('typeicon_image_url', 'typeicon_content')
 
     def _include_additional_options(self, *args, **kwargs):
@@ -273,10 +273,10 @@ class MediaAggregatorTypeSerializer(serializers.DocumentSerializer):
         return self.get_field_names(*args, **kwargs)
 
 
-class MediaAggregatorSerializer(serializers.DocumentSerializer):
+class MediaAggregateSerializer(serializers.DocumentSerializer):
     # Serializes amenity
-    _default_source = DigitalMediaSourceSerializer(required=False,
-                                                   read_only=True)
+    inhouse_source = DigitalMediaSourceSerializer(required=False,
+                                                  read_only=True)
     digital_sourcelist = DigitalMediaSourceSerializer(required=False,
                                                       read_only=True)
     ooh_sourcelist = OOHMediaSourceSerializer(required=False,
@@ -285,10 +285,10 @@ class MediaAggregatorSerializer(serializers.DocumentSerializer):
     radio_sourcelist = RadioMediaSourceSerializer(required=False,
                                                   read_only=True,
                                                   many=True)
-    typespec = MediaAggregatorTypeSerializer(required=False, read_only=True)
+    typespec = MediaAggregateTypeSerializer(required=False, read_only=True)
 
     class Meta:
-        model = MediaAggregator
+        model = MediaAggregate
         exclude = ('icon_content', 'image_content',)
 
     def _include_additional_options(self, *args, **kwargs):

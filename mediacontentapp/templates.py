@@ -8,7 +8,7 @@ from jinja2 import Template
 import json
 from django.conf import settings
 from mediacontentapp.sourceserializers import DigitalMediaSourceSerializer
-from mediacontentapp.sourceserializers import MediaAggregatorTypeSerializer
+from mediacontentapp.sourceserializers import MediaAggregateTypeSerializer
 
 
 class DigitalMediaSourceTemplate():
@@ -21,7 +21,8 @@ class DigitalMediaSourceTemplate():
 
     def create_instance(self, **kwargs):
         # Create the serializer
-        ser = DigitalMediaSourceSerializer(data=self.j2_template.render(**kwargs))
+        _data = json.loads(str(self.j2_template.render(**kwargs)))
+        ser = DigitalMediaSourceSerializer(data=_data)
         if ser.is_valid(raise_exception=True):
             return ser.save()
 
@@ -44,13 +45,13 @@ class MediaAggregatorTypeTemplate():
     def create_instance(self, **kwargs):
         # Create the serializer
         _data = json.loads(str(self.j2_template.render(**kwargs)))
-        ser = MediaAggregatorTypeSerializer(data=_data)
+        ser = MediaAggregateTypeSerializer(data=_data)
         if ser.is_valid(raise_exception=True):
             return ser.save()
 
     def update_instance(self, type_instance, **kwargs):
         # Update the instance
-        ser = MediaAggregatorTypeSerializer(data=self.j2_template.render(**kwargs),
+        ser = MediaAggregateTypeSerializer(data=self.j2_template.render(**kwargs),
                                             partial=True)
         if ser.is_valid(raise_exception=True):
             return ser.update(type_instance)

@@ -299,9 +299,9 @@ class MediaSource(Document):
         return "/mediasource/%i/" % self.id
 
 
-class MediaAggregatorType(Document):
+class MediaAggregateType(Document):
     """
-    MediaAggregator types
+    MediaAggregate types
     """
     # mall, hospital
     typename = StringField()
@@ -317,30 +317,30 @@ class MediaAggregatorType(Document):
         return "/mediaaggregates/types/%i/" % self.id
 
 
-class MediaAggregator(Document):
+class MediaAggregate(Document):
     """
     Location specific amenities.
-    Every MediaAggregator could could contain one or more
+    Every MediaAggregate could could contain one or more
     Media sources
     """
     # Type
-    typespec = ReferenceField('MediaAggregatorType', required=False)
+    typespec = ReferenceField('MediaAggregateType', required=False)
     # Demographic properties
-    name = StringField(required=True)
-    display_name = StringField(required=True)
-    survey_name = StringField(required=True)
-    address1 = StringField(required=True)
-    address2 = StringField(required=True)
-    city = StringField(required=True)
-    state = StringField(required=True)
-    country = StringField(required=True)
+    name = StringField()
+    display_name = StringField()
+    survey_name = StringField()
+    address1 = StringField()
+    address2 = StringField()
+    city = StringField()
+    state = StringField()
+    country = StringField()
     # Creation attributes
     owner = ReferenceField('MediaUser', required=False)
     created_time = DateTimeField(default=datetime.now())
     updated_time = DateTimeField(required=False)
 
     # geo-enabled properties
-    location = GeoPointField(required=True)
+    location = GeoPointField()
     poi_marker_data = DictField(required=False)
     # IoT properties
     internet_settings = DictField(required=False)
@@ -350,14 +350,14 @@ class MediaAggregator(Document):
     image_url = StringField(default="")
     image_content = ReferenceField('JpegImageContent', required=False)
     # e.g. Mall as the media-source
-    _default_source = ReferenceField('DigitalMediaSource', required=False)
-    # retail sources inside a MediaAggregator
+    inhouse_source = ReferenceField('DigitalMediaSource', required=False)
+    # retail sources inside a MediaAggregate
     digital_sourcelist = ListField(ReferenceField('DigitalMediaSource'),
                                    default=[], required=False)
-    # OOH advertisement source for MediaAggregator
+    # OOH advertisement source for MediaAggregate
     ooh_sourcelist = ListField(ReferenceField('OOHMediaSource'),
                                default=[], required=False)
-    # Radio advertisement source for MediaAggregator
+    # Radio advertisement source for MediaAggregate
     radio_sourcelist = ListField(ReferenceField('RadioMediaSource'),
                                  default=[], required=False)
 

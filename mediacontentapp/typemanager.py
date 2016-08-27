@@ -9,7 +9,7 @@ from mediacontentapp import Config
 from mediacontentapp import importutils
 import inspect
 from mongoengine.errors import DoesNotExist
-from mediacontentapp.models import MediaAggregatorType
+from mediacontentapp.models import MediaAggregateType
 from templates import MediaAggregatorTypeTemplate
 
 
@@ -60,7 +60,7 @@ class MediaTypeManager(object):
                 try:
                     if typeobj.typename:
                         print('Checking if type %s already exists' % typeobj.typename)
-                        obj = MediaAggregatorType.objects.get(
+                        obj = MediaAggregateType.objects.get(
                                                 typename=typeobj.typename)
                         print('Type %s already defined by the driver %s - Type exists'
                               % (type[0], typedriver))
