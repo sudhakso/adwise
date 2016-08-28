@@ -278,7 +278,8 @@ class MediaAggregateSerializer(serializers.DocumentSerializer):
     inhouse_source = DigitalMediaSourceSerializer(required=False,
                                                   read_only=True)
     digital_sourcelist = DigitalMediaSourceSerializer(required=False,
-                                                      read_only=True)
+                                                      read_only=True,
+                                                      many=True)
     ooh_sourcelist = OOHMediaSourceSerializer(required=False,
                                               read_only=True,
                                               many=True)
