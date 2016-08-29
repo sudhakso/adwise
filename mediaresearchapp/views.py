@@ -1,3 +1,4 @@
+import json
 import time
 from userapp.JSONFormatter import JSONResponse
 from rest_framework.views import APIView
@@ -85,7 +86,8 @@ class ResearchViewSet(APIView):
                         break
                 if rrd.state == "SUCCESS":
                     print "slept = %s" % slept
-                    return JSONResponse(rrd.result,
+                    outdata = json.loads(str(rrd.result))
+                    return JSONResponse(outdata,
                                         status=HTTP_200_OK)
                 elif timeout:
                     return JSONResponse("Search timeout.",
