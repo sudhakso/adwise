@@ -182,7 +182,6 @@ class MediaSourceSerializer(serializers.DocumentSerializer):
 
     class Meta:
         model = MediaSource
-        fields = ('verified_by', 'owner', 'operated_by')
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
@@ -193,9 +192,9 @@ class MediaSourceSerializer(serializers.DocumentSerializer):
 
 class OOHMediaSourceSerializer(serializers.DocumentSerializer):
     # Owner details
-    verified_by = UserSerializer(required=False)
-    owner = UserSerializer(required=False)
-    operated_by = UserSerializer(required=False)
+    verified_by = UserSerializer(required=False, read_only=True)
+    owner = UserSerializer(required=False, read_only=True)
+    operated_by = UserSerializer(required=False, read_only=True)
     # SSP details
     pricing = PricingSerializer(required=False, read_only=True)
     booking = BookingSerializer(required=False, read_only=True)
@@ -212,6 +211,10 @@ class OOHMediaSourceSerializer(serializers.DocumentSerializer):
 
 
 class DigitalMediaSourceSerializer(serializers.DocumentSerializer):
+    # Owner details
+    verified_by = UserSerializer(required=False, read_only=True)
+    owner = UserSerializer(required=False, read_only=True)
+    operated_by = UserSerializer(required=False, read_only=True)
 
     class Meta:
         model = DigitalMediaSource
@@ -287,6 +290,8 @@ class MediaAggregateSerializer(serializers.DocumentSerializer):
                                                   read_only=True,
                                                   many=True)
     typespec = MediaAggregateTypeSerializer(required=False, read_only=True)
+
+    owner = UserSerializer(required=False, read_only=True)
 
     class Meta:
         model = MediaAggregate

@@ -146,14 +146,15 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg" http://127.0.0.1:8000/mediacontent/mediasource/ooh/56b5f4ca1d41c85e256e11c2/
 
 # Create MediaAggregates
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{ "name" : "Inorbit", "display_name" : "InOrbit Whitefield", "survey_name" : "No. 75", "address1": "EPIP Area", "address2": "Whitefield", "city": "Bangalore Bengaluru", "state": "Karnataka", "country": "India", "pin": "560066", "location": [124.78, 32.0], "poi_marker_data": {"a":"b"}, "internet_settings": {"home_url": "http://inorbit.in/whitefield/"}, "type": "ShoppingMall"}' http://127.0.0.1:8000/mediacontent/mediaaggregates/
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{ "name" : "Inorbit", "display_name" : "InOrbit Whitefield", "survey_name" : "No. 75", "address1": "EPIP Area", "address2": "Whitefield", "city": "Bangalore Bengaluru", "state": "Karnataka", "country": "India", "pin": "560066", "location": [17.4410, 78.3921], "poi_marker_data": {"a":"b"}, "internet_settings": {"home_url": "http://inorbit.in/whitefield/"}, "type": "ShoppingMall"}' http://127.0.0.1:8000/mediacontent/mediaaggregates/
 
 # Update MediaAggregates to upload Images (icon and image)
-curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg" http://127.0.0.1:8000/mediacontent/mediaaggregates/57c1d8571d41c87129ed53bf/
+curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -F "image_content=@/home/sonu/adimages/malls/inorbit.png;type=image/png" -F "icon_content=@/home/sonu/adimages/malls/inorbit_icon.png;type=image/png" http://127.0.0.1:8000/mediacontent/mediaaggregates/57c1d8571d41c87129ed53bf/
 
 # Add additional sources to MediaAggregates
 
 # Get MediaAggregates
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/mediaaggregates/
 
 # Get MediaAggregate types
 curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://172.31.41.248:8000/mediacontent/mediaaggregates/types/
