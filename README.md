@@ -149,7 +149,7 @@ curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{ "name" : "Inorbit", "display_name" : "InOrbit Whitefield", "survey_name" : "No. 75", "address1": "EPIP Area", "address2": "Whitefield", "city": "Bangalore Bengaluru", "state": "Karnataka", "country": "India", "pin": "560066", "location": [17.4410, 78.3921], "poi_marker_data": {"a":"b"}, "internet_settings": {"home_url": "http://inorbit.in/whitefield/"}, "type": "ShoppingMall"}' http://127.0.0.1:8000/mediacontent/mediaaggregates/
 
 # Update MediaAggregates to upload Images (icon and image)
-curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -F "image_content=@/home/sonu/adimages/malls/inorbit.png;type=image/png" -F "icon_content=@/home/sonu/adimages/malls/inorbit_icon.png;type=image/png" http://127.0.0.1:8000/mediacontent/mediaaggregates/57c1d8571d41c87129ed53bf/
+curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -F "image_content=@/home/sonu/adimages/malls/inorbit.png;type=image/png" -F "icon_content=@/home/sonu/adimages/malls/inorbit_icon.png;type=image/png" http://127.0.0.1:8000/mediacontent/mediaaggregates/57c2e250c0c9542b3f5ca393/
 
 # Add additional sources to MediaAggregates
 
@@ -229,6 +229,9 @@ curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" 
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"raw_strings": "hel.*", "query_type": "regexp", "query_object_type": "Campaign", "query_fields":{"category":4}}' http://127.0.0.1:8000/research/search/
 
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"raw_strings": "helmet"}' http://127.0.0.1:8000/research/search/
+
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"raw_strings": "Inorbit", "query_type": "multifield", "query_object_type": "MediaAggregate"}' http://127.0.0.1:8000/research/search/mediaaggregate/
+
 
 # Invoking search API internally, doesn't do any user validations.
 curl -H "Content-Type: application/json" -X POST -d '{"raw_strings": "fitness", "query_type": "OOHMediaSource", "query_fields":{"category":4, "description":2}}' http://127.0.0.1:8000/research/query/

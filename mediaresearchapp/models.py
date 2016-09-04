@@ -34,7 +34,13 @@ class CampaignResearchResult(Document):
     query_runtime_duration = FloatField(default=0.0)
 
 
+class MediaAggregateResearchResult(Document):
+    aggregates = ListField(ReferenceField('MediaAggregate'))
+    query_runtime_duration = FloatField(default=0.0)
+
+
 class ResearchResult(Document):
     campaigns = ListField(ReferenceField('Campaign'))
     oohs = ListField(ReferenceField('OOHMediaSource'))
+    mediaaggregates = ListField(ReferenceField('MediaAggregate'))
     query_runtime_duration = FloatField(default=0.0)

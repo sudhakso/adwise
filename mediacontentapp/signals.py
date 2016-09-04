@@ -5,12 +5,13 @@ Created on Dec 25, 2015
 '''
 import json
 from mediacontentapp.models import OOHAnalyticalAttributes,\
-    Campaign, OfferExtension, ImageAd
+    Campaign, OfferExtension, ImageAd, MediaAggregate
 from mongoengine import signals
 from mediacontentapp.tasks import CampaignIndexingTask, OfferIndexingTask,\
-    AdIndexingTask, OOHyticsIndexingTask
+    AdIndexingTask, OOHyticsIndexingTask, MediaAggregateIndexingTask
 from mediacontentapp.serializers import CampaignIndexSerializer,\
-    ImageAdIndexSerializer, OfferIndexSerializer
+    ImageAdIndexSerializer, OfferIndexSerializer,\
+    MediaAggregateIndexSerializer
 from mediacontentapp.controller import IndexingService
 from mediacontentapp.sourceserializers import OOHAnalyticalAttributesSerializer
 
@@ -86,8 +87,27 @@ def index_ad(sender, document, created):
     else:
             print "index_ad: task status: Unchanged OK."
 
+
+def index_mediaaggregate(sender, document, created):
+    print "Placeholder for indexing amenity/mediaaggregate"
+    # MediaAggregate Index task
+    if created:
+        ma = MediaAggregateIndexSerializer(document, many=False)
+        task = MediaAggregateIndexingTask()
+        rc = task.delay(args=[],
+                        instancename=str(document.id),
+                        mediaaggregate=json.dumps(ma.data),
+                        ignore_failures=False)
+        if rc.state == "SUCCESS":
+            print "index_mediaaggregate task status: OK."
+        else:
+            print "index_mediaaggregate task status: Not OK."
+    else:
+            print "index_mediaaggregate: task status: Unchanged OK."
+
 # Register all model handlers
 signals.post_save.connect(index_oohanalytics, OOHAnalyticalAttributes)
 signals.post_save.connect(index_campaign, Campaign)
 signals.post_save.connect(index_offer, OfferExtension)
 signals.post_save.connect(index_ad, ImageAd)
+signals.post_save.connect(index_mediaaggregate, MediaAggregate)

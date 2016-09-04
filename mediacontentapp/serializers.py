@@ -1,5 +1,6 @@
 from mediacontentapp.models import Ad, TextAd, ProductAd, DynamicSearchAd,\
-    Campaign, ImageContent, JpegImageContent, CampaignSpec, CampaignTracking
+    Campaign, ImageContent, JpegImageContent, CampaignSpec, CampaignTracking,\
+    MediaAggregate
 from mediacontentapp.models import CallOnlyAd, ImageAd
 from mediacontentapp.models import AdExtension,\
     LocationExtension, BusinessHoursExtension,\
@@ -84,6 +85,28 @@ class OfferIndexSerializer(serializers.DocumentSerializer):
                   'offer_type',
                   'offer_code',
                   'offer_description')
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+# Serializer for indexing campaign
+class MediaAggregateIndexSerializer(serializers.DocumentSerializer):
+
+    class Meta:
+        model = MediaAggregate
+        fields = ('id',
+                  'name',
+                  'display_name',
+                  'survey_name',
+                  'address1',
+                  'address2',
+                  'city',
+                  'state',
+                  'country')
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

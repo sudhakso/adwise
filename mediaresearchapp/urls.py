@@ -6,4 +6,6 @@ from mediaresearchapp import views
 urlpatterns = [
     url(r'^search/', views.ResearchViewSet.as_view()),
     url(r'^search/campaign/', views.CampaignResearchViewSet.as_view()),
+    url(r'^search/mediaaggregate/',
+        views.MediaAggregateResearchViewSet.as_view()),
 ]

@@ -18,7 +18,7 @@ from mediaresearchapp import tasks
 
 
 qc = querycontroller.querytype_controller()
-SEARCH_TASK_TIMEOUT = 30
+SEARCH_TASK_TIMEOUT = 3
 
 
 def _log_user(request):
@@ -118,3 +118,16 @@ class CampaignResearchViewSet(ResearchViewSet):
          response_serializer: CampaignResearchResultSerializer
         """
         return super(CampaignResearchViewSet, self).post(request)
+
+
+class MediaAggregateResearchViewSet(ResearchViewSet):
+
+    def post(self, request):
+
+        """ Returns elements to the user based on
+            english language search.
+         ---
+         request_serializer: SearchQuerySerializer
+         response_serializer: MediaAggregateResearchResultSerializer
+        """
+        return super(MediaAggregateResearchViewSet, self).post(request)

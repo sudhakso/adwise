@@ -106,6 +106,37 @@ class CampaignIndexingTask(Task):
             print "Exception : %s" % str(e)
 
 
+class MediaAggregateIndexingTask(Task):
+    ignore_errors = True
+    _es = None
+
+    @property
+    def es(self):
+        if self._es is None:
+            self._es = IndexingService()
+        return self._es
+
+    # instancename=, object=
+    def run(self, *args, **kwargs):
+        start = datetime.datetime.now()
+        print 'Creating index for mediaaggregate : %s ...' % (
+                                kwargs['instancename'])
+        if 'many' in kwargs and kwargs['many'] == True:
+            data = {'root': kwargs['mediaaggregate']}
+        else:
+            data = kwargs['mediaaggregate']
+        print data
+        try:
+            self.es.connection.index(
+                                data,
+                                "mediaaggregate",
+                                "external")
+        except Exception as e:
+            print "Failed creating index for mediaaggregate : %s" % (
+                                    kwargs['instancename'])
+            print "Exception : %s" % str(e)
+
+
 class OfferIndexingTask(Task):
     ignore_errors = True
     _es = None

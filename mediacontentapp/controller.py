@@ -40,6 +40,7 @@ class IndexingService():
     def create_indexes(self, tags):
         for index in tags:
             try:
+                print "Creating index (%s)..." % (index)
                 self.connection.indices.create_index_if_missing(index.lower())
             except TypeError as te:
                 print "Exception creating index (%s). Index exists : (%s)." % (
