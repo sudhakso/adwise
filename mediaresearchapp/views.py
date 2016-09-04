@@ -9,7 +9,8 @@ from mongoengine.errors import DoesNotExist
 # (Note:Sonu): Do not remove this import,
 # it will mask the import in swagger.
 from mediaresearchapp.serializers import SearchQuerySerializer,\
- CampaignResearchResultSerializer, ResearchResultSerializer
+ CampaignResearchResultSerializer, ResearchResultSerializer,\
+ MediaAggregateResearchResultSerializer
 from userapp.models import MediaUser
 from mediaresearchapp import querycontroller
 # (Note:Sonu): Do not remove this import,
