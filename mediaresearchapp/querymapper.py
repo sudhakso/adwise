@@ -6,7 +6,9 @@ Created on Apr 18, 2016
 from pyes import TermQuery
 from pyes import MultiMatchQuery
 import sys
-from pyes.query import RegexTermQuery
+from pyes.query import RegexTermQuery, FilteredQuery,\
+ MatchAllQuery
+from pyes.filters import *
 
 
 class querytype_factory():
@@ -70,3 +72,50 @@ class regexp_querymapper():
         return RegexTermQuery(field_name,
                               querystring,
                               boost_value)
+
+
+class structured_querymapper():
+
+    def __init__(self, dummy):
+        self._type = "structured"
+        self._filters = []
+        self._filtertype = None
+        self._query_field = []
+
+    @property
+    def type(self):
+        return self._type
+
+    @property
+    def field(self):
+        return self._query_field
+
+    def create_query(self, sql):
+        # query  filter. Rest are ignored.
+        if "termquery" in sql.keys():
+            # Create Term filter
+            terms = sql['termquery']
+            for term in terms:
+                self._query_field.append(term.keys()[0])
+                _tf = TermFilter(term.keys()[0], term[term.keys()[0]])
+                self._filters.append(_tf)
+        if "geodistancefilter" in sql.keys():
+            # Prepare distance filter
+            geoterm = sql['geodistancefilter']
+            geofieldname = geoterm['field']
+            geofieldvalue = geoterm['fieldvalue']
+            _gf = GeoDistanceFilter(geofieldname,
+                                    geofieldvalue,
+                                    geoterm['distance'],
+                                    'arc', 'km')
+            self._filters.append(_gf)
+            self._query_field.append(geofieldname)
+        if "optype" in sql.keys():
+            # Condition filters
+            if sql['optype'].lower() == 'and':
+                self._filtertype = ANDFilter(self._filters)
+            if sql['optype'].lower() == 'or':
+                self._filtertype = ORFilter(self._filters)
+        else:
+            self._filtertype = ANDFilter(self._filters)
+        return FilteredQuery(MatchAllQuery(), self._filtertype)

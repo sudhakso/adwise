@@ -1,5 +1,6 @@
 from mediaresearchapp.models import ResearchResult,\
-    SearchQuery, CampaignResearchResult, MediaAggregateResearchResult
+    SearchQuery, CampaignResearchResult, MediaAggregateResearchResult,\
+    StructuredQuery
 from rest_framework_mongoengine import serializers
 from mediacontentapp.serializers import CampaignSerializer
 from mediacontentapp.sourceserializers import OOHMediaSourceSerializer,\
@@ -50,6 +51,17 @@ class ResearchResultSerializer(serializers.DocumentSerializer):
 class SearchQuerySerializer(serializers.DocumentSerializer):
     class Meta:
         model = SearchQuery
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class StructuredQuerySerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = StructuredQuery
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

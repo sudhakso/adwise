@@ -232,6 +232,11 @@ curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" 
 
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"raw_strings": "Inorbit", "query_type": "multifield", "query_object_type": "MediaAggregate"}' http://127.0.0.1:8000/research/search/mediaaggregate/
 
+# Term query for MediaAggregate
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"query":{"termquery": [{"name": "Inorbit"},{"city": "Bangalore"}],"optype": "And"},"query_type": "structured", "query_object_type": "MediaAggregateLocation"}' http://127.0.0.1:8000/research/search/_sql/
+
+# Location sensed query for MediaAggregate
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"query": {"geodistancefilter": {"field": "locations","fieldvalue": {"lat": 40.0,"lon": 9.00},"distance": 20},"termquery": [{"message": "Trying out Elastic Search, so far so good?"}],"optype": "And"},"query_type": "structured", "query_object_type": "MediaAggregateLocation"}' http://127.0.0.1:8000/research/search/_sql/
 
 # Invoking search API internally, doesn't do any user validations.
 curl -H "Content-Type: application/json" -X POST -d '{"raw_strings": "fitness", "query_type": "OOHMediaSource", "query_fields":{"category":4, "description":2}}' http://127.0.0.1:8000/research/query/

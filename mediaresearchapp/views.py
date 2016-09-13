@@ -10,7 +10,7 @@ from mongoengine.errors import DoesNotExist
 # it will mask the import in swagger.
 from mediaresearchapp.serializers import SearchQuerySerializer,\
  CampaignResearchResultSerializer, ResearchResultSerializer,\
- MediaAggregateResearchResultSerializer
+ MediaAggregateResearchResultSerializer, StructuredQuerySerializer
 from userapp.models import MediaUser
 from mediaresearchapp import querycontroller
 # (Note:Sonu): Do not remove this import,
@@ -42,6 +42,68 @@ def _log_user(request):
     except DoesNotExist as e:
         pass
     return _data
+
+
+class SqlResearchViewSet(APIView):
+
+    def post(self, request):
+        """ Returns elements to the user based on
+            english language search.
+         ---
+         request_serializer: StructuredQuerySerializer
+         response_serializer: ResearchResultSerializer
+        """
+        try:
+            user = _log_user(request)
+            _id = user['userid'] if 'userid' in user else None
+            # return the dash-board for the user
+            sql = StructuredQuerySerializer(data=request.data)
+            if sql.is_valid(raise_exception=True):
+                # Push the sql to search pipeline
+                obj = sql.save(userid=_id)
+                print 'Structured Search query by user {%s} for query {%s}\
+                 with QueryType {%s}.' % (
+                                            user['username'],
+                                            obj.query,
+                                            obj.query_type)
+                # Research result data (RRD)
+                if obj.query_object_type is not None:
+                    query_object_type = obj.query_object_type
+                # Switch the task based on the object to operate.
+                task = qc.create_task(query_object_type)
+                rrd = task.delay(args=[],
+                                 query=obj.query,
+                                 query_type=obj.query_type,
+                                 ignore_failures=True)
+                slept = 0
+                timeout = False
+                while not rrd.ready():
+                    time.sleep(.05)
+                    slept = slept + 0.05
+                    if slept > SEARCH_TASK_TIMEOUT:
+                        timeout = True
+                        break
+                if rrd.state == "SUCCESS":
+                    print "slept = %s" % slept
+                    outdata = json.loads(str(rrd.result))
+                    return JSONResponse(outdata,
+                                        status=HTTP_200_OK)
+                elif timeout:
+                    return JSONResponse("Search timeout.",
+                                        status=HTTP_408_REQUEST_TIMEOUT)
+                else:
+                    return JSONResponse("Something went wrong terrible. Unknown error!.",
+                                        status=HTTP_500_INTERNAL_SERVER_ERROR)
+            return JSONResponse("Obfuscated query. Cannot handle error %s" % sql.errors,
+                                status=HTTP_400_BAD_REQUEST)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ResearchViewSet(APIView):

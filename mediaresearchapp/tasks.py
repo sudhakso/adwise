@@ -163,6 +163,54 @@ class MediaAggregateQuerySearchTask(Task):
 #         return _srjson
 
 
+class MediaAggregateSQLTask(Task):
+    # TBD (create the end-point through the controller)
+    ignore_errors = True
+    _es = None
+    _qf = None
+
+    @property
+    def es(self):
+        if self._es is None:
+            self._es = ES("127.0.0.1:9200", default_indices='mediaaggregate')
+        return self._es
+
+    @property
+    def qf(self):
+        if self._qf is None:
+            self._qf = querytype_factory()
+        return self._qf
+
+    def run(self, *args, **kwargs):
+        start = datetime.datetime.now()
+        # Field ranking
+        if 'query' in kwargs:
+            print 'Searching %s ...' % kwargs['query']
+            qm = self.qf.create_mapper(kwargs['query_type'], None)
+            q4 = qm.create_query(kwargs['query'])
+            resultset = self.es.search(q4)
+            ids = [r['id'] for r in resultset]
+            print 'Search returned following aggregates %s ...' % ids
+            # Get all campaing objects
+            mas = MediaAggregate.objects.filter(id__in=set(ids))
+            end = datetime.datetime.now()
+            elapsed_time = end - start
+            _rr = ResearchResult(mediaaggregates=mas,
+                                 query_runtime_duration=elapsed_time.total_seconds(
+                                                                ))
+            rr = _rr.save()
+            ser = ResearchResultSerializer(rr, many=False)
+            _srjson = json.dumps(ser.data, encoding='utf-8')
+            print _srjson
+            return _srjson
+        else:
+            rr = ResearchResult()
+            ser = ResearchResultSerializer(rr, many=False)
+            _srjson = json.dumps(ser.data, encoding='utf-8')
+            print _srjson
+            return _srjson
+
+
 @shared_task
 def test(param):
     return 'The test task executed with argument "%s" ' % param

@@ -29,6 +29,15 @@ class SearchQuery(Document):
     query_runtime_duration = FloatField()
 
 
+class StructuredQuery(Document):
+    userid = ObjectIdField(required=False)
+    query_object_type = StringField(required=True)
+    query_type = StringField(default='structured', required=False)
+    query = DictField(required=False)
+    creation_time = DateTimeField(default=datetime.now())
+    query_runtime_duration = FloatField()
+
+
 class CampaignResearchResult(Document):
     campaigns = ListField(ReferenceField('Campaign'))
     query_runtime_duration = FloatField(default=0.0)

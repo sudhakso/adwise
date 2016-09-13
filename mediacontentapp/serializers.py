@@ -106,7 +106,8 @@ class MediaAggregateIndexSerializer(serializers.DocumentSerializer):
                   'address2',
                   'city',
                   'state',
-                  'country')
+                  'country',
+                  'location')
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

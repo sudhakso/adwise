@@ -1,0 +1,69 @@
+#############################################################################
+
+curl -XDELETE 'http://localhost:9200/twitter/'
+curl -XPUT 'http://localhost:9200/twitter/'
+
+curl -XPUT 'http://localhost:9200/twitter/tweet/_mapping' -d '
+{
+    "tweet" : {
+        "properties" : {
+            "locations" : {"type" : "geo_point"}
+        }
+    }
+}'
+
+curl -XPUT 'http://localhost:9200/twitter/tweet/1' -d '
+{ 
+    "user": "kimchy", 
+    "postDate": "2009-11-15T13:12:00", 
+    "message": "Trying out Elastic Search, so far so good?",
+    "locations" : [{
+        "lat" : 50.00,
+        "lon" : 10.00
+    },
+    {
+        "lat" : 40.00,
+        "lon" : 9.00
+    }]
+}'
+
+curl -XPUT 'http://localhost:9200/twitter/tweet/2' -d '
+{ 
+    "user": "kimchy", 
+    "postDate": "2009-11-15T13:12:00", 
+    "message": "Trying out Elastic Search, so far so good?",
+    "locations" : [{
+        "lat" : 30.00,
+        "lon" : 8.00
+    },
+    {
+        "lat" : 20.00,
+        "lon" : 7.00
+    }]
+}'
+
+curl -XGET 'http://localhost:9200/twitter/tweet/_search' -d '{
+    "query": {
+        "filtered" : {
+            "query" : {
+                "match_all" : {}
+            },
+            "filter" : {
+                "geo_distance" : {
+                    "distance" : "20km",
+                    "locations" : {
+                        "lat" : 40.00,
+                        "lon" : 9.00
+                    }
+                }
+            }
+        }
+    }
+}'
+
+# Get mapping
+curl -XGET 'http://localhost:9200/twitter/tweet/_mapping'
+
+{"twitter":{"mappings":{"tweet":{"properties":{"locations":{"type":"geo_point"},"message":{"type":"string"},"postDate":{"type":"date","format":"strict_date_optional_time||epoch_millis"},"user":{"type":"string"}}}}}}
+
+
