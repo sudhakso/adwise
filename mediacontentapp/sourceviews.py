@@ -487,7 +487,7 @@ class OOHMediaSourceViewSet(APIView):
             # Store image'
             imageserializer = JpegImageContentSerializer(
                         data=request.data)
-            if imageserializer.is_valid(raise_exception=True):
+            if imageserializer.is_valid(raise_exception=False):
                 img = imageserializer.save()
                 img_url = img.get_absolute_url()
 
@@ -511,8 +511,7 @@ class OOHMediaSourceViewSet(APIView):
                                       primary_image_content=img,
                                       image_url=img_url)
                 src.update(operated_by=operated_by, owner=operated_by,
-                           pricing=pricing, booking=bookings,
-                           amenity=amenities)
+                           pricing=pricing, booking=bookings)
                 src.save()
                 return JSONResponse(serializer.validated_data,
                                     status=HTTP_201_CREATED)
@@ -573,7 +572,7 @@ class OOHMediaSourceViewSet(APIView):
                 # Store image'
                 imageserializer = JpegImageContentSerializer(
                             data=request.data)
-                if imageserializer.is_valid(raise_exception=True):
+                if imageserializer.is_valid(raise_exception=False):
                     img = imageserializer.save()
                     img_url = img.get_absolute_url()
                     updated_obj.update(primary_image_content=img,
