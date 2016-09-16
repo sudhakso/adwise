@@ -360,7 +360,7 @@ class MediaAggregate(Document):
     # Radio advertisement source for MediaAggregate
     radio_sourcelist = ListField(ReferenceField('RadioMediaSource'),
                                  default=[], required=False)
-
+    
     def get_absolute_url(self):
         return "/mediaaggregates/%i/" % self.id
 
