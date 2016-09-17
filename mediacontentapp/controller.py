@@ -10,6 +10,63 @@ from mediacontentapp import Config
 from mediacontentapp.models import OOHMediaSource
 from mongoengine.fields import GeoPointField
 from pyes import ES
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
+from userapp.JSONFormatter import JSONResponse
+from mediacontentapp.models import Campaign
+from mediacontentapp.serializers import PlayingSerializer
+from datetime import date, datetime
+
+
+class MediaAggregateController():
+
+    ADD_MEDIA = 'addmedia'
+    ADD_MEDIA_CONTENT = 'addcontent'
+    ADD_SERVICE = 'addservice'
+
+    def __init__(self):
+        self.playing_template = Template(
+                               open('%s%s' % (settings.MEDIAAPP_DIR,
+                                    'templates/playing.j2'),
+                                    'r').read())
+
+
+    # TBD
+    def handle_update(self, inst, *args, **kwargs):
+        pass
+
+    def handle_operations(self, amenity, action, action_args, action_data):
+        # action= add media etc., action_args= content-id, action_data= {}
+        print 'MediaAggregateController: Performing action %s' % action
+
+        if action == self.ADD_MEDIA:
+            # Add source to Mediaaggregate object
+            pass
+        elif action == self.ADD_MEDIA_CONTENT:
+            # Add media content to MediaAggregate object
+            campid = action_args['id'] if 'id' in action_args else None
+            if campid is None:
+                return JSONResponse('content id cannot be None for action type'
+                                    ' %s' % self.ADD_MEDIA_CONTENT,
+                                    status=HTTP_400_BAD_REQUEST)
+            # get the campaign
+            campaign = Campaign.objects.get(id=campid)
+            _nv = {'source_type': 'mediaaggregate',
+                   'start_date': action_data['start_date'],
+                   'end_date': action_data['end_date']}
+            _playing_data = json.loads(
+                                str(self.playing_template.render(**_nv)))
+            playing = PlayingSerializer(data=_playing_data)
+            if playing.is_valid(raise_exception=True):
+                playing.save(primary_media_source=amenity.inhouse_source,
+                             playing_content=campaign)
+                return JSONResponse(playing.validated_data,
+                                    status=HTTP_200_OK)
+        elif action == self.ADD_SERVICE:
+            # Fill directory service in MediaAggregate object
+            pass
+        else:
+            # Unknown operation
+            pass
 
 
 class ESMapper():

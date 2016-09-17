@@ -5,7 +5,7 @@ from mediacontentapp.models import CallOnlyAd, ImageAd
 from mediacontentapp.models import AdExtension,\
     LocationExtension, BusinessHoursExtension,\
     OfferExtension, SocialExtension, T_C_Extension,\
-    Period
+    Period, Playing
 from rest_framework_mongoengine import serializers
 from rest_framework.serializers import ListSerializer
 
@@ -308,6 +308,21 @@ class LocationExtensionSerializer(serializers.DocumentSerializer):
 class PeriodSerializer(serializers.DocumentSerializer):
     class Meta:
         model = Period
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class PlayingSerializer(serializers.DocumentSerializer):
+
+    playing_content = CampaignSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = Playing
+        exclude = ('primary_media_source',)
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

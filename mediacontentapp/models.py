@@ -360,7 +360,7 @@ class MediaAggregate(Document):
     # Radio advertisement source for MediaAggregate
     radio_sourcelist = ListField(ReferenceField('RadioMediaSource'),
                                  default=[], required=False)
-    
+
     def get_absolute_url(self):
         return "/mediaaggregates/%i/" % self.id
 
@@ -449,19 +449,15 @@ class Playing(Document):
     for records.
     """
     # for e.g. Mall's default source
-    primary_media_source = ReferenceField('MediaSource', required=True)
-    # for e.g. retail store within a Mall
-    secondary_media_source = ReferenceField('MediaSource', required=False)
-    playing_content = ListField(ReferenceField('Campaign'))
+    primary_media_source = ReferenceField('MediaSource', required=False)
+    playing_content = ReferenceField('Campaign', required=False)
     # for e.g. VOD, OOH etc.
     source_type = StringField()
-    # control knob
-    is_valid = BooleanField(default=True)
     # official start-end date
-    start_date = DateTimeField()
+    start_date = DateTimeField(default=datetime.now())
     end_date = DateTimeField()
     # book-keeping entries
-    creation_date = DateTimeField()
+    creation_date = DateTimeField(default=datetime.now())
     deletion_date = DateTimeField()
 
     def get_absolute_url(self):

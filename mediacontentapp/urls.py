@@ -19,8 +19,6 @@ urlpatterns = [
     url(r'^mediaaggregates/types/(?P<type_id>[0-9a-zA-Z]+)',
         sourceviews.MediaAggregateTypeViewSet.as_view()),
     # Media aggregates
-    url(r'^mediaaggregates/(?P<aggregate_id>[0-9a-zA-Z]+)/addsource/(?P<source_type>[a-zA-Z]+)/(?P<source_id>[0-9a-zA-Z]+)',
-        sourceviews.MediaAggregateSourceAddViewSet.as_view()),
     url(r'^mediaaggregates/(?P<aggregate_id>[0-9a-zA-Z]+)/',
         sourceviews.MediaAggregateViewSet.as_view()),
     url(r'^mediaaggregates/',
@@ -30,6 +28,11 @@ urlpatterns = [
         sourceviews.OOHMediaSourceViewSet.as_view()),
     url(r'^mediasource/ooh/',
         sourceviews.OOHMediaSourceViewSet.as_view()),
+    # Playing
+    url(r'^playing/mediaagregate/$',
+        sourceviews.MediaAggregatePlayingViewSet.as_view()),
+    url(r'^playing/oohmediasource/$',
+        sourceviews.OOHSourcePlayingViewSet.as_view()),
     # Campaign
     url(r'^campaign/_index/$',
         views.CampaignIndexingViewSet.as_view()),

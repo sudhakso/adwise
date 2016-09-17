@@ -248,27 +248,47 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '[{"visitor_total_count":170000, "breakups": {"age":{"15-20": 100, "20-28": 200, "28-35": 500}, "commute":{"bus":500,"cabs": 1200,"cars": 1500}, "target":{"profs":1200, "teens":5000, "biz":5000}}, "feed_timestamp":"2016-06-01T18:37:21.766000"}]' http://127.0.0.1:8000/mediacontent/etl/ooh/574d68571d41c8ba3f289e84/
 
 
-# In  Progress 
-
 # API to attach a campaign to a MediaAggregate
-POST http://localhost:8000/mediacontent/mediaaggregate/<$aggregate_id>/?action=addcontent&contentid=<$id>
- - Create a playing relation for each $aggregate_id and $contentid field
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"start_date" : "2016-02-25T18:37:21.766000","end_date" :"2016-02-25T18:37:21.766000"}' "http://127.0.0.1:8000/mediacontent/mediaaggregates/57d844351d41c87ef6affad9/?action=addcontent&id=57c062201d41c83e549e8ae5"
+
+The query format is,
+/mediacontent/mediaaggregates/$aggregate_id/?action=addcontent&id=$campaign_id"
+
+# API to query campaigns attached to a MediaAggregate
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/playing/mediaagregate/?id=57d844351d41c87ef6affad9
+
+The query format is,
+/mediacontent/playing/mediaagregate/?id=$aggregate_id
+
+
+# WIP
+### OOHMediaSource
+# API to attach a campaign to a OOHMediaSource
+POST http://localhost:8000/mediacontent/oohmediasource/<$source_id>/?action=addcontent&id=<$id> -d {}
+ - Create a playing relation for each $source_id and $contentid field
  - playing field should be bound by "start date", "end date" and "enabled"
 
+# API to query campaigns attached to a OOHMediaSource
+GET http://localhost:8000/mediacontent/playing/oohmediasource/?id=<$sourceid> -d '{}'
+ - Returns Playing objects
+ - Each playing object represents the Campaign
+ - For each Campaign (Id), list all the Ads under a campaign
+
+### MediaAggregate
 # API to attach a mediasource to a MediaAggregate
-POST http://localhost:8000/mediacontent/mediaaggregate/<$aggregate_id>/?action=addmedia&sourceid=<$id>
+POST http://localhost:8000/mediacontent/mediaaggregate/<$aggregate_id>/?action=addmedia&id=<$id> - d {}
  - Query existing source by id
  - Add the digital media source to MediaAggregate
 
-# API to query campaigns attached to a MediaAggregate
-GET http://localhost:8000/mediacontent/playing/$mediaaggregate/?id=<$sourceid> -d '{}'
-GET http://localhost:8000/mediacontent/playing/$oohmediasource/?id=<$sourceid> -d '{}'
-GET http://localhost:8000/mediacontent/playing/$digitalmediasource/?id=<$sourceid> -d '{}'
-
 # API to get all the sources under MediaAggregate
 GET http://localhost:8000/mediacontent/mediaaggregate/sourcelist/
+ - Returns MediaSource object lists.
 
+# API to get all sources where the campaign is playing
+GET http://localhost:8000/mediacontent/playing/campaign/?id=<$campaign-id> -d '{}'
 
+ - Returns source instances
+ 
 
 Template: http://<localhost>:8000/mediacontent/etl/ooh/<ooh_instance_id>/
 # Tools

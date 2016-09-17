@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from mediacontentapp.models import MediaSource, OOHMediaSource
 from mediacontentapp.models import DigitalMediaSource, VODMediaSource,\
         RadioMediaSource
+from mediacontentapp.models import Playing
 from mediacontentapp.models import MediaAggregate, MediaAggregateType
 from mediacontentapp.models import MediaDashboard, MediaSourceActivity,\
         SourceTag
@@ -13,7 +14,8 @@ from mediacontentapp.sourceserializers import MediaSourceSerializer,\
         BookingSerializer, PricingSerializer, MediaSourceActivitySerializer,\
         SourceTagSerializer, MediaAggregateSerializer,\
         MediaAggregateTypeSerializer
-from mediacontentapp.serializers import JpegImageContentSerializer
+from mediacontentapp.serializers import JpegImageContentSerializer,\
+ PlayingSerializer
 from mediacontentapp import IdentityService
 from userapp.faults import UserNotAuthorizedException
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
@@ -23,7 +25,7 @@ from datetime import datetime
 from userapp.models import MediaUser
 from templates import DigitalMediaSourceTemplate
 
-from controller import ActivityManager, TagManager
+from controller import ActivityManager, TagManager, MediaAggregateController
 from typemanager import MediaTypeManager
 
 import logging
@@ -35,9 +37,43 @@ auth_manager = IdentityService.IdentityManager()
 activity_manager = ActivityManager()
 tag_manager = TagManager()
 category_types = MediaTypeManager()
+amentiycontroller = MediaAggregateController()
 
 
-class MediaAggregateSourceAddViewSet(APIView):
+class MediaAggregatePlayingViewSet(APIView):
+
+    def get(self, request):
+
+        """ Returns playing relation
+         ---
+         response_serializer: PlayingSerializer
+        """
+        try:
+            many = True
+            auth_manager.do_auth(request)
+            params = request.query_params
+            if 'id' in params:
+                maobj = MediaAggregate.objects.get(id=params['id'])
+                plays = Playing.objects.filter(primary_media_source=maobj.inhouse_source)
+                serializer = PlayingSerializer(plays, many=True)
+                return JSONResponse(serializer.data, status=HTTP_200_OK)
+            else:
+                return JSONResponse('Id cannot be none', status=HTTP_400_BAD_REQUEST)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class OOHSourcePlayingViewSet(APIView):
     pass
 
 
@@ -196,6 +232,18 @@ class MediaAggregateViewSet(APIView):
                 # Updates an existing Amenity
                 amenity = MediaAggregate.objects.get(id=aggregate_id)
                 if amenity.owner == creator:
+                    do_action = True if 'action' in request.query_params\
+                     else False
+                    if do_action:
+                        action = request.query_params['action']
+                        return amentiycontroller.handle_operations(
+                                                        amenity,
+                                                        action,
+                                                        request.query_params,
+                                                        request.data)
+                    # do the normal update
+                    # (Note:Sonu) Add the handle_update operation into
+                    # controller.
                     return self.handle_update(request, amenity)
                 else:
                     raise UserNotAuthorizedException()
