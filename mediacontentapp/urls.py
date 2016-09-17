@@ -8,9 +8,6 @@ urlpatterns = [
     # Dash-board
     url(r'^dashboard/',
         views.DashboardViewSet.as_view()),
-    # Search Query
-    url(r'^mediasource/ooh/search/$',
-        sourceviews.OOHMediaSourceSearchViewSet.as_view()),
     # Activity Tracker
     url(r'^mediasource/activity/(?P<activity>[a-z]+)/(?P<id>[0-9a-zA-Z]+)',
         sourceviews.MediaSourceActivityTracker.as_view()),

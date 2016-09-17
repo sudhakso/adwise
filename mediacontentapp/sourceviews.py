@@ -513,7 +513,7 @@ class OOHMediaSourceViewSet(APIView):
                 src.update(operated_by=operated_by, owner=operated_by,
                            pricing=pricing, booking=bookings)
                 src.save()
-                return JSONResponse(serializer.validated_data,
+                return JSONResponse(serializer.data,
                                     status=HTTP_201_CREATED)
         except UserNotAuthorizedException as e:
             print e
@@ -600,7 +600,7 @@ class OOHMediaSourceViewSet(APIView):
                         updated_obj.update(owner=xfer_ownership_to)
                 # Save finally!
                 updated_obj.save()
-                return JSONResponse(serializer.data,
+                return JSONResponse(serializer.validated_data,
                                     status=HTTP_200_OK)
         except UserNotAuthorizedException as e:
             print e
@@ -613,67 +613,6 @@ class OOHMediaSourceViewSet(APIView):
         # Bad Request
         return JSONResponse(serializer.errors,
                             status=HTTP_400_BAD_REQUEST)
-
-
-class OOHMediaSourceSearchViewSet(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        """ Returns a list of OOH media source match ids
-        """
-        # Request POST, with search string
-        results = {}
-        status_string = "Sorry!! No matches found."
-        if request.method == 'POST':
-            fields = request.query_params
-            q_str = fields.get('q',None)
-            user_obj = auth_manager.do_auth(request)
-            entries = []
-
-            if user_obj:
-                user_obj = MediaUser.objects.get(username=user_obj.username)
-                # Is this guy a Bill board owner?
-                if user_obj.role.name == 'BO':
-                    entries = OOHMediaSource.objects.filter(owner=user_obj)
-                    logging.error("User Entries %s", [e.name for e in entries])
-                else:
-                # Restrict the search within the city.
-                    home_city = user_obj.city
-                    if home_city:
-                        entries = OOHMediaSource.objects.filter(city=home_city)
-                        logging.error("City Entries %s", [e.name for e in entries])
-                    else:
-                        entries = OOHMediaSource.objects.all()
-                        logging.error("All Entries %s", [e.name for e in entries])
-                results['display_message'] = "You searched for: " + q_str
-                matching_entries = []
-                if entries:
-                    for e in entries:
-#                         logging.error("Entry %s", e.name)
-                        if e.name and q_str.upper() in e.name.upper():
-                            matching_entries.append(e)
-                        elif e.street_name and q_str.upper() in e.street_name.upper():
-                            matching_entries.append(e)
-                        elif e.city and q_str.upper() in e.city.upper():
-                            matching_entries.append(e)
-
-                logging.error("Matching Entries %s", [e.name for e in matching_entries])
-                if matching_entries:
-                    status_string = "Found the "+str(len(matching_entries)) +" matches"
-                    serializer = OOHMediaSourceSerializer(matching_entries, many=True)
-                    results['matches'] = serializer.data
-                else:
-                    results['matches'] = None
-                results['status_str'] = status_string
-                return JSONResponse(results,
-                                    status=HTTP_200_OK)
-            else:
-                return JSONResponse("UnAuthorized Request",
-                                    status=HTTP_401_UNAUTHORIZED)
-        else:
-            status_string = "Invalid Operation. Please try again"
-            return JSONResponse(status_string,
-                                status=HTTP_400_BAD_REQUEST)
 
 
 class DigitalMediaSourceViewSet(APIView):
