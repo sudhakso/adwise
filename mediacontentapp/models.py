@@ -789,6 +789,95 @@ class T_C_Extension(AdExtension):
         return "/mediacontent/ads/extension/tc/%i/" % self.id
 
 
+class AmenityExtension(Document):
+    """
+    Each Mediaaggregate instance can be supplemented using
+    different extension. And it is purely based on the
+    choice of the Mediaaggregate owner.
+    For example, adding or listing brands in a shopping mall.
+    or listing the retail extensions in a Shopping mall.
+    """
+    ex_name = StringField()
+    ex_type = StringField()
+    amenityref = ReferenceField('MediaAggregate')
+    image_url = StringField(required=False)
+    image = ReferenceField('JpegImageContent', required=False)
+    valid_from = DateTimeField(default=datetime.now())
+    category = StringField(required=False)
+    tagwords = StringField(required=False)
+    # meta
+    meta = {'allow_inheritance': True}
+
+    class Meta:
+        abstract = True
+
+
+class BrandExtension(AmenityExtension):
+    """
+    This extension adds a brand to be part of the
+    amenity.
+    """
+    ex_name = StringField(default='BrandExtension', required=False)
+    ex_type = StringField(default='Shopping')
+    brand_name = StringField(required=True)
+    brand_description = StringField(required=True)
+    brand_url = StringField(required=False)
+    # Internal data, Stored in ad-wise
+    # not to be serialized
+    _meta = DictField(required=False)
+
+    def get_absolute_url(self):
+        return "/mediacontent/extension/brands/%i/" % self.id
+
+
+class RetailExtension(AmenityExtension):
+    """
+    This extension adds a retail store to be part of the
+    amenity.
+    """
+    ex_name = StringField(default='RetailExtension', required=False)
+    ex_type = StringField(default='Shopping')
+    outlet_name = StringField(required=True)
+    outlet_description = StringField(required=True)
+    # floor, shop number etc.
+    outlet_address1 = StringField(required=True)
+    outlet_address2 = StringField(required=True)
+    affliations = StringField(required=False)
+    outlet_url = StringField(required=False)
+    brands = StringField()
+    # Internal data, Stored in ad-wise
+    # not to be serialized
+    _meta = DictField(required=False)
+
+    def get_absolute_url(self):
+        return "/mediacontent/extension/retail/%i/" % self.id
+
+
+class FNBExtension(AmenityExtension):
+    """
+    This extension adds a Food joint to be part of the
+    amenity.
+    """
+    ex_name = StringField(default='FNBExtension', required=False)
+    ex_type = StringField(default='Food')
+    outlet_name = StringField(required=True)
+    outlet_description = StringField(required=True)
+    # floor, shop number etc.
+    outlet_address1 = StringField(required=True)
+    outlet_address2 = StringField(required=True)
+    # continental, fast food etc.
+    cusine = StringField(required=False)
+    # Restro-bar, fine dining, driveway etc.
+    outlet_type = StringField(required=False)
+    average_price_for_2 = StringField(required=False)
+    smoking_allowed = BooleanField(default=False)
+    beverages_served = BooleanField(default=False)
+    outlet_url = StringField(required=False)
+
+    def get_absolute_url(self):
+        return "/mediacontent/extension/fnb/%i/" % self.id
+
+
 class JpegImageContent(Document):
     """
     A JPEG image instance .
@@ -800,13 +889,3 @@ class JpegImageContent(Document):
     def get_absolute_url(self):
         return "/mediacontent/images/%s/" % (
                                 self.id)
-
-
-
-# class OOHFilter(django_filters.FilterSet):
-class OOHFilter():
-    class Meta:
-        model = OOHMediaSource
-        fields = ['name', 'street_name', 'city', 'state', 'country', 'pin',
-                  'subscription_start_date', 'subscription_end_date',
-                  'operated_by']
