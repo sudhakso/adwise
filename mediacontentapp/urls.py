@@ -19,10 +19,14 @@ urlpatterns = [
     url(r'^mediaaggregates/types/(?P<type_id>[0-9a-zA-Z]+)',
         sourceviews.MediaAggregateTypeViewSet.as_view()),
     # Media aggregates
+    url(r'^mediaaggregates/(?P<aggregate_id>[0-9a-zA-Z]+)/extensions/',
+        sourceviews.MediaAggregateExtensionViewSet.as_view()),
     url(r'^mediaaggregates/(?P<aggregate_id>[0-9a-zA-Z]+)/',
         sourceviews.MediaAggregateViewSet.as_view()),
     url(r'^mediaaggregates/',
         sourceviews.MediaAggregateViewSet.as_view()),
+    url(r'^extension/amenity/(?P<extension_id>[0-9a-zA-Z]+)/$',
+        sourceviews.AmenityExtensionViewSet.as_view()),
     # Media source
     url(r'^mediasource/ooh/(?P<id>[0-9a-zA-Z]+)',
         sourceviews.OOHMediaSourceViewSet.as_view()),

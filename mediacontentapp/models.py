@@ -878,6 +878,16 @@ class FNBExtension(AmenityExtension):
         return "/mediacontent/extension/fnb/%i/" % self.id
 
 
+class AmenityExtensionCollection(Document):
+
+    retails = ListField(ReferenceField('RetailExtension'),
+                        default=[], required=False)
+    brands = ListField(ReferenceField('BrandExtension'),
+                       default=[], required=False)
+    fnbs = ListField(ReferenceField('FNBExtension'),
+                     default=[], required=False)
+
+
 class JpegImageContent(Document):
     """
     A JPEG image instance .

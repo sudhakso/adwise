@@ -159,6 +159,29 @@ curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" 
 # Get MediaAggregate types
 curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://172.31.41.248:8000/mediacontent/mediaaggregates/types/
 
+# Add amenity extensions to the MediaAggregate
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"retailextension":{"valid_from":"2016-02-25T18:37:21.766000", "category": "shopping", "tagwords": "discount shopee", "outlet_name": "somename", "outlet_description":"some desc", "outlet_address1": "Addr1", "outlet_address2":"addr2", "affliations": "parent brand", "outlet_url": "http://someurl.com", "brands": "nike puma adidas"}, "brandextension": {"valid_from":"2016-02-25T18:37:21.766000", "category": "shopping", "tagwords": "discount shopee", "brand_name": "somename", "brand_description": "some desc", "brand_url": "http://nike.com"}, "fnbextension": {"valid_from":"2016-02-25T18:37:21.766000", "category": "shopping", "tagwords": "discount shopee", "outlet_name": "somename", "outlet_description": "some desc", "outlet_address1": "addr1", "outlet_address2": "addr2", "cusine": "chineese", "outlet_type": "bar", "average_price_for_2": "200 rs", "smoking_allowed": "False", "beverages_served": "True", "outlet_url": "http://bar.com"}}' http://127.0.0.1:8000/mediacontent/mediaaggregates/<$aggregate-id>/extensions
+# 57d844351d41c87ef6affad9
+
+# Get all extensions of a MediaAggregate
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/mediaaggregates/$<aggregate_id>/extensions/
+
+# Add image to an existing extension
+curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg" http://localhost:8000/mediacontent/extension/amenity/<$extension-id>/
+
+# API to attach a campaign to a MediaAggregate
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"start_date" : "2016-02-25T18:37:21.766000","end_date" :"2016-02-25T18:37:21.766000"}' "http://127.0.0.1:8000/mediacontent/mediaaggregates/57d844351d41c87ef6affad9/?action=addcontent&id=57c062201d41c83e549e8ae5"
+
+The query format is,
+/mediacontent/mediaaggregates/$aggregate_id/?action=addcontent&id=$campaign_id"
+
+# API to query campaigns attached to a MediaAggregate
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/playing/mediaagregate/?id=57d844351d41c87ef6affad9
+
+The query format is,
+/mediacontent/playing/mediaagregate/?id=$aggregate_id
+
+
 # Creating/Updating a dashboard for the User - set approriate dashboard type. (Media Agency - "MA", Billboard Owner - "BO", On baording partner -> "Partner", Service User -> "Unknown")
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"dashboard_type":"MA"}' http://127.0.0.1:8000/mediacontent/dashboard/
 
@@ -246,20 +269,6 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 
 # Submitting OOH operational data for analytics (One sample)
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '[{"visitor_total_count":170000, "breakups": {"age":{"15-20": 100, "20-28": 200, "28-35": 500}, "commute":{"bus":500,"cabs": 1200,"cars": 1500}, "target":{"profs":1200, "teens":5000, "biz":5000}}, "feed_timestamp":"2016-06-01T18:37:21.766000"}]' http://127.0.0.1:8000/mediacontent/etl/ooh/574d68571d41c8ba3f289e84/
-
-
-# API to attach a campaign to a MediaAggregate
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"start_date" : "2016-02-25T18:37:21.766000","end_date" :"2016-02-25T18:37:21.766000"}' "http://127.0.0.1:8000/mediacontent/mediaaggregates/57d844351d41c87ef6affad9/?action=addcontent&id=57c062201d41c83e549e8ae5"
-
-The query format is,
-/mediacontent/mediaaggregates/$aggregate_id/?action=addcontent&id=$campaign_id"
-
-# API to query campaigns attached to a MediaAggregate
-curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/playing/mediaagregate/?id=57d844351d41c87ef6affad9
-
-The query format is,
-/mediacontent/playing/mediaagregate/?id=$aggregate_id
-
 
 # WIP
 ### OOHMediaSource

@@ -1,19 +1,22 @@
 import json
 from userapp.JSONFormatter import JSONResponse
 from rest_framework.views import APIView
-from mediacontentapp.models import MediaSource, OOHMediaSource
+from mediacontentapp.models import MediaSource, OOHMediaSource, BrandExtension
 from mediacontentapp.models import DigitalMediaSource, VODMediaSource,\
         RadioMediaSource
 from mediacontentapp.models import Playing
 from mediacontentapp.models import MediaAggregate, MediaAggregateType
 from mediacontentapp.models import MediaDashboard, MediaSourceActivity,\
-        SourceTag
+        SourceTag, AmenityExtension, BrandExtension, RetailExtension,\
+        FNBExtension, AmenityExtensionCollection
 from mediacontentapp.sourceserializers import MediaSourceSerializer,\
         OOHMediaSourceSerializer, VODMediaSourceSerializer,\
         DigitalMediaSourceSerializer, RadioMediaSourceSerializer,\
         BookingSerializer, PricingSerializer, MediaSourceActivitySerializer,\
         SourceTagSerializer, MediaAggregateSerializer,\
-        MediaAggregateTypeSerializer
+        MediaAggregateTypeSerializer, RetailExtensionSerializer,\
+        BrandExtensionSerializer, FNBExtensionSerializer,\
+        AmenityExtensionSerializer, AmenityExtensionCollectionSerializer
 from mediacontentapp.serializers import JpegImageContentSerializer,\
  PlayingSerializer
 from mediacontentapp import IdentityService
@@ -38,6 +41,162 @@ activity_manager = ActivityManager()
 tag_manager = TagManager()
 category_types = MediaTypeManager()
 amentiycontroller = MediaAggregateController()
+
+
+# Updates the amenity extension instance.
+class AmenityExtensionViewSet(APIView):
+
+    def post(self, request, extension_id):
+
+        """ updates an extension instance.
+         ---
+         response_serializer: AmenityExtensionSerializer
+        """
+        # Get the AmenityExtension object instance by Id
+        # Determine the type, and load the correct the serializer.
+        # Update the content and save.
+        if extension_id is not None:
+            try:
+                am = AmenityExtension.objects.get(id=extension_id)
+                image = None
+                image_url = None
+                ser = None
+                # Update existing  extension instance
+                # Store icon image
+                if 'image' in request.data:
+                    _req = {"image": request.data['image'],
+                            "image_type": "png"}
+                    img_ser = JpegImageContentSerializer(
+                                data=_req)
+                    if img_ser.is_valid(raise_exception=False):
+                        image = img_ser.save()
+                        image_url = image.get_absolute_url()
+                # check the instance type, and load the serializer
+                if isinstance(am, BrandExtension):
+                    ser = BrandExtensionSerializer(data=request.data,
+                                                   partial=True)
+                elif isinstance(am, RetailExtension):
+                    ser = RetailExtensionSerializer(data=request.data,
+                                                    partial=True)
+                elif isinstance(am, FNBExtension):
+                    ser = FNBExtensionSerializer(data=request.data,
+                                                 partial=True)
+                else:
+                    # Not a case
+                    return JSONResponse("",
+                                        status=HTTP_404_NOT_FOUND)
+                # Check if serializer is valid
+                if ser.is_valid(raise_exception=True):
+                    srcobj = ser.update(am, ser.validated_data)
+                    srcobj.update(image=image,
+                                  image_url=image_url)
+                    return JSONResponse(ser.validated_data,
+                                        status=HTTP_200_OK)
+            except DoesNotExist as e:
+                print e
+                return JSONResponse(str(e),
+                                    status=HTTP_404_NOT_FOUND)
+            except Exception as e:
+                print e
+                return JSONResponse(str(e),
+                                    status=HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return JSONResponse("extension id cannot be None",
+                                status=HTTP_400_BAD_REQUEST)
+
+
+# Creates the extension and adds it to MediaAggregate instance
+class MediaAggregateExtensionViewSet(APIView):
+
+    def get(self, request, aggregate_id):
+
+        """ Returns collection of amenity for an aggregate
+         ---
+         response_serializer: AmenityExtensionCollectionSerializer
+        """
+        if aggregate_id is not None:
+            try:
+                ma = MediaAggregate.objects.get(id=aggregate_id)
+                # Collect all extensions
+                ams = AmenityExtension.objects.filter(amenityref=ma)
+                amc = AmenityExtensionCollection()
+                for am in ams:
+                    if isinstance(am, BrandExtension):
+                        # collect BrandExtension type
+                        amc.brands.append(am)
+                    elif isinstance(am, RetailExtension):
+                        # collect RetailExtension
+                        amc.retails.append(am)
+                    elif isinstance(am, FNBExtension):
+                        # collect FNBExtension
+                        amc.fnbs.append(am)
+                    else:
+                        continue
+                amcser = AmenityExtensionCollectionSerializer(amc)
+                return JSONResponse(amcser.data,
+                                    status=HTTP_200_OK)
+            except DoesNotExist as e:
+                print e
+                return JSONResponse(str(e),
+                                    status=HTTP_404_NOT_FOUND)
+            except Exception as e:
+                print e
+                return JSONResponse(str(e),
+                                    status=HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return JSONResponse("aggregate id cannot be None",
+                                status=HTTP_400_BAD_REQUEST)
+
+    def post(self, request, aggregate_id):
+
+        """ Creates an extension and adds it to
+        a Mediaaggregate object.
+         ---
+         response_serializer: AmenityExtensionSerializer
+        """
+        # Return an instance of AmenityExtensionCollection
+        if aggregate_id is not None:
+            try:
+                _re = None
+                _be = None
+                _fnbe = None
+
+                ma = MediaAggregate.objects.get(id=aggregate_id)
+                if 'retailextension' in request.data:
+                    re = RetailExtensionSerializer(
+                                        data=request.data['retailextension'])
+                    if re.is_valid(raise_exception=True):
+                        _re = re.save()
+                        _re.update(amenityref=ma)
+                if 'brandextension' in request.data:
+                    be = BrandExtensionSerializer(
+                                        data=request.data['brandextension'])
+                    if be.is_valid(raise_exception=True):
+                        _be = be.save()
+                        _be.update(amenityref=ma)
+                if 'fnbextension' in request.data:
+                    fnbe = FNBExtensionSerializer(
+                                        data=request.data['fnbextension'])
+                    if fnbe.is_valid(raise_exception=True):
+                        _fnbe = fnbe.save()
+                        _fnbe.update(amenityref=ma)
+                # Collect all extensions
+                ams = AmenityExtension.objects.filter(amenityref=ma)
+                amsser = AmenityExtensionSerializer(ams, many=True)
+                return JSONResponse(amsser.data,
+                                    status=HTTP_201_CREATED)
+            except DoesNotExist as e:
+                print e
+                return JSONResponse(str(e),
+                                    status=HTTP_404_NOT_FOUND)
+            except UserNotAuthorizedException as e:
+                print e
+                return JSONResponse(str(e),
+                                    status=HTTP_401_UNAUTHORIZED)
+            except Exception as e:
+                print e
+                return JSONResponse(str(e),
+                                    status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class MediaAggregatePlayingViewSet(APIView):

@@ -6,7 +6,9 @@ from mediacontentapp.models import MediaSource, OOHMediaSource,\
         VODMediaSource, DigitalMediaSource, RadioMediaSource, Pricing,\
         Booking, MediaDashboard, MediaSourceActivity, SourceTag,\
         OOHAnalyticalAttributes, OOHOperationalDailyDataFeed,\
-        MediaAggregate, MediaAggregateType
+        MediaAggregate, MediaAggregateType, AmenityExtension,\
+        RetailExtension, BrandExtension, FNBExtension,\
+        AmenityExtensionCollection
 from datetime import timedelta
 from mediacontentapp.controller import ActivityManager
 
@@ -296,6 +298,92 @@ class MediaAggregateSerializer(serializers.DocumentSerializer):
     class Meta:
         model = MediaAggregate
         exclude = ('icon_content', 'image_content',)
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class AmenityExtensionSerializer(serializers.DocumentSerializer):
+
+    amenityref = MediaAggregateSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = AmenityExtension
+
+        exclude = ('image',)
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class RetailExtensionSerializer(serializers.DocumentSerializer):
+
+    amenityref = MediaAggregateSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = RetailExtension
+
+        exclude = ('image',)
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class BrandExtensionSerializer(serializers.DocumentSerializer):
+
+    amenityref = MediaAggregateSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = BrandExtension
+
+        exclude = ('image',)
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class FNBExtensionSerializer(serializers.DocumentSerializer):
+
+    amenityref = MediaAggregateSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = FNBExtension
+
+        exclude = ('image',)
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class AmenityExtensionCollectionSerializer(serializers.DocumentSerializer):
+    retails = RetailExtensionSerializer(required=False,
+                                        read_only=True,
+                                        many=True)
+    brands = BrandExtensionSerializer(required=False,
+                                      read_only=True,
+                                      many=True)
+    fnbs = FNBExtensionSerializer(required=False,
+                                  read_only=True,
+                                  many=True)
+
+    class Meta:
+        model = AmenityExtensionCollection
+        exclude = ('id',)
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
