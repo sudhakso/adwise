@@ -455,7 +455,7 @@ class MediaAggregateViewSet(APIView):
                         point=srcobj.location)
                 srcobj.update(inhouse_source=inhouse_source)
                 srcobj.save()
-                return JSONResponse(serializer.validated_data,
+                return JSONResponse(serializer.data,
                                     status=HTTP_201_CREATED)
         except DoesNotExist as e:
             print e
