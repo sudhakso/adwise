@@ -104,7 +104,6 @@ def post_campaign(url, auth_dict, camp, imagedir=None):
                      "email": auth_dict['email']}
 
     payload = camp
-    json_camp = json.loads(camp)
     req = requests.Request('POST', url, data=payload, headers=headers)
     prep_req = req.prepare()
     pretty_print_POST(prep_req)
@@ -117,11 +116,11 @@ def post_campaign(url, auth_dict, camp, imagedir=None):
         if imagedir is None:
             image_file = '%s/%s' % (
                             os.path.dirname(os.path.abspath(__file__)),
-                            json_camp['image'])
+                            auth_dict['image'])
         else:
             image_file = '%s/%s' % (
                             imagedir,
-                            json_camp['image'])
+                            auth_dict['image'])
         files = {'image': open(image_file, 'rb'),
                  'Content-Type': 'image/jpeg'}
         requests.post(url, headers=image_headers, files=files)
@@ -133,11 +132,12 @@ def post_campaign(url, auth_dict, camp, imagedir=None):
 
 if __name__ == '__main__':
     (columns, data) = main(sys.argv[1])
-    ignore_fields = ['email', 'username', 'password', 'dummy']
+    ignore_fields = ['email', 'username', 'password',  'image', 'dummy']
     for eachrow in data:
         misc, camp = load_campaign(columns, ignore_fields, eachrow)
         processed_campaign = process_campaign(camp)
         json_processed_campaign = json.dumps(processed_campaign)
         post_campaign(("%s/%s" % (sys.argv[2], 'mediacontent/campaign/')),
-                      misc, json_processed_campaign, imagedir=sys.argv[3])
+                      misc, json_processed_campaign,
+                      imagedir=sys.argv[3] if len(sys.argv) >= 4 else None)
 

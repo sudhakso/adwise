@@ -57,8 +57,9 @@ class MediaAggregateController():
                                 str(self.playing_template.render(**_nv)))
             playing = PlayingSerializer(data=_playing_data)
             if playing.is_valid(raise_exception=True):
-                playing.save(primary_media_source=amenity.inhouse_source,
-                             playing_content=campaign)
+                play = playing.save()
+                play.update(primary_media_source=amenity.inhouse_source,
+                            playing_content=campaign)
                 return JSONResponse(playing.validated_data,
                                     status=HTTP_200_OK)
         elif action == self.ADD_SERVICE:

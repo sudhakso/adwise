@@ -133,7 +133,6 @@ def post_ooh(url, auth_dict, ooh):
                      "email": auth_dict['email']}
 
     payload = ooh
-    json_ooh = json.loads(ooh)
     req = requests.Request('POST', url, data=payload, headers=headers)
     prep_req = req.prepare()
     pretty_print_POST(prep_req)
@@ -145,7 +144,7 @@ def post_ooh(url, auth_dict, ooh):
         url = "%s%s/" % (url, json_content['id'])
         image_file = '%s/%s' % (
                         os.path.dirname(os.path.abspath(__file__)),
-                        json_ooh['image'])
+                        auth_dict['image'])
         files = {'image': open(image_file, 'rb'),
                  'Content-Type': 'image/jpeg'}
         requests.post(url, headers=image_headers, files=files)
@@ -157,7 +156,7 @@ def post_ooh(url, auth_dict, ooh):
 
 if __name__ == '__main__':
     (columns, data) = main(sys.argv[1])
-    ignore_fields = ['Company', 'email', 'username', 'password']
+    ignore_fields = ['Company', 'email', 'username', 'password', 'image', 'dummy']
     for eachrow in data:
         misc, ooh = load_ooh(columns, ignore_fields, eachrow)
         processed_ooh = process_ooh(ooh)

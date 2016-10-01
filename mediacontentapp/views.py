@@ -199,7 +199,7 @@ class CampaignViewSet(APIView):
             # Store home page for the campaign
             if 'image' in request.data:
                 imageserializer = ImageContentSerializer(
-                        data=request.data)
+                        data=request.data['image'])
                 if imageserializer.is_valid(raise_exception=True):
                     img = imageserializer.save()
 
