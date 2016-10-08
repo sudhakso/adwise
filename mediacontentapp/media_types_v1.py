@@ -60,3 +60,31 @@ class Hospital(object):
     @property
     def typedesc(self):
         return self._typedesc
+
+
+class ThemePark(object):
+    def __init__(self):
+        self._typename = "Park"
+        self._category = "nature entertainment fun recreation rejuvenation tourisim"
+        self._typespec = {"dummykey1": "dummyval1"}
+        self._typedesc = "Tourist attractions nature water sports"
+
+    @property
+    def typename(self):
+        return self._typename
+
+    @typename.setter
+    def typename(self, val):
+        self._typename = val
+
+    @property
+    def category(self):
+        return self._category
+
+    @property
+    def typespec(self):
+        return self._typespec
+
+    @property
+    def typedesc(self):
+        return self._typedesc
