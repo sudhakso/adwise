@@ -293,7 +293,16 @@ class MediaAggregateViewSet(APIView):
                 amenity = MediaAggregate.objects.get(id=aggregate_id)
             else:
                 many = True
-                amenity = MediaAggregate.objects.all()
+                # Check if type-name is specified.
+                filter_action = True if 'typename' in request.query_params\
+                                        else False
+                if filter_action:
+                    name = request.query_params['typename']
+                    typeobj = MediaAggregateType.objects.get(typename=name)
+                    amenity = MediaAggregate.objects.filter(typespec=typeobj)
+                else:
+                    amenity = MediaAggregate.objects.all()
+            # Serialize
             serializer = MediaAggregateSerializer(amenity, many=many)
             return JSONResponse(serializer.data)
         except DoesNotExist as e:
