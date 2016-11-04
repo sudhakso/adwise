@@ -177,7 +177,7 @@ def post_ma(base_url, auth_dict, ma, imagedir):
             image_file = '%s/%s' % (
                             imagedir,
                             auth_dict['image'])
-        files = {'image': open(image_file, 'rb'),
+        files = {'image_content': open(image_file, 'rb'),
                  'Content-Type': 'image/jpeg'}
         requests.post(_url, headers=image_headers, files=files)
         # Set the campaigns.
