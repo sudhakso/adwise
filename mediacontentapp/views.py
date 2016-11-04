@@ -221,9 +221,10 @@ class CampaignViewSet(APIView):
                                             camp=campaign,
                                             spec=spec)
                 # Create tracker object
-                tracker = CampaignTrackingSerializer(data=request.data)
-                if tracker.is_valid(raise_exception=True):
-                    tracker.save(campaign=campaign)
+                trackerser = CampaignTrackingSerializer(data=request.data)
+                if trackerser.is_valid(raise_exception=True):
+                    tracker = trackerser.save()
+                    tracker.update(campaign=campaign)
                 return JSONResponse(serializer.data,
                                     status=HTTP_201_CREATED)
             else:
