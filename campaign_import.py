@@ -110,6 +110,7 @@ def post_campaign(url, auth_dict, camp, imagedir=None):
     s = requests.Session()
     r = s.send(prep_req)
     json_content = json.loads(r.content)
+    print json_content
     if 'id' in json_content:
         # Update the campaign with the image
         url = "%s%s/" % (url, json_content['id'])

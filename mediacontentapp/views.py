@@ -665,7 +665,7 @@ class ImageAdViewSet(AdViewSet):
                               socialex=social,
                               campaign=camp)
                     # Successful
-                    return JSONResponse(str(ad.id),
+                    return JSONResponse(serializer.data,
                                         status=HTTP_201_CREATED)
                 return JSONResponse("Unknown error processing %s (%s) ." % (
                                             campaign_id, serializer.errors),
