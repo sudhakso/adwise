@@ -242,6 +242,7 @@ Format is, /mediacontent/ads/imageads/<$campaign_id>/<$imagead_id>
 # Add ImageAd with offer extension
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"offerex":[{"ex_name": "new customer offer", "ex_type": "offer", "offer_code": "QOWGX", "offer_description": "pre-launch offer", "openDay":"2016-04-29T18:37:21.766000", "closeDay": "2016-04-29T18:37:21.766000"}]}' http://localhost:8000/mediacontent/ads/imageads/57002fb11d41c8855868dbd4/570739611d41c84309e0a976/
 
+
 # Add ImageAd with all attributes except for Image itself.
 
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"display_url":"http://hp.com","final_urls":"http://hp.com","mobile_urls":"http://hp.com","app_urls":"http://hp.com","thirdparty_tracking_url":"http://track.com", "adwise_tracking_url":"http://hp.com","ad_type":"ImageAd","offerex":[{"ex_name": "new customer offer", "ex_type": "offer", "offer_code": "QOWGX", "offer_description": "pre-launch offer", "openDay":"2016-04-29T18:37:21.766000", "closeDay": "2016-04-29T18:37:21.766000"}], "socialex":[{"socialmedia_type":"facebook", "socialmedia_url":"http://facebook.com/series-5.com", "socialmedia_headline": "facebook free basic campaign"}, {"socialmedia_type":"twitter", "socialmedia_url":"http://twitter.com/series-5.com", "socialmedia_headline": "twitter free basic campaign"}]}' http://localhost:8000/mediacontent/ads/imageads/571a72741d41c8b297ff2e75/
@@ -274,10 +275,10 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '[{"visitor_total_count":170000, "breakups": {"age":{"15-20": 100, "20-28": 200, "28-35": 500}, "commute":{"bus":500,"cabs": 1200,"cars": 1500}, "target":{"profs":1200, "teens":5000, "biz":5000}}, "feed_timestamp":"2016-06-01T18:37:21.766000"}]' http://127.0.0.1:8000/mediacontent/etl/ooh/574d68571d41c8ba3f289e84/
 
 # Retrieving OOH operational data (Many samples)
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/etl/ooh/574d68571d41c8ba3f289e84/?all=False&startday=2016-06-02&endday=2016-08-02
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/etl/ooh/574d68571d41c8ba3f289e84/?startday=2016-06-02&endday=2016-08-02
 
 # Retrieving OOH operational data (Many samples)
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/etl/ooh/574d68571d41c8ba3f289e84/?all=True
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/etl/ooh/574d68571d41c8ba3f289e84/
 
 # WIP
 ### OOHMediaSource

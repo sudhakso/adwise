@@ -1,6 +1,6 @@
 from django.conf.urls import url, include
 from mediacontentapp import views, sourceviews, analyticsviews
-from mediacontentapp.analyticsviews import AnalyticsViewSet
+from mediacontentapp.analyticsviews import EtlViewSet
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
@@ -62,7 +62,7 @@ urlpatterns = [
     url(r'^ads/textads/', views.TextAdViewSet.as_view()),
     url(r'^ads/callads/', views.CallOnlyAdViewSet.as_view()),
     url(r'^etl/(?P<source_type>[a-zA-Z]+)/(?P<source_id>[0-9a-zA-Z]+)',
-        analyticsviews.AnalyticsViewSet.as_view()),
+        analyticsviews.EtlViewSet.as_view()),
 ]
 
 #     url(r'^mediasource/digital/$',
