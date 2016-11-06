@@ -69,6 +69,7 @@ INSTALLED_APPS = (
     'userapp',
     'mediacontentapp',
     'mediaresearchapp',
+    'mediaetlapp',
 )
 
 MIDDLEWARE_CLASSES = (

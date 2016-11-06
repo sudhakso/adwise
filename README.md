@@ -269,16 +269,16 @@ curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" 
 curl -H "Content-Type: application/json" -X POST -d '{"raw_strings": "fitness", "query_type": "OOHMediaSource", "query_fields":{"category":4, "description":2}}' http://127.0.0.1:8000/research/query/
 
 # Submitting OOH operational data for analytics (Bulk upload)
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '[{"visitor_total_count":170000, "breakups": {"age":{"15-20": 100, "20-28": 200, "28-35": 500}, "commute":{"bus":500,"cabs": 1200,"cars": 1500}, "target":{"profs":1200, "teens":5000, "biz":5000}}, "feed_timestamp":"2016-06-01T18:37:21.766000"}, {"visitor_total_count":3500, "breakups": {"age":{"15-20": 100, "20-28": 200, "28-35": 500}, "commute":{"bus":500,"cabs": 1200,"cars": 1500}, "target":{"profs":1200, "teens":5000, "biz":5000}}, "feed_timestamp":"2016-06-02T18:37:21.766000"}]' http://127.0.0.1:8000/mediacontent/etl/ooh/574d68571d41c8ba3f289e84/
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '[{"visitor_total_count":170000, "breakups": {"age":{"15-20": 100, "20-28": 200, "28-35": 500}, "commute":{"bus":500,"cabs": 1200,"cars": 1500}, "target":{"profs":1200, "teens":5000, "biz":5000}}, "feed_timestamp":"2016-06-01T18:37:21.766000"}, {"visitor_total_count":3500, "breakups": {"age":{"15-20": 100, "20-28": 200, "28-35": 500}, "commute":{"bus":500,"cabs": 1200,"cars": 1500}, "target":{"profs":1200, "teens":5000, "biz":5000}}, "feed_timestamp":"2016-06-02T18:37:21.766000"}]' http://127.0.0.1:8000/etl/ooh/574d68571d41c8ba3f289e84/
 
 # Submitting OOH operational data for analytics (One sample)
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '[{"visitor_total_count":170000, "breakups": {"age":{"15-20": 100, "20-28": 200, "28-35": 500}, "commute":{"bus":500,"cabs": 1200,"cars": 1500}, "target":{"profs":1200, "teens":5000, "biz":5000}}, "feed_timestamp":"2016-06-01T18:37:21.766000"}]' http://127.0.0.1:8000/mediacontent/etl/ooh/574d68571d41c8ba3f289e84/
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '[{"visitor_total_count":170000, "breakups": {"age":{"15-20": 100, "20-28": 200, "28-35": 500}, "commute":{"bus":500,"cabs": 1200,"cars": 1500}, "target":{"profs":1200, "teens":5000, "biz":5000}}, "feed_timestamp":"2016-06-01T18:37:21.766000"}]' http://127.0.0.1:8000/etl/ooh/574d68571d41c8ba3f289e84/
 
 # Retrieving OOH operational data (Many samples)
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/etl/ooh/574d68571d41c8ba3f289e84/?startday=2016-06-02&endday=2016-08-02
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/etl/ooh/574d68571d41c8ba3f289e84/?startday=2016-06-02&endday=2016-08-02
 
 # Retrieving OOH operational data (Many samples)
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/etl/ooh/574d68571d41c8ba3f289e84/
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/etl/ooh/574d68571d41c8ba3f289e84/
 
 # WIP
 ### OOHMediaSource

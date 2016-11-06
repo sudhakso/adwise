@@ -11,6 +11,8 @@ urlpatterns = [
     url(r'^users/', include('userapp.urls')),
     # User
     url(r'^research/', include('mediaresearchapp.urls')),
+    # ETL
+    url(r'^etl/', include('mediaetlapp.urls')),
     # Documentation engine
     url(r'^', include('rest_framework_swagger.urls')),
 ]
