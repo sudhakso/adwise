@@ -203,9 +203,32 @@ curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "us
 # Getting added tags to a billboard
 curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://localhost:8000/mediacontent/mediasource/tags/56c0b94c1d41c8957cba8237
 
-# Miscellaneous
-# Create a service called 'location' for the User
-sudo curl -H "Content-Type: application/json" -X POST -d '{"target_service_name": "location", "service_meta": "empty"}' http://localhost:8000/users/services/lion2/location/
+# Miscellaneous - Service API (e.g. offers, notification, email etc.)
+# Create a service subscription called 'location' for the User
+sudo curl -H "Content-Type: application/json" -X POST -d '{"target_service_name": "location", "service_meta": "empty"}' http://localhost:8000/users/services/$user-id/location/
+
+# Create a service subscription called 'notification' for the User
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{}' http://localhost:8000/users/services/$user-id/$service-friendly-name/
+
+e.g. valid names are "location", "meter", "gcm", "notification", "offer", "event" etc.
+
+# Get all the services availed for a User
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://localhost:8000/users/services/$user-id/
+
+# Get detail of a service by its friendly name
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://localhost:8000/users/services/$user-id/notification/
+
+e.g. service-friendly-name=notification
+
+# Feed service data subscribed to the User by its service key
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"service_meta": {"notif_data": {"a":"b", "c":"Account running low balance"}, "notif_expiry_date":"2016-04-25T18:37:21.766000"}}' http://localhost:8000/users/services/$user-service-id/data/
+
+# Get service data subscribed to the User by its service key
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET -d http://localhost:8000/users/services/$user-service-id/data/
+
+for e.g. returns instances referred under service "58249eda1d41c8f79d19569d"
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://localhost:8000/users/services/58249eda1d41c8f79d19569d/data/
+
 
 # Create a campaign
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"name": "P(x) campaign", "description": "Starters T20", "launched_at": "2016-04-25T18:37:21.766000", "end_at": "2016-04-29T18:37:21.766000", "target_group":[], "linked_source_ids":["56f75d6f1d41c81380d87b65"], "spec" :{"name":"basic", "type": "basictype", "ad_type":"imagead"}}' http://localhost:8000/mediacontent/campaign/

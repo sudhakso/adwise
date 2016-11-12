@@ -44,24 +44,33 @@ class SessionManager(object):
         usersess = UserSession.objects.create(user_ref=user_id)
         return usersess
 
-    def prepare_service(self, user_id, sess_id, service_name,
-                        args, raise_exception=True):
-        # If session is not known
-        if sess_id is None:
-            sess_id = self.create_session(user_id)
-
+    def prepare_user_service(self, user, service):
+        # If the service_name exists for the User, return the service-id
+        reg_service = UserService.objects.filter(user_ref=user,
+                                                 service_id=service)
+        if reg_service:
+            # Returns the first element.
+            return reg_service[0]
+        # Service was not found, so create it.
+        reg_session = UserSession.objects.filter(user_ref=user)
+        # If session is not known, create it!
+        if reg_session:
+            session = reg_session[0]
+        else:
+            session = self.create_session(user)
         # Lookup the service
-        if service_name in self.user_enabled_services:
-            kwargs = {
-                    'user_ref': user_id,
-                    'user_session': sess_id,
-                    'service_id': self.servicemanager.servicedirectory[
-                                        service_name],
-                    'enabled': True,
-                    'last_report_time': datetime.now(),
-                    'auto_restart': True
-                    }
-            usersvc = UserService.objects.create(**kwargs)
+        kwargs = {
+                'user_ref': user,
+                'user_session': session,
+                'service_id': service,
+                'enabled': True,
+                'last_report_time': datetime.now(),
+                'auto_restart': True
+        }
+        usersvc = UserService.objects.create(**kwargs)
+        # Append the service created into UserSession object for future
+        # reference.
+        session.services.append(usersvc)
         return usersvc
 
     def remove_expired_session(self, user_id):

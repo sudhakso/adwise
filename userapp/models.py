@@ -7,6 +7,7 @@ from mongoengine import connect
 from atlas_ws.settings import _MONGODB_NAME
 from rest_framework import fields
 
+
 connect(_MONGODB_NAME, alias='default')
 
 
@@ -156,21 +157,45 @@ class UserSession(Document):
 
 class ServiceRequest(Document):
 
-    target_service_name = StringField(max_length=30)
     request_time = DateTimeField()
-    target_service_id = ReferenceField('Service')
-    requesting_user_id = ReferenceField('MediaUser')
     # unknown data, delegated to driver.
-    service_meta = StringField()
+    service_meta = DictField()
 
 
 class Location(Document):
-    service_key = StringField()
+    service_key = StringField(required=False)
     point = GeoPointField()
 
 
 class Meter(Document):
-    service_key = StringField()
+    service_key = StringField(required=False)
+
+
+# Event inbox
+class Event(Document):
+    service_key = StringField(required=False)
+    event_data = DictField()
+    event_expiry_date = DateTimeField()
+
+
+# Notification Inbox
+class Notification(Document):
+    service_key = StringField(required=False)
+    notif_data = DictField()
+    notif_expiry_date = DateTimeField()
+
+
+# Offer Inbox
+class Offer(Document):
+    service_key = StringField(required=False)
+    offer_data = DictField()
+    offer_expiry_date = DateTimeField()
+
+
+# Offer Inbox
+class Cart(Document):
+    service_key = StringField(required=False)
+    cart_data = DictField()
 
 
 # Token that is passed when a user is added by

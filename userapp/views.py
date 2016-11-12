@@ -14,6 +14,7 @@ from datetime import datetime
 from userapp.session.sessionmanager import SessionManager
 from userapp.service.identityservice import IdentityManager
 from userapp.faults import UserNotAuthorizedException, UserAlreadyExist
+from rest_framework.renderers import JSONRenderer
 # from oslo_config import cfg
 # from oslo_log import log as logging
 from mongoengine.errors import DoesNotExist, MultipleObjectsReturned
@@ -292,18 +293,24 @@ class UserServiceViewSet(APIView):
     serializer_class = UserServiceSerializer
     model = UserService
 
-    def get(self, request, username, service_name=None):
+    def get(self, request, userid, service_name=None):
         """ Returns a list of user service
          ---
          response_serializer: UserServiceSerializer
         """
         try:
             auth_manager.do_auth(request)
-            if username:
-                user = MediaUser.objects.get(username=username)
+            user = MediaUser.objects.get(id=userid)
+            if service_name:
+                svc = Service.objects.get(
+                                service_friendly_name=service_name)
+                svcs = UserService.objects.filter(
+                            user_ref=user,
+                            service_id=svc)
+            else:
                 svcs = UserService.objects.filter(user_ref=user)
-                serializer = UserServiceSerializer(svcs, many=True)
-                return JSONResponse(serializer.data)
+            serializer = UserServiceSerializer(svcs, many=True)
+            return JSONResponse(serializer.data)
         except UserNotAuthorizedException as e:
             print e
             return JSONResponse(str(e),
@@ -317,7 +324,7 @@ class UserServiceViewSet(APIView):
             return JSONResponse(str(e),
                                 status=HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def post(self, request, username, service_name):
+    def post(self, request, userid, service_name):
         """ Creates a service request
          ---
          request_serializer: ServiceRequestSerializer
@@ -326,27 +333,26 @@ class UserServiceViewSet(APIView):
         try:
             auth_manager.do_auth(request)
             tm = datetime.now()
-            if username and service_name:
-                user = MediaUser.objects.get(username=username)
+            if userid and service_name:
+                user = MediaUser.objects.get(id=userid)
                 svc = Service.objects.get(
                             service_friendly_name=service_name)
-                if user and svc:
-                    serializer = ServiceRequestSerializer(
-                                                data=request.data)
-                    if serializer.is_valid(raise_exception=True):
-                        serializer.save(request_time=tm,
-                                        target_service_id=svc,
-                                        requesting_user_id=user,
-                                        target_service_name=service_name)
-                        # Prepare the service for the User
-                        created_svc = session_mgr.prepare_service(
-                                                    user_id=user,
-                                                    sess_id=None,
-                                                    service_name=service_name,
-                                                    args=serializer.data)
-                        svc_serializer = UserServiceSerializer(created_svc)
-                        return JSONResponse(svc_serializer.data,
-                                            status=HTTP_201_CREATED)
+                # Continue processing service request
+                serializer = ServiceRequestSerializer(
+                                            data=request.data)
+                if serializer.is_valid(raise_exception=True):
+                    serializer.save(request_time=tm,
+                                    target_service_id=svc,
+                                    requesting_user_id=user,
+                                    target_service_name=service_name)
+                    # Prepare the service for the User
+                    # Return if already the service exists for the User.
+                    created_svc = session_mgr.prepare_user_service(
+                                                user=user,
+                                                service=svc)
+                    svc_serializer = UserServiceSerializer(created_svc)
+                    return JSONResponse(svc_serializer.data,
+                                        status=HTTP_201_CREATED)
             else:
                 return JSONResponse(serializer.errors,
                                     status=HTTP_400_BAD_REQUEST)
@@ -364,6 +370,26 @@ class UserServiceHandlerViewSet(APIView):
 
     log_each_request = False
 
+    def get(self, request, service_key):
+        """ Gets a service instance
+         ---
+         response_serializer: ServiceRequestSerializer
+        """
+        # Request Post, create a service data
+        # for e.g. an offer, a notification etc.
+        try:
+            svc = UserService.objects.get(id=service_key)
+            # deliver the service, delegate to service manager
+            servicedata = session_mgr.servicemanager.handle_service_get_request(
+                                            svc,
+                                            request.query_params)
+            return JSONResponse(servicedata.data,
+                                status=HTTP_200_OK)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
     # (Note:Sonu) This request is always unauthorized for performance
     # reasons.
     def post(self, request, service_key):
@@ -372,19 +398,19 @@ class UserServiceHandlerViewSet(APIView):
          request_serializer: ServiceRequestSerializer
          response_serializer: ServiceRequestSerializer
         """
-        # Request Post, create user
+        # Request Post, create a service data
+        # for e.g. an offer, a notification etc.
         try:
             tm = datetime.now()
             serializer = ServiceRequestSerializer(data=request.data)
-            if service_key is None or serializer.is_valid(raise_exception=True):
-                req = ServiceRequest.objects.create(**serializer.data)
-                # Request logs can grow huge,
-                # each request data is logged anyways.
-                if self.log_each_request:
-                    req.save()
+            if serializer.is_valid(raise_exception=True):
+                svc = UserService.objects.get(id=service_key)
                 # deliver the service, delegate to service manager
                 session_mgr.servicemanager.handle_service_request(
-                                                        service_key, req)
+                                            svc,
+                                            JSONRenderer().render(
+                                                serializer.data['service_meta']
+                                            ))
                 return JSONResponse(serializer.data,
                                     status=HTTP_201_CREATED)
             else:

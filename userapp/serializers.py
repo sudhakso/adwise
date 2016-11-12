@@ -1,7 +1,9 @@
 from userapp.models import MediaUser,\
  UserMediaPref, UserService, ServiceRequest,\
  Project, UserRole, UserLocationPref,\
- UserPersonalPref, UserDevicePref
+ Location, Offer, Event, Notification,\
+ Cart, Meter
+from userapp.models import UserPersonalPref, UserDevicePref
 from rest_framework_mongoengine import serializers
 
 
@@ -99,6 +101,7 @@ class DeviceSerializer(serializers.DocumentSerializer):
 class UserServiceSerializer(serializers.DocumentSerializer):
     class Meta:
         model = UserService
+        fields = ('id', 'service_id', 'enabled', 'last_report_time', 'auto_restart')
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
@@ -110,6 +113,72 @@ class UserServiceSerializer(serializers.DocumentSerializer):
 class ServiceRequestSerializer(serializers.DocumentSerializer):
     class Meta:
         model = ServiceRequest
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class LocationSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = Location
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class OfferSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = Offer
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class EventSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = Event
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class NotificationSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = Notification
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class CartSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = Cart
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class MeterSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = Meter
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

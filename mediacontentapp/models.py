@@ -743,6 +743,7 @@ class OfferExtension(AdExtension):
     # Search-tag
     offer_type = StringField(default='offer')
     offer_code = StringField()
+    # offer_url = StringField(required=False)
     # Search-tag
     offer_description = StringField()
     openDay = DateTimeField()

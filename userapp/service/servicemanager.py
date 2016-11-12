@@ -69,8 +69,14 @@ class ServiceManager(object):
             self._serviceprovider[name] = provider
             self._servicedirectory[name] = service
 
-    def handle_service_request(self, service_key, request):
+    def handle_service_request(self, svc, reqbody):
         self.serviceprovider[
-                request.target_service_name].handle_service_request(
-                                                    service_key,
-                                                    request.service_meta)
+            svc.service_id.service_friendly_name].handle_service_request(
+                                        svc.id,
+                                        reqbody)
+
+    def handle_service_get_request(self, svc, reqparam):
+        return self.serviceprovider[
+            svc.service_id.service_friendly_name].handle_service_get_request(
+                                        svc.id,
+                                        reqparam)
