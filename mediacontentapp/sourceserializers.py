@@ -390,3 +390,27 @@ class AmenityExtensionCollectionSerializer(serializers.DocumentSerializer):
 
     def _get_default_field_names(self, *args, **kwargs):
         return self.get_field_names(*args, **kwargs)
+
+
+# Serializer for indexing ooh mediasource
+class OOHMediaSourceIndexSerializer(serializers.DocumentSerializer):
+
+    class Meta:
+        model = OOHMediaSource
+        fields = ('id',
+                  'name',
+                  'display_name',
+                  'caption',
+                  'tags',
+                  'street_name',
+                  'city',
+                  'state',
+                  'country',
+                  'pin',
+                  'point')
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)

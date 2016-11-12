@@ -199,6 +199,37 @@ class AdIndexingTask(Task):
             print "Exception : %s" % str(e)
 
 
+class OOHMediaSourceIndexingTask(Task):
+    ignore_errors = True
+    _es = None
+
+    @property
+    def es(self):
+        if self._es is None:
+            self._es = IndexingService()
+        return self._es
+
+    # instancename=, object=
+    def run(self, *args, **kwargs):
+        start = datetime.datetime.now()
+        print 'Creating index for oohmediasource : %s ...' % (
+                                kwargs['instancename'])
+        if 'many' in kwargs and kwargs['many'] == True:
+            data = {'root': kwargs['oohmediasource']}
+        else:
+            data = kwargs['oohmediasource']
+        print data
+        try:
+            self.es.connection.index(
+                                data,
+                                "oohmediasource",
+                                "external")
+        except Exception as e:
+            print "Failed creating index for oohmediasource : %s" % (
+                                    kwargs['instancename'])
+            print "Exception : %s" % str(e)
+
+
 @shared_task
 def test(param):
     return 'The test task executed with argument "%s" ' % param

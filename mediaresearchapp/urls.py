@@ -7,6 +7,8 @@ urlpatterns = [
     url(r'^search/campaign/', views.CampaignResearchViewSet.as_view()),
     url(r'^search/mediaaggregate/',
         views.MediaAggregateResearchViewSet.as_view()),
+    url(r'^search/ooh/',
+        views.OOHMediaSourceResearchViewSet.as_view()),
     url(r'^search/_sql/', views.SqlResearchViewSet.as_view()),
     url(r'^search/', views.ResearchViewSet.as_view()),
 ]

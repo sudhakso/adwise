@@ -194,3 +194,16 @@ class MediaAggregateResearchViewSet(ResearchViewSet):
          response_serializer: MediaAggregateResearchResultSerializer
         """
         return super(MediaAggregateResearchViewSet, self).post(request)
+
+
+class OOHMediaSourceResearchViewSet(ResearchViewSet):
+
+    def post(self, request):
+
+        """ Returns elements to the user based on
+            english language search.
+         ---
+         request_serializer: SearchQuerySerializer
+         response_serializer: ResearchResultSerializer
+        """
+        return super(OOHMediaSourceResearchViewSet, self).post(request)

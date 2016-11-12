@@ -5,15 +5,17 @@ Created on Dec 25, 2015
 '''
 import json
 from mediacontentapp.models import OOHAnalyticalAttributes,\
-    Campaign, OfferExtension, ImageAd, MediaAggregate
+    Campaign, OfferExtension, ImageAd, MediaAggregate, OOHMediaSource
 from mongoengine import signals
 from mediacontentapp.tasks import CampaignIndexingTask, OfferIndexingTask,\
-    AdIndexingTask, OOHyticsIndexingTask, MediaAggregateIndexingTask
+    AdIndexingTask, OOHyticsIndexingTask, MediaAggregateIndexingTask,\
+    OOHMediaSourceIndexingTask
 from mediacontentapp.serializers import CampaignIndexSerializer,\
     ImageAdIndexSerializer, OfferIndexSerializer,\
     MediaAggregateIndexSerializer
 from mediacontentapp.controller import IndexingService
-from mediacontentapp.sourceserializers import OOHAnalyticalAttributesSerializer
+from mediacontentapp.sourceserializers import OOHAnalyticalAttributesSerializer,\
+ OOHMediaSourceIndexSerializer
 
 
 def index_oohanalytics(sender, document, created):
@@ -105,9 +107,27 @@ def index_mediaaggregate(sender, document, created):
     else:
             print "index_mediaaggregate: task status: Unchanged OK."
 
+
+def index_oohmediasource(sender, document, created):
+    print "Placeholder for indexing amenity/oohmediasource"
+    # OOHMediaSource Index task
+    if created:
+        ooh = OOHMediaSourceIndexSerializer(document, many=False)
+        task = OOHMediaSourceIndexingTask()
+        rc = task.delay(args=[],
+                        instancename=str(document.id),
+                        oohmediasource=json.dumps(ooh.data),
+                        ignore_failures=False)
+        if rc.state == "SUCCESS":
+            print "index_oohmediasource task status: OK."
+        else:
+            print "index_oohmediasource task status: Not OK."
+    else:
+            print "index_oohmediasource: task status: Unchanged OK."
 # Register all model handlers
 signals.post_save.connect(index_oohanalytics, OOHAnalyticalAttributes)
 signals.post_save.connect(index_campaign, Campaign)
 signals.post_save.connect(index_offer, OfferExtension)
 signals.post_save.connect(index_ad, ImageAd)
 signals.post_save.connect(index_mediaaggregate, MediaAggregate)
+signals.post_save.connect(index_oohmediasource, OOHMediaSource)

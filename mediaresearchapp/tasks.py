@@ -78,7 +78,7 @@ class OOHQuerySearchTask(Task):
     @property
     def es(self):
         if self._es is None:
-            self._es = ES("127.0.0.1:9200", default_indices='mediasource')
+            self._es = ES("127.0.0.1:9200", default_indices='oohmediasource')
         return self._es
 
     def run(self, *args, **kwargs):
@@ -88,6 +88,7 @@ class OOHQuerySearchTask(Task):
         qm = multifield_querymapper(kwargs['fields'])
         q4 = qm.create_query(kwargs['raw_strings'])
         resultset = self.es.search(q4)
+        print 'resulset %s...' % resultset
         ids = [r['id'] for r in resultset]
         print 'Search returned following instances %s' % ids
         oohs = OOHMediaSource.objects.filter(id__in=set(ids))

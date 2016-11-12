@@ -1,1 +1,2 @@
 from mediacontentapp import signals
+from mediacontentapp.controller import IndexingService
