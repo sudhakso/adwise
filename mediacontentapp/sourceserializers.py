@@ -156,8 +156,10 @@ class PricingSerializer(serializers.DocumentSerializer):
 
 
 class OOHOperationalDailyDataFeedSerializer(serializers.DocumentSerializer):
+
     class Meta:
         model = OOHOperationalDailyDataFeed
+        fields = ('visitor_total_count', 'breakups', 'feed_timestamp',  'trusted_source',)
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

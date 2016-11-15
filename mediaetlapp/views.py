@@ -105,7 +105,9 @@ class EtlViewSet(APIView):
                                                         many=True)
                     # Save the data feed record
                     if serializer.is_valid(raise_exception=True):
-                        serializer.save(source_ref=source)
+                        src = serializer.save()
+                        for obj in src:
+                            obj.update(source_ref=source)
                         return JSONResponse(str('success'),
                                             status=HTTP_201_CREATED)
                 elif source_type == 'digitalmedia':
