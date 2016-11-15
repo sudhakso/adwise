@@ -282,6 +282,8 @@ curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" 
 
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"raw_strings": "Inorbit", "query_type": "multifield", "query_object_type": "MediaAggregate"}' http://127.0.0.1:8000/research/search/mediaaggregate/
 
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"raw_strings": "Bangalore", "query_type": "multifield", "query_object_type": "OOHMediaSource", "query_fields":{"city":4, "name":2}}' http://172.31.41.248:8000/research/search/
+
 # Term query for MediaAggregate
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"query":{"termquery": [{"name": "Inorbit"},{"city": "Bangalore"}],"optype": "And"},"query_type": "structured", "query_object_type": "MediaAggregateLocation"}' http://127.0.0.1:8000/research/search/_sql/
 
