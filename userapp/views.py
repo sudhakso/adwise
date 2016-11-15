@@ -174,6 +174,9 @@ class UserViewSet(APIView):
                     user = userserializer.update(
                                             userobj,
                                             userserializer.validated_data)
+                    # update django auth
+                    auth_manager.do_update(request, user.username,
+                                           user.password)
             userobj.save(last_updated=datetime.now(),
                          last_activity=datetime.now())
             ret_data = UserSerializer(userobj)

@@ -107,6 +107,23 @@ class NoopDriver(IdentityDriver):
         return user
 
     @abstractmethod
+    def do_update(self, request, username, password):
+        # Get all Http headers
+        import re
+        regex = re.compile('^HTTP_')
+        head = dict((regex.sub('', header), value) for (header, value)
+                    in request.META.items() if header.startswith('HTTP_'))
+        user = None
+        try:
+            user = User.objects.get(username=head['USERNAME'])
+            user.set_password(password)
+            user.save()
+        except ObjectDoesNotExist:
+            pass
+
+        return user
+
+    @abstractmethod
     def remove_expired_session(self, request):
         # Get all Http headers
         import re
@@ -167,6 +184,10 @@ class IdentityManager(object):
     def do_create(self, request):
         # Create session first time
         self.driver.do_create(request)
+
+    def do_update(self, request, username, password):
+        # Create session first time
+        self.driver.do_update(request, username, password)
 
     def remove_expired_session(self, request):
         self.driver.remove_expired_session(request)
