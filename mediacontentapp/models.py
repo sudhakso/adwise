@@ -806,6 +806,9 @@ class AmenityExtension(Document):
     valid_from = DateTimeField(default=datetime.now())
     category = StringField(required=False)
     tagwords = StringField(required=False)
+    # Contact details
+    phone_numbers = ListField()
+    email = StringField()
     # meta
     meta = {'allow_inheritance': True}
 
@@ -818,7 +821,7 @@ class BrandExtension(AmenityExtension):
     This extension adds a brand to be part of the
     amenity.
     """
-    ex_name = StringField(default='BrandExtension', required=False)
+    ex_name = StringField(default='Brands', required=False)
     ex_type = StringField(default='Shopping')
     brand_name = StringField(required=True)
     brand_description = StringField(required=True)
@@ -836,7 +839,7 @@ class RetailExtension(AmenityExtension):
     This extension adds a retail store to be part of the
     amenity.
     """
-    ex_name = StringField(default='RetailExtension', required=False)
+    ex_name = StringField(default='Retail Stores', required=False)
     ex_type = StringField(default='Shopping')
     outlet_name = StringField(required=True)
     outlet_description = StringField(required=True)
@@ -859,7 +862,7 @@ class FNBExtension(AmenityExtension):
     This extension adds a Food joint to be part of the
     amenity.
     """
-    ex_name = StringField(default='FNBExtension', required=False)
+    ex_name = StringField(default='Food and Beverages', required=False)
     ex_type = StringField(default='Food')
     outlet_name = StringField(required=True)
     outlet_description = StringField(required=True)
@@ -877,6 +880,316 @@ class FNBExtension(AmenityExtension):
 
     def get_absolute_url(self):
         return "/mediacontent/extension/fnb/%i/" % self.id
+
+
+class PlayingAracadeExtension(AmenityExtension):
+    """
+    This extension adds a playing aracade to be part of the
+    amenity.
+    """
+    ex_name = StringField(default='Playing Aracade', required=False)
+    ex_type = StringField(default='Games')
+    brand_name = StringField(required=True)
+    brand_description = StringField(required=True)
+    brand_url = StringField(required=True)
+    # floor, shop number etc.
+    outlet_address1 = StringField(required=True)
+    outlet_address2 = StringField(required=True)
+    playing_age_group = StringField()
+    play_type = StringField(default="indoor")
+    play_type_description = StringField()
+    open_days = StringField()
+    open_timings = StringField()
+    # Internal data, Stored in ad-wise
+    # not to be serialized
+    _meta = DictField(required=False)
+
+    def get_absolute_url(self):
+        return "/mediacontent/extension/playaracade/%i/" % self.id
+
+
+class SpecialityClinicExtension(AmenityExtension):
+    """
+    This extension adds a specialty clinic to be part of the
+    amenity.
+    """
+    ex_name = StringField(default='Speciality Clinic', required=False)
+    ex_type = StringField(default='Health')
+    brand_name = StringField(required=True)
+    brand_description = StringField(required=True)
+    brand_url = StringField(required=True)
+    # floor, shop number etc.
+    outlet_address1 = StringField(required=True)
+    outlet_address2 = StringField(required=True)
+    treatment_services = ListField()
+    # > 400
+    number_of_beds = StringField()
+    # e.g. Religare, Mediassist etc.
+    insurance_partners = ListField()
+    # e.g. dialysis, neurosurgery, transplant etc.
+    service_condition = StringField()
+    appointment_facility = BooleanField()
+    average_price = IntegerField()
+    open_days = StringField()
+    open_timings = StringField()
+    # Internal data, Stored in ad-wise
+    # not to be serialized
+    _meta = DictField(required=False)
+
+    def get_absolute_url(self):
+        return "/mediacontent/extension/clinic/%i/" % self.id
+
+
+class DoctorsExtension(AmenityExtension):
+    """
+    This extension adds doctors to be part of the
+    amenity.
+    """
+    ex_name = StringField(default='Doctor', required=False)
+    ex_type = StringField(default='Doctor')
+    name = StringField(required=True)
+    description = StringField(required=True)
+    url = StringField(required=True)
+    # e.g. MD-General Medicine
+    subscripts = StringField(required=True)
+    experience = StringField(required=True)
+    # Achievements - Award, Gold Medalist etc.
+    accolades = ListField()
+    avg_consultation = StringField()
+    appointment_facility = BooleanField()
+    average_price = IntegerField()
+    available_days = StringField()
+    available_timings = StringField()
+    # Internal data, Stored in ad-wise
+    # not to be serialized
+    _meta = DictField(required=False)
+
+    def get_absolute_url(self):
+        return "/mediacontent/extension/doctor/%i/" % self.id
+
+
+class PharmacyExtension(AmenityExtension):
+    """
+    This extension adds a pharmacy to be part of the
+    amenity.
+    """
+    ex_name = StringField(default='Pharmacy', required=False)
+    ex_type = StringField(default='Medicine')
+    brand_name = StringField(required=True)
+    brand_description = StringField(required=True)
+    brand_url = StringField(required=True)
+    # homeo, Ayurveda, English etc.
+    pharmacy_type = ListField()
+    cards_accepted = ListField()
+    medical_registration_id = StringField()
+    license_owner_email = StringField()
+    # floor, shop number etc.
+    outlet_address1 = StringField(required=True)
+    outlet_address2 = StringField(required=True)
+    open_days = StringField()
+    open_timings = StringField()
+    # Internal data, Stored in ad-wise
+    # not to be serialized
+    _meta = DictField(required=False)
+
+    def get_absolute_url(self):
+        return "/mediacontent/extension/pharmacy/%i/" % self.id
+
+
+class FacilityExtension(AmenityExtension):
+    # CT-scan, Feeding room, Day care, X-Ray, Wheel chair,
+    # 24x7 lab etc.
+    """
+    This extension adds a facility to be part of the
+    amenity.
+    """
+    ex_name = StringField(default='Value Added Services', required=False)
+    ex_type = StringField(default='Facility')
+    name = StringField(required=True)
+    description = StringField(required=True)
+    url = StringField(required=True)
+    # floor, shop number etc.
+    outlet_address1 = StringField(required=True)
+    outlet_address2 = StringField(required=True)
+    open_days = StringField()
+    open_timings = StringField()
+    # Internal data, Stored in ad-wise
+    # not to be serialized
+    _meta = DictField(required=False)
+
+    def get_absolute_url(self):
+        return "/mediacontent/extension/facility/%i/" % self.id
+
+
+class EmergencyServicesExtension(AmenityExtension):
+    """
+    This extension adds emergency services to be part of the
+    amenity.
+    """
+    ex_name = StringField(default='Emergency Services', required=False)
+    ex_type = StringField(default='Health')
+    name = StringField(required=True)
+    description = StringField(required=True)
+    url = StringField(required=True)
+    dial_on_emergency_1 = StringField(required=True)
+    dial_on_emergency_2 = StringField(required=True)
+    dial_on_emergency_3 = StringField(required=True)
+    # location, can be used in map to gauge the time to distance etc.
+    loc = GeoPointField(required=True)
+    # floor, shop number etc.
+    outlet_address1 = StringField(required=True)
+    outlet_address2 = StringField(required=True)
+    # Internal data, Stored in ad-wise
+    # not to be serialized
+    _meta = DictField(required=False)
+
+    def get_absolute_url(self):
+        return "/mediacontent/extension/emergency/%i/" % self.id
+
+
+class OPDServicesExtension(AmenityExtension):
+    """
+    This extension adds an OPD department to be part of the
+    amenity.
+    """
+    ex_name = StringField(default='OPD Services', required=False)
+    ex_type = StringField(default='Health')
+    brand_name = StringField(required=True)
+    brand_description = StringField(required=True)
+    brand_url = StringField(required=True)
+    # floor, shop number etc.
+    outlet_address1 = StringField(required=True)
+    outlet_address2 = StringField(required=True)
+    treatment_services = ListField()
+    # e.g. dialysis, neurosurgery, transplant etc.
+    service_condition = StringField()
+    appointment_facility = BooleanField()
+    average_price = IntegerField()
+    open_days = StringField()
+    open_timings = StringField()
+    # Internal data, Stored in ad-wise
+    # not to be serialized
+    _meta = DictField(required=False)
+
+    def get_absolute_url(self):
+        return "/mediacontent/extension/opd/%i/" % self.id
+
+
+class HelpdeskExtension(AmenityExtension):
+    """
+    This extension adds a helpdesk service to be part of the
+    amenity.
+    """
+    ex_name = StringField(default='Helpdesk', required=False)
+    ex_type = StringField(default='Helpdesk')
+    name = StringField(required=True)
+    description = StringField(required=True)
+    url = StringField(required=True)
+    helpdesk_phone_1 = StringField(required=True)
+    helpdesk_phone_demand_2 = StringField(required=True)
+    # parking assistance, feedback, promotions
+    assistance_types = ListField()
+    # floor, shop number etc.
+    outlet_address1 = StringField(required=True)
+    outlet_address2 = StringField(required=True)
+    # Internal data, Stored in ad-wise
+    # not to be serialized
+    _meta = DictField(required=False)
+
+    def get_absolute_url(self):
+        return "/mediacontent/extension/helpdesk/%i/" % self.id
+
+
+class AdventureSportExtension(AmenityExtension):
+    """
+    This extension adds an adventure sport to be part of the
+    amenity.
+    """
+    ex_name = StringField(default='Adventure', required=False)
+    ex_type = StringField(default='Sports')
+    brand_name = StringField(required=True)
+    brand_description = StringField(required=True)
+    brand_url = StringField(required=True)
+    # floor, shop number etc.
+    outlet_address1 = StringField(required=True)
+    outlet_address2 = StringField(required=True)
+    # Elephant ride, Water ride etc.
+    sport_name = StringField()
+    sport_description = StringField()
+    # > 400
+    capacity = StringField()
+    target_age_group = StringField()
+    # e.g. Decathlon etc.
+    brand_partners = ListField()
+    # e.g. precaution etc.
+    service_condition = StringField()
+    reservation_facility = BooleanField()
+    reservation_number = StringField()
+    average_price = StringField()
+    open_days = StringField()
+    open_timings = StringField()
+    # Internal data, Stored in ad-wise
+    # not to be serialized
+    _meta = DictField(required=False)
+
+    def get_absolute_url(self):
+        return "/mediacontent/extension/clinic/%i/" % self.id
+
+
+# tribal dances, movies etc.
+class SpecialInterestExtension(AmenityExtension):
+    """
+    This extension adds a special interests to be part of the
+    amenity.
+    """
+    ex_name = StringField(default='Special Interest Activity', required=False)
+    ex_type = StringField(default='Specials')
+    name = StringField(required=True)
+    description = StringField(required=True)
+    url = StringField(required=True)
+    # NatureExperience like Butterfly garden
+    # WildlifeExperience like Wild life Safari
+    interest_target_group = StringField()
+    # e.g. precaution etc.
+    service_condition = StringField()
+    reservation_facility = BooleanField()
+    reservation_number = StringField()
+    open_days = StringField()
+    open_timings = StringField()
+    # Internal data, Stored in ad-wise
+    # not to be serialized
+    _meta = DictField(required=False)
+
+    def get_absolute_url(self):
+        return "/mediacontent/extension/clinic/%i/" % self.id
+
+
+class StayingExtension(AmenityExtension):
+    """
+    This extension adds an adventure sport to be part of the
+    amenity.
+    """
+    ex_name = StringField(default='Staying', required=False)
+    ex_type = StringField(default='Lodging')
+    brand_name = StringField(required=True)
+    brand_description = StringField(required=True)
+    brand_url = StringField(required=True)
+    # floor, shop number etc.
+    outlet_address1 = StringField(required=True)
+    outlet_address2 = StringField(required=True)
+    # > 400
+    capacity = StringField()
+    # e.g. precaution etc.
+    service_condition = StringField()
+    reservation_facility = BooleanField()
+    reservation_number = StringField()
+    average_price = StringField()
+    # Internal data, Stored in ad-wise
+    # not to be serialized
+    _meta = DictField(required=False)
+
+    def get_absolute_url(self):
+        return "/mediacontent/extension/staying/%i/" % self.id
 
 
 class AmenityExtensionCollection(Document):
