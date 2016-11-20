@@ -162,16 +162,34 @@ curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "us
 # Get MediaAggregate types
 curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://172.31.41.248:8000/mediacontent/mediaaggregates/types/
 
+##### Extension Related APIs
+This section covers the APIs used to create/update/link extension objects.
+
 # Add amenity extensions to the MediaAggregate
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"retailextension":{"valid_from":"2016-02-25T18:37:21.766000", "category": "shopping", "tagwords": "discount shopee", "outlet_name": "somename", "outlet_description":"some desc", "outlet_address1": "Addr1", "outlet_address2":"addr2", "affliations": "parent brand", "outlet_url": "http://someurl.com", "brands": "nike puma adidas"}, "brandextension": {"valid_from":"2016-02-25T18:37:21.766000", "category": "shopping", "tagwords": "discount shopee", "brand_name": "somename", "brand_description": "some desc", "brand_url": "http://nike.com"}, "fnbextension": {"valid_from":"2016-02-25T18:37:21.766000", "category": "shopping", "tagwords": "discount shopee", "outlet_name": "somename", "outlet_description": "some desc", "outlet_address1": "addr1", "outlet_address2": "addr2", "cusine": "chineese", "outlet_type": "bar", "average_price_for_2": "200 rs", "smoking_allowed": "False", "beverages_served": "True", "outlet_url": "http://bar.com"}}' http://127.0.0.1:8000/mediacontent/mediaaggregates/<$aggregate-id>/extensions/
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{}' http://127.0.0.1:8000/mediacontent/mediaaggregates/<$aggregate-id>/extensions/?"ids=bc&ids=de&ids=fg"
 # 57d844351d41c87ef6affad9
 
 # Get all extensions of a MediaAggregate
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/mediaaggregates/57f0e9bec0c9544a6dc8537f/extensions/
 
-# Add image to an existing extension
-curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg" http://localhost:8000/mediacontent/extension/amenity/<$extension-id>/
+# Create or update amenity extension
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"valid_from":"2016-02-25T18:37:21.766000", "category": "shopping", "tagwords": "discount shopee", "outlet_name": "somename", "outlet_description":"some desc", "outlet_address1": "Addr1", "outlet_address2":"addr2", "affliations": "parent brand", "outlet_url": "http://someurl.com", "brands": "nike puma adidas"}' http://127.0.0.1:8000/mediacontent/extension/amenity/retail/$extension-id/
 
+where extension-name is retail in this example,
+      extension-id is the id of the extension to update 
+
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"valid_from":"2016-02-25T18:37:21.766000", "category": "shopping", "tagwords": "discount shopee", "brand_name": "somename", "brand_description": "some desc", "brand_url": "http://nike.com"}' http://127.0.0.1:8000/mediacontent/extension/amenity/brand/$extension-id/
+
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"valid_from":"2016-02-25T18:37:21.766000", "category": "shopping", "tagwords": "discount shopee", "outlet_name": "somename", "outlet_description": "some desc", "outlet_address1": "addr1", "outlet_address2": "addr2", "cusine": "chineese", "outlet_type": "bar", "average_price_for_2": "200 rs", "smoking_allowed": "False", "beverages_served": "True", "outlet_url": "http://bar.com"}' http://127.0.0.1:8000/mediacontent/extension/amenity/fnb/$extension-id/
+
+
+# Add image to an existing extension
+curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg" http://localhost:8000/mediacontent/extension/amenity/<$extension-name>/<$extension-id>/
+
+# Get an existing extension by its Id
+curl -X GET -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" http://localhost:8000/mediacontent/extension/amenity/<$extension-name>/<$extension-id>/
+
+##### API to attach a Campaign to MediaAggregate
 # API to attach a campaign to a MediaAggregate
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"start_date" : "2016-02-25T18:37:21.766000","end_date" :"2016-02-25T18:37:21.766000"}' "http://127.0.0.1:8000/mediacontent/mediaaggregates/57d844351d41c87ef6affad9/?action=addcontent&id=57c062201d41c83e549e8ae5"
 

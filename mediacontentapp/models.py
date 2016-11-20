@@ -800,6 +800,7 @@ class AmenityExtension(Document):
     """
     ex_name = StringField()
     ex_type = StringField()
+    userref = ReferenceField('MediaUser')
     amenityref = ReferenceField('MediaAggregate')
     image_url = StringField(required=False)
     image = ReferenceField('JpegImageContent', required=False)
@@ -822,7 +823,7 @@ class BrandExtension(AmenityExtension):
     amenity.
     """
     ex_name = StringField(default='Brands', required=False)
-    ex_type = StringField(default='Shopping')
+    ex_type = StringField(default='brand')
     brand_name = StringField(required=True)
     brand_description = StringField(required=True)
     brand_url = StringField(required=False)
@@ -840,7 +841,7 @@ class RetailExtension(AmenityExtension):
     amenity.
     """
     ex_name = StringField(default='Retail Stores', required=False)
-    ex_type = StringField(default='Shopping')
+    ex_type = StringField(default='retail')
     outlet_name = StringField(required=True)
     outlet_description = StringField(required=True)
     # floor, shop number etc.
@@ -863,7 +864,7 @@ class FNBExtension(AmenityExtension):
     amenity.
     """
     ex_name = StringField(default='Food and Beverages', required=False)
-    ex_type = StringField(default='Food')
+    ex_type = StringField(default='fnb')
     outlet_name = StringField(required=True)
     outlet_description = StringField(required=True)
     # floor, shop number etc.
@@ -888,7 +889,7 @@ class PlayingAracadeExtension(AmenityExtension):
     amenity.
     """
     ex_name = StringField(default='Playing Aracade', required=False)
-    ex_type = StringField(default='Games')
+    ex_type = StringField(default='playingaracade')
     brand_name = StringField(required=True)
     brand_description = StringField(required=True)
     brand_url = StringField(required=True)
@@ -914,7 +915,7 @@ class SpecialityClinicExtension(AmenityExtension):
     amenity.
     """
     ex_name = StringField(default='Speciality Clinic', required=False)
-    ex_type = StringField(default='Health')
+    ex_type = StringField(default='specialityclinic')
     brand_name = StringField(required=True)
     brand_description = StringField(required=True)
     brand_url = StringField(required=True)
@@ -940,13 +941,13 @@ class SpecialityClinicExtension(AmenityExtension):
         return "/mediacontent/extension/clinic/%i/" % self.id
 
 
-class DoctorsExtension(AmenityExtension):
+class DoctorExtension(AmenityExtension):
     """
     This extension adds doctors to be part of the
     amenity.
     """
     ex_name = StringField(default='Doctor', required=False)
-    ex_type = StringField(default='Doctor')
+    ex_type = StringField(default='doctor')
     name = StringField(required=True)
     description = StringField(required=True)
     url = StringField(required=True)
@@ -955,9 +956,8 @@ class DoctorsExtension(AmenityExtension):
     experience = StringField(required=True)
     # Achievements - Award, Gold Medalist etc.
     accolades = ListField()
-    avg_consultation = StringField()
+    avg_consultation_charge = StringField()
     appointment_facility = BooleanField()
-    average_price = IntegerField()
     available_days = StringField()
     available_timings = StringField()
     # Internal data, Stored in ad-wise
@@ -974,7 +974,7 @@ class PharmacyExtension(AmenityExtension):
     amenity.
     """
     ex_name = StringField(default='Pharmacy', required=False)
-    ex_type = StringField(default='Medicine')
+    ex_type = StringField(default='pharmacy')
     brand_name = StringField(required=True)
     brand_description = StringField(required=True)
     brand_url = StringField(required=True)
@@ -1004,7 +1004,7 @@ class FacilityExtension(AmenityExtension):
     amenity.
     """
     ex_name = StringField(default='Value Added Services', required=False)
-    ex_type = StringField(default='Facility')
+    ex_type = StringField(default='facility')
     name = StringField(required=True)
     description = StringField(required=True)
     url = StringField(required=True)
@@ -1021,13 +1021,13 @@ class FacilityExtension(AmenityExtension):
         return "/mediacontent/extension/facility/%i/" % self.id
 
 
-class EmergencyServicesExtension(AmenityExtension):
+class EmergencyServiceExtension(AmenityExtension):
     """
     This extension adds emergency services to be part of the
     amenity.
     """
     ex_name = StringField(default='Emergency Services', required=False)
-    ex_type = StringField(default='Health')
+    ex_type = StringField(default='emergencyservice')
     name = StringField(required=True)
     description = StringField(required=True)
     url = StringField(required=True)
@@ -1047,13 +1047,13 @@ class EmergencyServicesExtension(AmenityExtension):
         return "/mediacontent/extension/emergency/%i/" % self.id
 
 
-class OPDServicesExtension(AmenityExtension):
+class OPDServiceExtension(AmenityExtension):
     """
     This extension adds an OPD department to be part of the
     amenity.
     """
     ex_name = StringField(default='OPD Services', required=False)
-    ex_type = StringField(default='Health')
+    ex_type = StringField(default='opdservice')
     brand_name = StringField(required=True)
     brand_description = StringField(required=True)
     brand_url = StringField(required=True)
@@ -1081,12 +1081,12 @@ class HelpdeskExtension(AmenityExtension):
     amenity.
     """
     ex_name = StringField(default='Helpdesk', required=False)
-    ex_type = StringField(default='Helpdesk')
+    ex_type = StringField(default='helpdesk')
     name = StringField(required=True)
     description = StringField(required=True)
     url = StringField(required=True)
     helpdesk_phone_1 = StringField(required=True)
-    helpdesk_phone_demand_2 = StringField(required=True)
+    helpdesk_phone_2 = StringField(required=True)
     # parking assistance, feedback, promotions
     assistance_types = ListField()
     # floor, shop number etc.
@@ -1106,7 +1106,7 @@ class AdventureSportExtension(AmenityExtension):
     amenity.
     """
     ex_name = StringField(default='Adventure', required=False)
-    ex_type = StringField(default='Sports')
+    ex_type = StringField(default='adventuresport')
     brand_name = StringField(required=True)
     brand_description = StringField(required=True)
     brand_url = StringField(required=True)
@@ -1143,7 +1143,7 @@ class SpecialInterestExtension(AmenityExtension):
     amenity.
     """
     ex_name = StringField(default='Special Interest Activity', required=False)
-    ex_type = StringField(default='Specials')
+    ex_type = StringField(default='specialinterest')
     name = StringField(required=True)
     description = StringField(required=True)
     url = StringField(required=True)
@@ -1170,7 +1170,7 @@ class StayingExtension(AmenityExtension):
     amenity.
     """
     ex_name = StringField(default='Staying', required=False)
-    ex_type = StringField(default='Lodging')
+    ex_type = StringField(default='staying')
     brand_name = StringField(required=True)
     brand_description = StringField(required=True)
     brand_url = StringField(required=True)

@@ -1,14 +1,7 @@
 import datetime
 from rest_framework_mongoengine import serializers
 from userapp.serializers import UserSerializer
-
-from mediacontentapp.models import MediaSource, OOHMediaSource,\
-        VODMediaSource, DigitalMediaSource, RadioMediaSource, Pricing,\
-        Booking, MediaDashboard, MediaSourceActivity, SourceTag,\
-        OOHAnalyticalAttributes, OOHOperationalDailyDataFeed,\
-        MediaAggregate, MediaAggregateType, AmenityExtension,\
-        RetailExtension, BrandExtension, FNBExtension,\
-        AmenityExtensionCollection
+from mediacontentapp.models import *
 from datetime import timedelta
 from mediacontentapp.controller import ActivityManager
 
@@ -310,12 +303,12 @@ class MediaAggregateSerializer(serializers.DocumentSerializer):
 
 class AmenityExtensionSerializer(serializers.DocumentSerializer):
 
-    amenityref = MediaAggregateSerializer(required=False, read_only=True)
+#     amenityref = MediaAggregateSerializer(required=False, read_only=True)
+#     userref = UserSerializer(required=False, read_only=True)
 
     class Meta:
         model = AmenityExtension
-
-        exclude = ('image',)
+        exclude = ('image', 'userref', 'amenityref',)
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
@@ -326,12 +319,12 @@ class AmenityExtensionSerializer(serializers.DocumentSerializer):
 
 class RetailExtensionSerializer(serializers.DocumentSerializer):
 
-    amenityref = MediaAggregateSerializer(required=False, read_only=True)
+#     amenityref = MediaAggregateSerializer(required=False, read_only=True)
+#     userref = UserSerializer(required=False, read_only=True)
 
     class Meta:
         model = RetailExtension
-
-        exclude = ('image',)
+        exclude = ('image', 'userref', 'amenityref',)
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
@@ -342,12 +335,12 @@ class RetailExtensionSerializer(serializers.DocumentSerializer):
 
 class BrandExtensionSerializer(serializers.DocumentSerializer):
 
-    amenityref = MediaAggregateSerializer(required=False, read_only=True)
+#     amenityref = MediaAggregateSerializer(required=False, read_only=True)
+#     userref = UserSerializer(required=False, read_only=True)
 
     class Meta:
         model = BrandExtension
-
-        exclude = ('image',)
+        exclude = ('image', 'userref', 'amenityref',)
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
@@ -358,12 +351,156 @@ class BrandExtensionSerializer(serializers.DocumentSerializer):
 
 class FNBExtensionSerializer(serializers.DocumentSerializer):
 
-    amenityref = MediaAggregateSerializer(required=False, read_only=True)
+#     amenityref = MediaAggregateSerializer(required=False, read_only=True)
+#     userref = UserSerializer(required=False, read_only=True)
 
     class Meta:
         model = FNBExtension
+        exclude = ('image', 'userref', 'amenityref',)
 
-        exclude = ('image',)
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class DoctorExtensionSerializer(serializers.DocumentSerializer):
+
+#     amenityref = MediaAggregateSerializer(required=False, read_only=True)
+#     userref = UserSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = DoctorExtension
+        exclude = ('image', 'userref', 'amenityref',)
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class PharmacyExtensionSerializer(serializers.DocumentSerializer):
+
+#     amenityref = MediaAggregateSerializer(required=False, read_only=True)
+#     userref = UserSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = PharmacyExtension
+        exclude = ('image', 'userref', 'amenityref',)
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class FacilityExtensionSerializer(serializers.DocumentSerializer):
+
+#     amenityref = MediaAggregateSerializer(required=False, read_only=True)
+#     userref = UserSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = FacilityExtension
+        exclude = ('image', 'userref', 'amenityref',)
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class EmergencyServiceExtensionSerializer(serializers.DocumentSerializer):
+
+#     amenityref = MediaAggregateSerializer(required=False, read_only=True)
+#     userref = UserSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = EmergencyServiceExtension
+        exclude = ('image', 'userref', 'amenityref',)
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class opdServiceExtensionSerializer(serializers.DocumentSerializer):
+
+#     amenityref = MediaAggregateSerializer(required=False, read_only=True)
+#     userref = UserSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = OPDServiceExtension
+        exclude = ('image', 'userref', 'amenityref',)
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class HelpdeskExtensionSerializer(serializers.DocumentSerializer):
+
+#     amenityref = MediaAggregateSerializer(required=False, read_only=True)
+#     userref = UserSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = HelpdeskExtension
+        exclude = ('image', 'userref', 'amenityref',)
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class AdventureSportExtensionSerializer(serializers.DocumentSerializer):
+
+#     amenityref = MediaAggregateSerializer(required=False, read_only=True)
+#     userref = UserSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = AdventureSportExtension
+        exclude = ('image', 'userref', 'amenityref',)
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class SpecialInterestExtensionSerializer(serializers.DocumentSerializer):
+
+#     amenityref = MediaAggregateSerializer(required=False, read_only=True)
+#     userref = UserSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = SpecialInterestExtension
+        exclude = ('image', 'userref', 'amenityref',)
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class StayingExtensionSerializer(serializers.DocumentSerializer):
+
+#     amenityref = MediaAggregateSerializer(required=False, read_only=True)
+#     userref = UserSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = StayingExtension
+        exclude = ('image', 'userref', 'amenityref',)
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

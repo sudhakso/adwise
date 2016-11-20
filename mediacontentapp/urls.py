@@ -24,7 +24,9 @@ urlpatterns = [
         sourceviews.MediaAggregateViewSet.as_view()),
     url(r'^mediaaggregates/',
         sourceviews.MediaAggregateViewSet.as_view()),
-    url(r'^extension/amenity/(?P<extension_id>[0-9a-zA-Z]+)/$',
+    url(r'^extension/amenity/(?P<extension_name>[a-zA-Z]+)/(?P<extension_id>[0-9a-zA-Z]+)/$',
+        sourceviews.AmenityExtensionViewSet.as_view()),
+    url(r'^extension/amenity/(?P<extension_name>[a-zA-Z]+)/$',
         sourceviews.AmenityExtensionViewSet.as_view()),
     # Media source
     url(r'^mediasource/ooh/(?P<id>[0-9a-zA-Z]+)',
