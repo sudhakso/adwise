@@ -206,8 +206,7 @@ class AmenityExtensionViewSet(APIView):
         usr = MediaUser.objects.get(username=auth_user.username)
         if extension_id is not None:
             try:
-                amex = AmenityExtension.objects.filter(userref=usr,
-                                                       id=extension_id)
+                amex = AmenityExtension.objects.filter(id=extension_id)
                 # Collect extension data
                 if amex:
                     exser = self._serialize_ex_types(extension_name, amex[0])
