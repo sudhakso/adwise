@@ -384,19 +384,36 @@ class MediaAggregateViewSet(APIView):
          response_serializer: MediaAggregateSerializer
         """
         try:
-            auth_manager.do_auth(request)
+            auth_user = auth_manager.do_auth(request)
             if aggregate_id is not None:
                 many = False
                 amenity = MediaAggregate.objects.get(id=aggregate_id)
             else:
                 many = True
+                apply_filters = False
                 # Check if type-name is specified.
-                filter_action = True if 'typename' in request.query_params\
+                filter_by_type = True if 'typename' in request.query_params\
                                         else False
-                if filter_action:
-                    name = request.query_params['typename']
-                    typeobj = MediaAggregateType.objects.get(typename=name)
-                    amenity = MediaAggregate.objects.filter(typespec=typeobj)
+                filter_by_user = True if 'myowned' in request.query_params\
+                                        else False
+                apply_filters = filter_by_type or filter_by_user
+                if apply_filters:
+                    if filter_by_type:
+                        name = request.query_params['typename']
+                        typeobj = MediaAggregateType.objects.get(typename=name)
+                    if filter_by_user and request.query_params['myowned']:
+                        owner = MediaUser.objects.get(
+                                            username=auth_user.username)
+                    if filter_by_type and filter_by_user:
+                        amenity = MediaAggregate.objects.filter(
+                                                        typespec=typeobj,
+                                                        owner=owner)
+                    elif filter_by_type:
+                        amenity = MediaAggregate.objects.filter(
+                                                        typespec=typeobj)
+                    else:
+                        amenity = MediaAggregate.objects.filter(
+                                                        owner=owner)
                 else:
                     amenity = MediaAggregate.objects.all()
             # Serialize
