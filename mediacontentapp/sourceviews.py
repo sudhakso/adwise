@@ -230,7 +230,36 @@ class AmenityExtensionViewSet(APIView):
 # Creates the extension and adds it to MediaAggregate instance
 class MediaAggregateExtensionViewSet(APIView):
 
-    def get(self, request, aggregate_id):
+    def _serialize_ex_types(self, extension_name, instances):
+        # Creates amenity instances
+        ser = None
+        if extension_name == 'retail':
+            ser = RetailExtensionSerializer(instances, many=True)
+        elif extension_name == 'brand':
+            ser = BrandExtensionSerializer(instances, many=True)
+        if extension_name == 'fnb':
+            ser = FNBExtensionSerializer(instances, many=True)
+        if extension_name == 'doctor':
+            ser = DoctorExtensionSerializer(instances, many=True)
+        if extension_name == 'pharmacy':
+            ser = PharmacyExtensionSerializer(instances, many=True)
+        if extension_name == 'facility':
+            ser = FacilityExtensionSerializer(instances, many=True)
+        if extension_name == 'emergencyservice':
+            ser = EmergencyServiceExtensionSerializer(instances, many=True)
+        if extension_name == 'opdservice':
+            ser = opdServiceExtensionSerializer(instances, many=True)
+        if extension_name == 'helpdesk':
+            ser = HelpdeskExtensionSerializer(instances, many=True)
+        if extension_name == 'adventuresport':
+            ser = AdventureSportExtensionSerializer(instances, many=True)
+        if extension_name == 'specialinterest':
+            ser = SpecialInterestExtensionSerializer(instances, many=True)
+        if extension_name == 'staying':
+            ser = StayingExtensionSerializer(instances, many=True)
+        return ser
+
+    def get(self, request, aggregate_id, extension_name=None):
 
         """ Returns collection of amenity for an aggregate
          ---
@@ -240,8 +269,14 @@ class MediaAggregateExtensionViewSet(APIView):
             try:
                 ma = MediaAggregate.objects.get(id=aggregate_id)
                 # Collect all extensions
-                ams = AmenityExtension.objects.filter(amenityref=ma)
-                amser = AmenityExtensionSerializer(ams, many=True)
+                if extension_name:
+                    ams = AmenityExtension.objects.filter(amenityref=ma,
+                                                          ex_type=extension_name)
+                    amser = self._serialize_ex_types(extension_name,
+                                                     ams)
+                else:
+                    ams = AmenityExtension.objects.filter(amenityref=ma)
+                    amser = AmenityExtensionSerializer(ams, many=True)
                 return JSONResponse(amser.data,
                                     status=HTTP_200_OK)
             except DoesNotExist as e:
