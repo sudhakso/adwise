@@ -308,6 +308,9 @@ curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" 
 # Location sensed query for MediaAggregate
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"query": {"geodistancefilter": {"field": "location","fieldvalue": [12.975667, 77.729083],"distance": 0.01},"optype": "And"},"query_type": "structured", "query_object_type": "MediaAggregateLocation"}' http://127.0.0.1:8000/research/search/_sql/
 
+# Location sensed query for Campaign
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"query": {"geodistancefilter": {"field": "location","fieldvalue": [12.975667, 77.729083],"distance": 0.01},"optype": "And"},"query_type": "structured", "query_object_type": "CampaignByMaLocation"}' http://127.0.0.1:8000/research/search/_sql/
+
 # Invoking search API internally, doesn't do any user validations.
 curl -H "Content-Type: application/json" -X POST -d '{"raw_strings": "fitness", "query_type": "OOHMediaSource", "query_fields":{"category":4, "description":2}}' http://127.0.0.1:8000/research/query/
 
