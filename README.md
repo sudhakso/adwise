@@ -154,7 +154,7 @@ curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.
 # Add additional sources to MediaAggregates
 
 # Get MediaAggregates
-curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/mediaaggregates/
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/mediaaggregates/?myowned=True
 
 # Get MediaAggregates by a given type
 curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://172.31.41.248:8000/mediacontent/mediaaggregates/?typename=<$typename>
@@ -286,7 +286,7 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 
 # Add ImageAd with all attributes except for Image itself.
 
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"display_url":"http://hp.com","final_urls":"http://hp.com","mobile_urls":"http://hp.com","app_urls":"http://hp.com","thirdparty_tracking_url":"http://track.com", "adwise_tracking_url":"http://hp.com","ad_type":"ImageAd","offerex":[{"ex_name": "new customer offer", "ex_type": "offer", "offer_code": "QOWGX", "offer_description": "pre-launch offer", "openDay":"2016-04-29T18:37:21.766000", "closeDay": "2016-04-29T18:37:21.766000"}], "socialex":[{"socialmedia_type":"facebook", "socialmedia_url":"http://facebook.com/series-5.com", "socialmedia_headline": "facebook free basic campaign"}, {"socialmedia_type":"twitter", "socialmedia_url":"http://twitter.com/series-5.com", "socialmedia_headline": "twitter free basic campaign"}]}' http://localhost:8000/mediacontent/ads/imageads/571a72741d41c8b297ff2e75/
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"display_url":"http://hp.com","final_urls":"http://hp.com","mobile_urls":"http://hp.com","app_urls":"http://hp.com","thirdparty_tracking_url":"http://track.com", "adwise_tracking_url":"http://hp.com","ad_type":"ImageAd","offerex":[{"ex_name": "new customer offer", "ex_type": "offer", "offer_code": "QOWGX", "offer_url": "http://hp.com/?offercode=QOWGX", "offer_description": "pre-launch offer", "openDay":"2016-04-29T18:37:21.766000", "closeDay": "2016-04-29T18:37:21.766000"}], "socialex":[{"socialmedia_type":"facebook", "socialmedia_url":"http://facebook.com/series-5.com", "socialmedia_headline": "facebook free basic campaign"}, {"socialmedia_type":"twitter", "socialmedia_url":"http://twitter.com/series-5.com", "socialmedia_headline": "twitter free basic campaign"}]}' http://localhost:8000/mediacontent/ads/imageads/571a72741d41c8b297ff2e75/
 
 # Add Image to an ImageAd
 curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg" http://127.0.0.1:8000/mediacontent/ads/imageads/571a72741d41c8b297ff2e75/572704641d41c8e673f4848d/
