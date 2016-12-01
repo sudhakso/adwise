@@ -172,6 +172,9 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 # Get all extensions of a MediaAggregate
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/mediaaggregates/57f0e9bec0c9544a6dc8537f/extensions/
 
+# Get all extensions by a given type available in a MediaAggregate
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/mediaaggregates/57d844351d41c87ef6affad9/extensions/retail/
+
 # Create or update amenity extension
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"valid_from":"2016-02-25T18:37:21.766000", "category": "shopping", "tagwords": "discount shopee", "outlet_name": "somename", "outlet_description":"some desc", "outlet_address1": "Addr1", "outlet_address2":"addr2", "affliations": "parent brand", "outlet_url": "http://someurl.com", "brands": "nike puma adidas"}' http://127.0.0.1:8000/mediacontent/extension/amenity/retail/$extension-id/
 
