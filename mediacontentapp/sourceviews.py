@@ -123,6 +123,8 @@ class AmenityExtensionViewSet(APIView):
             ser = SpecialInterestExtensionSerializer(instance)
         if extension_name == 'staying':
             ser = StayingExtensionSerializer(instance)
+        if extension_name == 'specialityclinic':
+            ser = SpecialityClinicExtensionSerializer(instance)
         return ser
 
     def handle_update(self, request, extension_name, instance):
@@ -261,6 +263,8 @@ class MediaAggregateExtensionViewSet(APIView):
             ser = SpecialInterestExtensionSerializer(instances, many=True)
         if extension_name == 'staying':
             ser = StayingExtensionSerializer(instances, many=True)
+        if extension_name == 'specialityclinic':
+            ser = SpecialityClinicExtensionSerializer(instances, many=True)
         return ser
 
     def get(self, request, aggregate_id, extension_name=None):
