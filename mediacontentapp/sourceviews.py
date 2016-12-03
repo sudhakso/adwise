@@ -90,6 +90,10 @@ class AmenityExtensionViewSet(APIView):
             ser = StayingExtensionSerializer(
                                 data=request.data,
                                 partial=update)
+        if extension_name == 'specialityclinic':
+            ser = SpecialityClinicExtensionSerializer(
+                                data=request.data,
+                                partial=update)
         return ser
 
     def _serialize_ex_types(self, extension_name, instance):
