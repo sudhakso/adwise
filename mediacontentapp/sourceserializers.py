@@ -387,7 +387,7 @@ class SpecialityClinicExtensionSerializer(serializers.DocumentSerializer):
 #     userref = UserSerializer(required=False, read_only=True)
 
     class Meta:
-        model = PharmacyExtension
+        model = SpecialityClinicExtension
         exclude = ('image', 'userref', 'amenityref',)
 
     def _include_additional_options(self, *args, **kwargs):
