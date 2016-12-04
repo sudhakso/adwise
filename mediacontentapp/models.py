@@ -803,6 +803,7 @@ class AmenityExtension(Document):
     ex_type = StringField()
     userref = ReferenceField('MediaUser')
     amenityref = ReferenceField('MediaAggregate')
+    common_name = StringField(required=True)
     image_url = StringField(required=False)
     image = ReferenceField('JpegImageContent', required=False)
     valid_from = DateTimeField(default=datetime.now())
@@ -811,6 +812,8 @@ class AmenityExtension(Document):
     # Contact details
     phone_numbers = ListField()
     email = StringField()
+    # Exact location where the services are offered. (optional)
+    point = GeoPointField(required=False)
     # meta
     meta = {'allow_inheritance': True}
 
@@ -1006,7 +1009,6 @@ class FacilityExtension(AmenityExtension):
     """
     ex_name = StringField(default='Value Added Services', required=False)
     ex_type = StringField(default='facility')
-    name = StringField(required=True)
     description = StringField(required=True)
     url = StringField(required=True)
     # floor, shop number etc.
@@ -1029,14 +1031,11 @@ class EmergencyServiceExtension(AmenityExtension):
     """
     ex_name = StringField(default='Emergency Services', required=False)
     ex_type = StringField(default='emergencyservice')
-    name = StringField(required=True)
     description = StringField(required=True)
     url = StringField(required=True)
     dial_on_emergency_1 = StringField(required=True)
     dial_on_emergency_2 = StringField(required=True)
     dial_on_emergency_3 = StringField(required=True)
-    # location, can be used in map to gauge the time to distance etc.
-    loc = GeoPointField(required=True)
     # floor, shop number etc.
     outlet_address1 = StringField(required=True)
     outlet_address2 = StringField(required=True)
@@ -1083,7 +1082,6 @@ class HelpdeskExtension(AmenityExtension):
     """
     ex_name = StringField(default='Helpdesk', required=False)
     ex_type = StringField(default='helpdesk')
-    name = StringField(required=True)
     description = StringField(required=True)
     url = StringField(required=True)
     helpdesk_phone_1 = StringField(required=True)
@@ -1145,7 +1143,6 @@ class SpecialInterestExtension(AmenityExtension):
     """
     ex_name = StringField(default='Special Interest Activity', required=False)
     ex_type = StringField(default='specialinterest')
-    name = StringField(required=True)
     description = StringField(required=True)
     url = StringField(required=True)
     # NatureExperience like Butterfly garden
