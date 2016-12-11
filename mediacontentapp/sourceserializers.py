@@ -301,6 +301,17 @@ class MediaAggregateSerializer(serializers.DocumentSerializer):
         return self.get_field_names(*args, **kwargs)
 
 
+class AmenitySerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = Amenity
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
 class AmenityExtensionSerializer(serializers.DocumentSerializer):
 
 #     amenityref = MediaAggregateSerializer(required=False, read_only=True)

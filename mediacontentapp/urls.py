@@ -35,6 +35,9 @@ urlpatterns = [
         sourceviews.OOHMediaSourceViewSet.as_view()),
     url(r'^mediasource/ooh/',
         sourceviews.OOHMediaSourceViewSet.as_view()),
+    # Nearby
+    url(r'^mediasource/nearby/ooh/(?P<id>[0-9a-zA-Z]+)',
+        sourceviews.OOHNearByViewSet.as_view()),
     # Playing
     url(r'^playing/mediaagregate/$',
         sourceviews.MediaAggregatePlayingViewSet.as_view()),

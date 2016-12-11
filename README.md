@@ -145,6 +145,13 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 # Update image for OOH
 curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg" http://127.0.0.1:8000/mediacontent/mediasource/ooh/56b5f4ca1d41c85e256e11c2/
 
+# Trigger discovery of Amenities near a given OOH
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST http://127.0.0.1:8000/mediacontent/mediasource/nearby/ooh/584cf2621d41c8d2d5a04a75/
+
+# Get amenities near the OOH
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/mediasource/nearby/ooh/584cf2621d41c8d2d5a04a75/
+
+
 # Create MediaAggregates
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{ "name" : "Inorbit", "display_name" : "InOrbit Whitefield", "survey_name" : "No. 75", "address1": "EPIP Area", "address2": "Whitefield", "city": "Bangalore Bengaluru", "state": "Karnataka", "country": "India", "pin": "560066", "location": [17.4410, 78.3921], "poi_marker_data": {"a":"b"}, "internet_settings": {"home_url": "http://inorbit.in/whitefield/"}, "type": "ShoppingMall"}' http://127.0.0.1:8000/mediacontent/mediaaggregates/
 
@@ -185,6 +192,8 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"valid_from":"2016-02-25T18:37:21.766000", "category": "shopping", "tagwords": "discount shopee", "outlet_name": "somename", "outlet_description": "some desc", "outlet_address1": "addr1", "outlet_address2": "addr2", "cusine": "chineese", "outlet_type": "bar", "average_price_for_2": "200 rs", "smoking_allowed": "False", "beverages_served": "True", "outlet_url": "http://bar.com"}' http://127.0.0.1:8000/mediacontent/extension/amenity/fnb/$extension-id/
 
+# Add advensturesport
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"valid_from":"2016-02-25T18:37:21.766000", "category": "park", "tagwords": "holiday entertainment adventure vacation", "brand_name": "Waynad BioGarden", "brand_description": "A unique nature based multi theme park is WBG put in one sentence. A perfect harmonious relation shared between man and nature is the main aspect making WBG a unique attraction in Kerala. Located amidst the misty hills of Wayanad, WBG is a perfect get away to unwind and relax at the heart of Mother Nature.", "brand_url":"http://wayanadbiogarden.org/the-park/", "outlet_address1": "Wayanad Bio Garden WGGI - LLP TP III/346C,Cheepad,Makkiyad P.O", "outlet_address2":"Kerala", "sport_name":"Water Ride", "sport_description":"Backwaters of Kerala", "capacity":"1500 units", "target_age_group":"20-35, 50-65","brand_partners":["Playzone Inc.", "Playful Event services"], "service_condition":"Water sport can be availaed only wearing safety gears","reservation_facility":"True","average_price":"15000 pp","open_days":"Friday Only", "open_timings":"6:00AM-5:00PM"}' http://ec2-52-10-208-37.us-west-2.compute.amazonaws.com:8000/mediacontent/extension/amenity/adventuresport/
 
 # Add image to an existing extension
 curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg" http://localhost:8000/mediacontent/extension/amenity/<$extension-name>/<$extension-id>/

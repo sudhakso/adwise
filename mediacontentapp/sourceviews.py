@@ -16,13 +16,16 @@ from mediacontentapp import IdentityService
 from userapp.faults import UserNotAuthorizedException
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST,\
     HTTP_500_INTERNAL_SERVER_ERROR, HTTP_401_UNAUTHORIZED, HTTP_200_OK,\
-    HTTP_404_NOT_FOUND
+    HTTP_404_NOT_FOUND, HTTP_204_NO_CONTENT
 from datetime import datetime
 from userapp.models import MediaUser
 from templates import DigitalMediaSourceTemplate
 
 from controller import ActivityManager, TagManager, MediaAggregateController
 from typemanager import MediaTypeManager
+from mediacontentapp.etltasks import ExtractNearByAmenitiesTask,\
+    AddAmenitiesToBillboardTask
+from celery import chain
 
 import logging
 from mongoengine.errors import DoesNotExist
@@ -780,6 +783,67 @@ class MediaSourceViewSet(APIView):
         # Request Get, all users
         if request.method == 'GET':
             return JSONResponse("Not Implemented", status=HTTP_400_BAD_REQUEST)
+
+
+class OOHNearByViewSet(APIView):
+    """ OOH NearBy resource """
+
+    serializer_class = AmenitySerializer
+    model = Amenity
+
+    def _discover_amenity_mediasource(self, ooh_instance):
+        ooh = OOHMediaSourceIndexSerializer(ooh_instance, many=False)
+        data = {'lat': ooh.data['point'][0], 'lon': ooh.data['point'][1]}
+        query = """<osm-script>
+                    <query type="node">
+                        <around lat="{lat}" lon="{lon}" radius="200"/>
+                            <has-kv k="amenity" regv="restaurant|bank|school" />
+                    </query>
+                    <print />
+                   </osm-script>"""
+        query = query.format(**data)
+        # Create a chain of task to discover and add amenities
+        task_pipe_1 = ExtractNearByAmenitiesTask()
+        task_pipe_2 = AddAmenitiesToBillboardTask()
+        res = chain(task_pipe_1.s(querystr=query),
+                    task_pipe_2.s(str(ooh_instance.id)))()
+        # TBD: state tracking
+        res.get()
+
+    def get(self, request, id):
+        """ Returns a list of nearby amenities for media source
+         ---
+         response_serializer: AmenitySerialzer
+        """
+        # Request Get, all users
+        ooh = OOHMediaSource.objects.get(id=id)
+        nearbys_qs = NearBy.objects.filter(media_source=ooh)
+        if nearbys_qs:
+            nearbys = [nearby.amenity for nearby in nearbys_qs]
+            ser = AmenitySerializer(nearbys, many=True)
+            return JSONResponse(ser.data, status=HTTP_200_OK)
+        else:
+            return JSONResponse("No amenities found",
+                                status=HTTP_204_NO_CONTENT)
+
+    def post(self, request, id):
+        """ Returns a list of nearby amenities for media source
+         ---
+         response_serializer: AmenitySerialzer
+        """
+        # Request Post
+        ooh = OOHMediaSource.objects.get(id=id)
+        self._discover_amenity_mediasource(ooh)
+        # discover is a synchronous call.
+        # Return the list of amenities.
+        nearbys_qs = NearBy.objects.filter(media_source=ooh)
+        if nearbys_qs:
+            nearbys = [nearby.amenity for nearby in nearbys_qs]
+            ser = AmenitySerializer(nearbys, many=True)
+            return JSONResponse(ser.data, status=HTTP_200_OK)
+        else:
+            return JSONResponse("Error. No amenities were added.",
+                                status=HTTP_204_NO_CONTENT)
 
 
 class OOHMediaSourceViewSet(APIView):

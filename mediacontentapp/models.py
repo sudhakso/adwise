@@ -328,6 +328,7 @@ class MediaAggregate(Document):
     # Demographic properties
     name = StringField()
     display_name = StringField()
+    description = StringField()
     survey_name = StringField()
     address1 = StringField()
     address2 = StringField()
@@ -436,6 +437,41 @@ class RadioMediaSource(MediaSource):
 
     def get_absolute_url(self):
         return "/mediasource/radio/%i/" % self.id
+
+
+class Amenity(Document):
+    """
+    Unique amenity
+    """
+    node_id = StringField(required=True)
+    # lat/lon
+    point = GeoPointField(required=True)
+    # type from OSM
+    type = StringField(required=True)
+    name = StringField(required=True)
+    # tags returned by OSM native APIs
+    tags = DictField()
+    # book keeping entries
+    creation_date = DateTimeField(default=datetime.now())
+    updation_date = DateTimeField(default=datetime.now())
+
+    def get_absolute_url(self):
+        return "/mediasource/nearby/amenity/%i/" % self.id
+
+
+class NearBy(Document):
+    """
+    At a given time, a media source could be near to several amenities.
+    Amenity will be unique by its node-id from OSM framework.
+    """
+    # for e.g. Mall's default source
+    media_source = ReferenceField('MediaSource', required=False)
+    amenity = ReferenceField('Amenity', required=False)
+    # distance
+    distance = IntegerField()
+    # book-keeping entries
+    creation_date = DateTimeField(default=datetime.now())
+    deletion_date = DateTimeField()
 
 
 class Playing(Document):
