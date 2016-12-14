@@ -10,6 +10,7 @@ from mongoengine import signals
 from mediacontentapp.tasks import CampaignIndexingTask, OfferIndexingTask,\
     AdIndexingTask, OOHyticsIndexingTask, MediaAggregateIndexingTask,\
     OOHMediaSourceIndexingTask
+from mediacontentapp.etltasks import *
 from mediacontentapp.serializers import CampaignIndexSerializer,\
     ImageAdIndexSerializer, OfferIndexSerializer,\
     MediaAggregateIndexSerializer

@@ -345,9 +345,8 @@ class UserServiceViewSet(APIView):
                                             data=request.data)
                 if serializer.is_valid(raise_exception=True):
                     serializer.save(request_time=tm,
-                                    target_service_id=svc,
-                                    requesting_user_id=user,
-                                    target_service_name=service_name)
+                                    service=svc,
+                                    user_ref=user)
                     # Prepare the service for the User
                     # Return if already the service exists for the User.
                     created_svc = session_mgr.prepare_user_service(
