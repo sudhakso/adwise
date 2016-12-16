@@ -1,6 +1,11 @@
 # API and CLI interfaces #
 
 CLI commands that can be used to interact with the system
+Before using these CLI, please export the following variables to your environment.
+
+ADWISE_AUTH_USER=<username>
+ADWISE_AUTH_USER_EMAIL=<email>
+ADWISE_AUTH_PASSWORD=<password>
 
 ### APIs that do operation on 'mediaaggregate' ###
 adwise list mediaaggregate
