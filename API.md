@@ -7,7 +7,7 @@ adwise list mediaaggregate
 
 adwise create mediaaggregate 
 
-adwise addimage mediaaggregate --id <mediaaggregate-id> --file <file path>
+adwise addimage mediaaggregate --id <mediaaggregate-id> --icon <file path> --home <file path>
 
 adwise add mediaaggregate --id <mediaaggregate-id> -type <campaign|amenity> --id <campaign-id|amenity-id>
 
