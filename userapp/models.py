@@ -159,9 +159,9 @@ class ServiceRequest(Document):
 
     request_time = DateTimeField()
     # Session for the user.
-    user_ref = ReferenceField('MediaUser')
+    user_ref = ReferenceField('MediaUser', required=False)
     # Service requested
-    service = ReferenceField('Service')
+    service = ReferenceField('Service', required=False)
     # unknown data, delegated to driver.
     service_meta = DictField()
 

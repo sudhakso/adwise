@@ -111,6 +111,9 @@ class UserServiceSerializer(serializers.DocumentSerializer):
 
 
 class ServiceRequestSerializer(serializers.DocumentSerializer):
+    user_ref = UserSerializer(read_only=True, required=False)
+    service = UserServiceSerializer(read_only=True, required=False)
+
     class Meta:
         model = ServiceRequest
 
