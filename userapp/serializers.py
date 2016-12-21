@@ -2,7 +2,7 @@ from userapp.models import MediaUser,\
  UserMediaPref, UserService, ServiceRequest,\
  Project, UserRole, UserLocationPref,\
  Location, Offer, Event, Notification,\
- Cart, Meter
+ Cart, Meter, Service
 from userapp.models import UserPersonalPref, UserDevicePref
 from rest_framework_mongoengine import serializers
 
@@ -98,7 +98,20 @@ class DeviceSerializer(serializers.DocumentSerializer):
         fields = ('device_tag', 'device_type', 'device_info')
 
 
+class ServiceSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = Service
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
 class UserServiceSerializer(serializers.DocumentSerializer):
+    service_id = ServiceSerializer(read_only=True)
+
     class Meta:
         model = UserService
         fields = ('id', 'service_id', 'enabled', 'last_report_time', 'auto_restart')

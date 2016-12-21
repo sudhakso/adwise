@@ -32,8 +32,8 @@ class LocationDriver(object):
     def handle_service_get_request(self, key, service_data, query_param):
         # Get service data
         # (Note:Sonu) TBD filter query parameters
-        locs = Location.objects.filter(service_key=key)
-        ser = LocationSerializer(data, many=True)
+        locs = Location.objects.filter(service_key=str(key))
+        ser = LocationSerializer(locs, many=True)
         return ser
 
 
@@ -56,7 +56,7 @@ class MeteringDriver(object):
     def handle_service_get_request(self, key, service_data, query_param):
         # Get service data
         # (Note:Sonu) TBD filter query parameters
-        meters = Meter.objects.filter(service_key=key)
+        meters = Meter.objects.filter(service_key=str(key))
         ser = MeterSerializer(meters, many=True)
         return ser
 
@@ -94,7 +94,7 @@ class NotificationDriver(object):
     def handle_service_get_request(self, key, query_param):
         # Get service data
         # (Note:Sonu) TBD filter query parameters
-        notifs = Notification.objects.filter(service_key=key)
+        notifs = Notification.objects.filter(service_key=str(key))
         ser = NotificationSerializer(notifs, many=True)
         return ser
 
@@ -119,7 +119,7 @@ class CartDriver(object):
     def handle_service_get_request(self, key, query_param):
         # Get service data
         # (Note:Sonu) TBD filter query parameters
-        caelems = Cart.objects.filter(service_key=key)
+        caelems = Cart.objects.filter(service_key=str(key))
         ser = CartSerializer(caelems, many=True)
         return ser
 
