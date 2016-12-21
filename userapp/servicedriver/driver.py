@@ -144,7 +144,7 @@ class OfferDriver(object):
     def handle_service_get_request(self, key, query_param):
         # Get service data
         # (Note:Sonu) TBD filter query parameters
-        offers = Offer.objects.filter(service_key=key)
+        offers = Offer.objects.filter(service_key=str(key))
         ser = OfferSerializer(offers, many=True)
         return ser
 
