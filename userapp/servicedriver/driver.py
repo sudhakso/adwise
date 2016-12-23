@@ -169,7 +169,7 @@ class EventDriver(object):
     def handle_service_get_request(self, key, query_param):
         # Get service data
         # (Note:Sonu) TBD filter query parameters
-        events = Event.objects.filter(service_key=key)
+        events = Event.objects.filter(service_key=str(key))
         ser = EventSerializer(events, many=True)
         return ser
 
@@ -194,6 +194,6 @@ class FavouriteDriver(object):
     def handle_service_get_request(self, key, query_param):
         # Get service data
         # (Note:Sonu) TBD filter query parameters
-        favs = Favourite.objects.filter(service_key=key)
+        favs = Favourite.objects.filter(service_key=str(key))
         ser = FavouriteSerializer(favs, many=True)
         return ser
