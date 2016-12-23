@@ -242,6 +242,9 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 
 e.g. valid names are "location", "meter", "gcm", "notification", "offer", "event" etc.
 
+# Create a service favourite for a User
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"service_meta": {"favourite_data": {"campaigns":[{"name":"somecamp", "idref":"585a15d61d41c8c90ada29b1", "image_url":"/content/image01"}], "aggregates":[{"name":"someaggregate", "idref":"585a15d61d41c8c90ada29b1", "image_url":"/content/agg01"}, {"name":"someaggregate", "idref":"585a15d61d41c8c90ada29b1", "image_url":"/content/agg01"}], "extensions":[{"name":"someext", "idref":"585a15d61d41c8c90ada29b1", "image_url":"/content/ext01"}], "offers":[{"name":"someoffer", "idref":"585a15d61d41c8c90ada29b1", "image_url":"/content/offer01"}, {"name":"someoffer", "idref":"585a15d61d41c8c90ada29b1", "image_url":"/content/offer01"}, {"name":"someoffer", "idref":"585a15d61d41c8c90ada29b1", "image_url":"/content/offer01"}]}}}' http://localhost:8000/users/services/$user-service-id/data/
+
 # Get all the services availed for a User
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://localhost:8000/users/services/$user-id/
 

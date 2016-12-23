@@ -202,6 +202,22 @@ class Cart(Document):
     cart_data = DictField()
 
 
+# Favourite Inbox
+class Favourite(Document):
+    service_key = StringField(required=False)
+    # {"campaigns":[
+    #                {"name": "campaign-name", "idref": "camp-id", "imageurl": "url"},
+    #           ...],
+    #  "aggregates":[
+    #                {"name": "mall name", "idref": "mall-id"},
+    #           ...],
+    #  "extensions":["", ""],
+    #  "offers":[]
+    # }
+    favourite_data = DictField()
+    favourite_create_date = DateTimeField(default=datetime.now())
+
+
 # Token that is passed when a user is added by
 # a referee. E.g P(X) admin adding employee.
 class ReferedUserCreateRequest(Document):

@@ -4,10 +4,10 @@ Created on Nov 24, 2015
 @author: sonu
 '''
 from userapp.models import Location, Meter,\
- Offer, Notification, Event, Cart
+ Offer, Notification, Event, Cart, Favourite
 from userapp.serializers import LocationSerializer,\
  MeterSerializer, OfferSerializer, NotificationSerializer,\
- EventSerializer, CartSerializer
+ EventSerializer, CartSerializer, FavouriteSerializer
 
 import json
 
@@ -171,4 +171,29 @@ class EventDriver(object):
         # (Note:Sonu) TBD filter query parameters
         events = Event.objects.filter(service_key=key)
         ser = EventSerializer(events, many=True)
+        return ser
+
+
+class FavouriteDriver(object):
+    '''
+    classdocs
+    '''
+
+    def __init__(self):
+        '''
+        Constructor
+        '''
+
+    def handle_service_request(self, key, service_data):
+        # Load service data into Json
+        req_data = json.loads(service_data)
+        favser = FavouriteSerializer(data=req_data)
+        if favser.is_valid(raise_exception=True):
+            favser.save(service_key=str(key))
+
+    def handle_service_get_request(self, key, query_param):
+        # Get service data
+        # (Note:Sonu) TBD filter query parameters
+        favs = Favourite.objects.filter(service_key=key)
+        ser = FavouriteSerializer(favs, many=True)
         return ser

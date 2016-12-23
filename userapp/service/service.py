@@ -254,3 +254,33 @@ class OfferService(BaseService):
         return super(OfferService, self).handle_service_get_request(
                                                             key,
                                                             req_param)
+
+
+class MyFavouriteService(BaseService):
+
+    def setup_service(self):
+        print 'Setting up MyFavouriteService...'
+        super(MyFavouriteService, self).setup_service()
+
+    @property
+    def servicedriver_name(self):
+        return 'userapp.servicedriver.driver.FavouriteDriver'
+
+    def update_service(self, service_id):
+        print 'Updating MyFavouriteService...'
+        super(MyFavouriteService, self).update_service(service_id)
+
+    def teardown_service(self, service_id):
+        print 'Tearing down MyFavouriteService...'
+        super(MyFavouriteService, self).teardown_service(service_id)
+
+    def handle_service_request(self, key, service_data):
+        print 'Handling MyFavouriteService request...'
+        super(MyFavouriteService, self).handle_service_request(
+                                                key, service_data)
+
+    def handle_service_get_request(self, key, req_param):
+        print 'Handling MyFavouriteService request...(%s)'
+        return super(MyFavouriteService, self).handle_service_get_request(
+                                                            key,
+                                                            req_param)

@@ -2,7 +2,7 @@ from userapp.models import MediaUser,\
  UserMediaPref, UserService, ServiceRequest,\
  Project, UserRole, UserLocationPref,\
  Location, Offer, Event, Notification,\
- Cart, Meter, Service
+ Cart, Meter, Service, Favourite
 from userapp.models import UserPersonalPref, UserDevicePref
 from rest_framework_mongoengine import serializers
 
@@ -195,6 +195,17 @@ class CartSerializer(serializers.DocumentSerializer):
 class MeterSerializer(serializers.DocumentSerializer):
     class Meta:
         model = Meter
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class FavouriteSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = Favourite
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
