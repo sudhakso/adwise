@@ -35,6 +35,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 USERAPP_DIR = "%s/%s/" % (BASE_DIR, 'userapp')
 MEDIAAPP_DIR = "%s/%s/" % (BASE_DIR, 'mediacontentapp')
+MODELLER_DIR = "%s/%s/" % (BASE_DIR, 'modeller')
 SEARCHAPP_DIR = "%s/%s/" % (BASE_DIR, 'mediaresearchapp')
 MEDIA_ROOT = os.path.dirname(os.path.dirname(__file__))
 GCM_APIKEY = "AIzaSyB_LJhGIT0hkh6I54znllGZ2pi1Y7Nl2Jo"
@@ -70,6 +71,7 @@ INSTALLED_APPS = (
     'mediacontentapp',
     'mediaresearchapp',
     'mediaetlapp',
+    'modeller',
 )
 
 MIDDLEWARE_CLASSES = (

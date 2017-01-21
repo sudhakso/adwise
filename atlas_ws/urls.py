@@ -13,6 +13,8 @@ urlpatterns = [
     url(r'^research/', include('mediaresearchapp.urls')),
     # ETL
     url(r'^etl/', include('mediaetlapp.urls')),
+    # Modeller
+    url(r'^modeller/', include('modeller.urls')),
     # Documentation engine
     url(r'^', include('rest_framework_swagger.urls')),
 ]

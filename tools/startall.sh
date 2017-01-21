@@ -9,4 +9,6 @@ source /home/ubuntu/expooh/venv/bin/activate
 screen -d -m celery --app=atlas_ws.celery_config:app worker --loglevel=INFO --concurrency=2 -n worker1.%h
 echo "Starting app server..."
 screen -d -m python /home/ubuntu/expooh/repo/adwise-userprofile-mgr/manage.py runserver 172.31.41.248:8000
-
+echo "Starting classifier..." 
+/home/ubuntu/expooh/repo/adwise-userprofile-mgr/tools/classify/classify.py start
+echo `/home/ubuntu/expooh/repo/adwise-userprofile-mgr/tools/classify/classify.py status` 

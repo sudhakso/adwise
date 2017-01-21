@@ -341,8 +341,20 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 # Retrieving OOH operational data (Many samples)
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/etl/ooh/574d68571d41c8ba3f289e84/
 
-# WIP
-### OOHMediaSource
+### Modeller ads
+
+# OOH planner
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"wish": "credit loan ad", "filters": [{"type": "costfilter", "condition": "maximum", "value": "100000"}, {"type": "dgfilter", "condition": "target", "value": "parents"}]}' http://127.0.0.1:8000/modeller/planner/ooh/
+
+### Tools
+# Tool for creating campaign
+python ./campaign_import.py tabseparated_camp.data http://127.0.0.1:8000 /home/sonu/adimages/campaigns/
+# Tool for importing Ads to a campaign
+python ./ad_import.py tabseparated_ad.data http://127.0.0.1:8000 /home/sonu/adimages/campaigns/ 570746dd1d41c84bc448786b
+
+
+### Wishlists
+
 # API to attach a campaign to a OOHMediaSource
 POST http://localhost:8000/mediacontent/oohmediasource/<$source_id>/?action=addcontent&id=<$id> -d {}
  - Create a playing relation for each $source_id and $contentid field
@@ -354,27 +366,8 @@ GET http://localhost:8000/mediacontent/playing/oohmediasource/?id=<$sourceid> -d
  - Each playing object represents the Campaign
  - For each Campaign (Id), list all the Ads under a campaign
 
-### MediaAggregate
-# API to attach a mediasource to a MediaAggregate
-POST http://localhost:8000/mediacontent/mediaaggregate/<$aggregate_id>/?action=addmedia&id=<$id> - d {}
- - Query existing source by id
- - Add the digital media source to MediaAggregate
-
-# API to get all the sources under MediaAggregate
-GET http://localhost:8000/mediacontent/mediaaggregate/sourcelist/
- - Returns MediaSource object lists.
-
 # API to get all sources where the campaign is playing
 GET http://localhost:8000/mediacontent/playing/campaign/?id=<$campaign-id> -d '{}'
-
  - Returns source instances
- 
-
-Template: http://<localhost>:8000/mediacontent/etl/ooh/<ooh_instance_id>/
-# Tools
-# Tool for creating campaign
-python ./campaign_import.py tabseparated_camp.data http://127.0.0.1:8000 /home/sonu/adimages/campaigns/
-# Tool for importing Ads to a campaign
-python ./ad_import.py tabseparated_ad.data http://127.0.0.1:8000 /home/sonu/adimages/campaigns/ 570746dd1d41c84bc448786b
 
 # __END__

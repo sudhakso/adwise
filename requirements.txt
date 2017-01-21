@@ -30,6 +30,8 @@ oslo.i18n==3.6.0
 oslo.log==3.7.0
 oslo.serialization==2.6.0
 oslo.utils==3.10.0
+nltk==3.2.1
+overpy==0.3.1
 pbr==1.9.1
 pyes==0.99.6
 pyinotify==0.9.6
