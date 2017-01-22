@@ -12,6 +12,8 @@ urlpatterns = [
         sourceviews.MediaSourceActivityTracker.as_view()),
     url(r'^mediasource/tags/(?P<id>[0-9a-zA-Z]+)',
         sourceviews.MediaSourceTagViewSet.as_view()),
+    url(r'^activity/(?P<content_type>[a-z]+)/(?P<activity>[a-z]+)/(?P<id>[0-9a-zA-Z]+)/$',
+        sourceviews.MediaContentActivityTracker.as_view()),
     # Media aggregate types
     url(r'^mediaaggregates/types/$',
         sourceviews.MediaAggregateTypeViewSet.as_view()),

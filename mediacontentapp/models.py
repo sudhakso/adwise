@@ -144,11 +144,27 @@ class MediaSourceActivity(Document):
     User Activity, view delete
     """
     interacting_user = ReferenceField('MediaUser', required=False)
-    mediasource = ReferenceField('OOHMediaSource', required=False)
+    mediasource = ReferenceField('MediaSource', required=False)
     activity_time = DateTimeField(required=False)
     activity_type = FloatField(required=False)
     # E.g. email:something, phone: some-number
     activity_meta = StringField(default="", required=False)
+    activity_data = DictField(default="", required=False)
+
+
+class MediaContentActivity(Document):
+    """
+    User Activity, view delete
+    """
+    interacting_user = ReferenceField('MediaUser', required=False)
+    campaign = ReferenceField('Campaign', required=False)
+    ad = ReferenceField('Ad', required=False)
+    offer = ReferenceField('OfferExtension', required=False)
+    activity_time = DateTimeField(required=False)
+    activity_type = FloatField(required=False)
+    # E.g. email:something, phone: some-number
+    activity_meta = StringField(default="", required=False)
+    activity_data = DictField(default="", required=False)
 
 
 class SourceAnalyticalAttributes(Document):

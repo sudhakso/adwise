@@ -749,10 +749,69 @@ class MediaSourceActivityTracker(APIView):
                 serializer = MediaSourceActivitySerializer(data=request.data)
                 # Save the activity record
                 if serializer.is_valid(raise_exception=True):
-                    serializer.save(interacting_user=user,
-                                    mediasource=source,
-                                    activity_type=activity_type,
-                                    activity_time=datetime.now())
+                    activity = serializer.save(activity_type=activity_type,
+                                               activity_time=datetime.now())
+                    activity.update(interacting_user=user,
+                                    mediasource=source)
+                    return JSONResponse(str('success'),
+                                        status=HTTP_201_CREATED)
+                else:
+                    return JSONResponse(str(serializer.errors),
+                                        status=HTTP_400_BAD_REQUEST)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class MediaContentActivityTracker(APIView):
+
+    """ Activity tracking """
+
+    def post(self, request, content_type, activity, id=None):
+
+        """ Logs a named activity for a given media content
+         ---
+         request_serializer: MediaContentActivitySerializer
+         response_serializer: MediaContentActivitySerializer
+        """
+        try:
+            camp_content = None
+            ad_content = None
+            offer_content = None
+            auth_user = auth_manager.do_auth(request)
+            # TBD(Note:Sonu) Id is must.
+            activity_type = activity_manager.get_activity_id(activity)
+            if activity_type != -1 and (
+                            id is not None):
+                # valid user
+                user = MediaUser.objects.get(username=auth_user.username)
+                # valid activity, valid source
+                if content_type == 'campaign':
+                    camp_content = Campaign.objects.get(id=id)
+                elif content_type == 'ad':
+                    ad_content = Ad.objects.get(id=id)
+                elif content_type == 'offer':
+                    offer_content = OfferExtension.objects.get(id=id)
+                else:
+                    return JSONResponse(
+                            str("Unsupported content type %s" % content_type),
+                            status=HTTP_400_BAD_REQUEST)
+                # serialize content
+                serializer = MediaContentActivitySerializer(data=request.data)
+                # Save the activity record
+                if serializer.is_valid(raise_exception=True):
+                    activity = serializer.save(activity_type=activity_type,
+                                               activity_time=datetime.now())
+                    # Activity update
+                    activity.update(interacting_user=user,
+                                    campaign=camp_content,
+                                    ad=ad_content,
+                                    offer=offer_content)
                     return JSONResponse(str('success'),
                                         status=HTTP_201_CREATED)
                 else:

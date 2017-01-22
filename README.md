@@ -224,6 +224,20 @@ curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" 
 # Storing a share/like/dislike request by Billboard
 curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST  -d '{"activity_meta" : "email=sonu@g.com, phone=ksksk"}' http://localhost:8000/mediacontent/mediasource/activity/share/56c0b94c1d41c8957cba8237
 
+# Storing an activity on a mediaaggregate
+curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST  -d '{"activity_data" : {"message":"somedata", "sharingtype":"gmail"}}' http://localhost:8000/mediacontent/mediaaggregate/activity/share/56c0b94c1d41c8957cba8237/
+
+Following activities are supported, 'share', 'like', 'dislike', 'quote', 'view'
+
+# Storing an activity on a campaign
+curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST  -d '{"activity_data" : {"message":"somedata", "sharingtype":"gmail"}}' http://localhost:8000/mediacontent/activity/campaign/share/56c0b94c1d41c8957cba8237/
+
+# storing an activity on a Ad
+curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST  -d '{"activity_data" : {"message":"somedata", "sharingtype":"gmail"}}' http://localhost:8000/mediacontent/activity/ad/share/56c0b94c1d41c8957cba8237/
+
+# storing an activity on a Offer
+curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST  -d '{"activity_data" : {"message":"somedata", "sharingtype":"gmail"}}' http://localhost:8000/mediacontent/activity/offer/share/56c0b94c1d41c8957cba8237/
+
 # Fetching a share/like/dislike activity by billboard
 curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://localhost:8000/mediacontent/mediasource/activity/share/56c0b94c1d41c8957cba8237
 
