@@ -1,7 +1,7 @@
 from django.conf.urls import url, include
 from modeller.views import TextClassifier,\
  Classifier
-from modeller.plannerviews import OOHPlanner
+from modeller.plannerviews import OOHPlanner, NotifierView
 
 # Wire up our API using automatic URL routing.
 urlpatterns = [
@@ -11,4 +11,6 @@ urlpatterns = [
          Classifier.as_view()),
      url(r'^planner/ooh/',
          OOHPlanner.as_view()),
+     url(r'^planner/notification/',
+         NotifierView.as_view()),
 ]

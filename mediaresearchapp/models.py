@@ -9,7 +9,8 @@ from datetime import datetime
 from mongoengine.base.fields import ObjectIdField
 
 
-connect(_MONGODB_NAME, alias='default')
+#connect(_MONGODB_NAME, alias='default')
+#connect(_MONGODB_NAME, host='192.168.71.133')
 
 All = 'everyone'
 

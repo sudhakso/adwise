@@ -11,7 +11,6 @@ from datetime import datetime
 from bson.json_util import default
 from mediacontentapp.models import OOHMediaSource
 
-connect(_MONGODB_NAME, alias='default')
 
 All = 'everyone'
 
@@ -25,3 +24,12 @@ class oohplanrequest(Document):
 class plannerresult(Document):
     oohs = ListField(ReferenceField('OOHMediaSource'))
     mediaaggregates = ListField(ReferenceField('MediaAggregate'))
+
+
+class NotificationRequest(Document):
+    context = StringField(default="campaign")
+    content_ref = ListField(default=[])
+    topic = StringField(default='marketing')
+    content = DictField(default={})
+    # age_group, sex, location
+    selector = DictField()

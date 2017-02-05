@@ -8,7 +8,8 @@ from atlas_ws.settings import _MONGODB_NAME
 from rest_framework import fields
 
 
-connect(_MONGODB_NAME, alias='default')
+#connect(_MONGODB_NAME, alias='default')
+#connect(_MONGODB_NAME, host='192.168.71.133')
 
 
 class UserRole(Document):

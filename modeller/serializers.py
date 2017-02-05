@@ -1,5 +1,5 @@
 from rest_framework_mongoengine import serializers
-from modeller.models import oohplanrequest, plannerresult
+from modeller.models import oohplanrequest, plannerresult, NotificationRequest
 from mediacontentapp.sourceserializers import OOHMediaSourceSerializer,\
  MediaAggregateSerializer
 
@@ -21,6 +21,18 @@ class PlannerResultSerializer(serializers.DocumentSerializer):
 
     class Meta:
         model = plannerresult
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class NotificationRequestSerializer(serializers.DocumentSerializer):
+
+    class Meta:
+        model = NotificationRequest
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

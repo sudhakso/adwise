@@ -12,7 +12,8 @@ from bson.json_util import default
 # TBD (Filters don't work out of the box)
 # import django_filters
 
-connect(_MONGODB_NAME, alias='default')
+#connect(_MONGODB_NAME, alias='default')
+#connect(_MONGODB_NAME, host='192.168.71.133')
 
 All = 'everyone'
 
