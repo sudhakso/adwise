@@ -18,6 +18,7 @@ from __future__ import absolute_import
 import os
 import sys
 from django.conf.global_settings import MEDIA_ROOT
+from mongoengine import connection
 
 # from kombu import serialization
 # serialization.registry._decoders.pop("application/x-python-serialize")
@@ -93,9 +94,12 @@ _MONGODB_NAME = 'my_database'
 DATABASES = {
    'default' : {
       'ENGINE' : 'django_mongodb_engine',
-      'NAME' : 'my_database'
+      'NAME' : 'my_database',
+      'HOST' : '172.31.41.248'
    }
 }
+
+connection.connect(_MONGODB_NAME, host='172.31.41.248')
 
 # Required for Basic authentication
 # AUTHENTICATION_BACKENDS = (
