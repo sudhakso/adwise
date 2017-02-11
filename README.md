@@ -361,7 +361,9 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"wish": "credit loan ad", "filters": [{"type": "costfilter", "condition": "maximum", "value": "100000"}, {"type": "dgfilter", "condition": "target", "value": "parents"}]}' http://127.0.0.1:8000/modeller/planner/ooh/
 
 ### Planner Cloud Notifications
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"context": "campaign", "content_ref": ["id1","id2"], "topic": "marketting", "content": {}, "selector" : {"age_group":"10-20", "sex":"male", "location":[]}}' http://127.0.0.1:8000/modeller/planner/notifications/
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"topic": "Account Balance Low","type": "notification", "message": "Some useful message to the consumer", "selector" : {"age_group":"10-20", "sex":"male", "location":[]}}' http://127.0.0.1:8000/modeller/planner/notification/
+
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"topic": "Forum Mall Sale","type": "data", "content": {"context": "campaign", "content_ref": ["id1","id2"]}, "selector" : {"age_group":"10-20", "sex":"male", "location":[]}}' http://127.0.0.1:8000/modeller/planner/notifications/
 
 ### Tools
 # Tool for creating campaign

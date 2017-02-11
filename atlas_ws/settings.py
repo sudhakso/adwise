@@ -18,6 +18,7 @@ from __future__ import absolute_import
 import os
 import sys
 from django.conf.global_settings import MEDIA_ROOT
+from mongoengine import connection
 
 # from kombu import serialization
 # serialization.registry._decoders.pop("application/x-python-serialize")
@@ -45,6 +46,9 @@ GCM_APIKEY = "AIzaSyB_LJhGIT0hkh6I54znllGZ2pi1Y7Nl2Jo"
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'da50pwk)13@(d=u2j24g5_n=vj_js(fpder#63-cr#nnooz%t0'
+FIREBASE_KEY = 'key=AAAAK1uBcGw:APA91bHiD-hvGL694Kx-kTujH5XRRs8eeH_xDxjAofPmWLy-Lx51iHmTXqIt_9MsYQBJPzvmbRrc7MnC5Aohj2s-TjoJos7asbSfZROOn80zJrFkGnjdgbwZrPtdDT3ZHU2G8-S6W1Ng'
+FIREBASE_URL = 'fcm.googleapis.com'
+FIREBASE_PROJECT_ID = 'research-154014'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -93,9 +97,12 @@ _MONGODB_NAME = 'my_database'
 DATABASES = {
    'default' : {
       'ENGINE' : 'django_mongodb_engine',
-      'NAME' : 'my_database'
+      'NAME' : 'my_database',
+      'HOST': '192.168.71.133'
    }
 }
+
+connection.connect(_MONGODB_NAME, host='192.168.71.133')
 
 # Required for Basic authentication
 # AUTHENTICATION_BACKENDS = (
