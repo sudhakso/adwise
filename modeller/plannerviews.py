@@ -56,11 +56,20 @@ class NotifierView(APIView):
             notifrequest = NotificationRequestSerializer(data=request.data)
             if notifrequest.is_valid(raise_exception=True):
                 req = notifrequest.save()
+                print 'Request to send notif type %s with content %s' % (
+                                                req.type,
+                                                str(req.content).encode('utf-8'))
+                # Workaround : GCM apis do not accept u' in begininig of Unicode strings.
+                # strip that from the request.
+                if req.type == 'data':
+                    content = str(req.content).replace("u\"","\"").replace("u\'","\'")
+                elif req.type == 'notification':
+                    content = req.message
                 # Process the request
                 users = UserSelectorTask()
                 notifier = CloudNotifierTask()
                 result = chain(users.s(req.selector),
-                               notifier.s(req.topic, req.content)).apply_async()
+                               notifier.s(req.topic, req.type, content)).apply_async()
                 slept = 0
                 timeout = False
                 while not result.ready():

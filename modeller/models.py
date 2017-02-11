@@ -27,9 +27,9 @@ class plannerresult(Document):
 
 
 class NotificationRequest(Document):
-    context = StringField(default="campaign")
-    content_ref = ListField(default=[])
     topic = StringField(default='marketing')
-    content = DictField(default={})
+    type = StringField(default='data')
+    content = DictField(default={}, required=False)
+    message = StringField(required=False)
     # age_group, sex, location
-    selector = DictField()
+    selector = DictField(required=False)

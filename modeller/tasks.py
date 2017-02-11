@@ -81,15 +81,10 @@ class CloudNotifierTask(Task):
             self._cloud_notifier = CloudNotifier()
         return self._cloud_notifier
 
-    def run(self, devices, notif_topic, notif_content):
+    def run(self, devices, notif_topic, notif_type, notif_content):
         print 'Sending %s notifications %s to %s ...' % (notif_topic,
                                                          notif_content,
                                                          devices)
-        # return all users
-        print 'Sending %s notifications %s to %s ...' % (
-                                                    notif_topic,
-                                                    notif_content,
-                                                    devices)
         deviceidjson = json.loads(devices)
         registered_ids = []
         for device in deviceidjson:
@@ -99,4 +94,5 @@ class CloudNotifierTask(Task):
                     registered_ids.append(devinfo['device_id'])
         return self.cloud_notifier.notify(registered_ids,
                                           notif_topic,
-                                          notif_content)
+                                          notif_type,
+                                          str(notif_content).encode('utf-8'))

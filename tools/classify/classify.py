@@ -5,7 +5,7 @@ import time
 from daemon import Daemon
 from nb_classifier import ClassifierController
 
-DATA_DIR = '/home/sonu/thomas/atlas/venv/atlas/atlas_ws/tools/examples'
+DATA_DIR = '/home/ubuntu/expooh/repo/adwise-userprofile-mgr/tools/examples'
 
 
 class NBClassifierDaemon(Daemon):
