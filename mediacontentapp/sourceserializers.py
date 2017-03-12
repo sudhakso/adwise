@@ -261,10 +261,11 @@ class MediaSourceActivitySerializer(serializers.DocumentSerializer):
 
 
 class MediaContentActivitySerializer(serializers.DocumentSerializer):
+    interacting_user = UserSerializer(required=False, read_only=True)
 
     class Meta:
         model = MediaContentActivity
-        exclude = ('interacting_user', 'campaign', 'ad', 'offer')
+        exclude = ('campaign', 'ad', 'offer')
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

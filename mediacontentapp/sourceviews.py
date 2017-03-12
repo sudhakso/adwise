@@ -771,6 +771,46 @@ class MediaSourceActivityTracker(APIView):
 class MediaContentActivityTracker(APIView):
 
     """ Activity tracking """
+    def get(self, request, content_type, id, detail=False):
+
+        """ Gets all activities for a given media content
+         ---
+         request_serializer: MediaContentActivitySerializer
+         response_serializer: MediaContentActivitySerializer
+        """
+        try:
+            acts = []
+            auth_user = auth_manager.do_auth(request)
+            # valid user
+            if content_type == 'campaign':
+                content = Campaign.objects.get(id=id)
+                acts = MediaContentActivity.objects.filter(
+                                                        campaign=content)
+            elif content_type == 'ad':
+                content = Ad.objects.get(id=id)
+                acts = MediaContentActivity.objects.filter(
+                                                        ad=content)
+            elif content_type == 'offer':
+                content = OfferExtension.objects.get(id=id)
+                acts = MediaContentActivity.objects.filter(
+                                                        offer=content)
+            else:
+                return JSONResponse(
+                        str("Unsupported content type %s" % content_type),
+                        status=HTTP_400_BAD_REQUEST)
+            # serialize content
+            act_ser = MediaContentActivitySerializer(acts,
+                                                     many=True)
+            return JSONResponse(act_ser.data,
+                                status=HTTP_200_OK)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request, content_type, activity, id=None):
 
