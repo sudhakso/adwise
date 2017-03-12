@@ -98,11 +98,10 @@ DATABASES = {
    'default' : {
       'ENGINE' : 'django_mongodb_engine',
       'NAME' : 'my_database',
-      'HOST': '192.168.71.133'
+      'HOST' : '172.31.41.248'
    }
 }
-
-connection.connect(_MONGODB_NAME, host='192.168.71.133')
+connection.connect(_MONGODB_NAME, host='172.31.41.248')
 
 # Required for Basic authentication
 # AUTHENTICATION_BACKENDS = (
