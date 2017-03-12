@@ -208,11 +208,15 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 The query format is,
 /mediacontent/mediaaggregates/$aggregate_id/?action=addcontent&id=$campaign_id"
 
-# API to query campaigns attached to a MediaAggregate
-curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/playing/mediaagregate/?id=57d844351d41c87ef6affad9
+# API to query campaigns attached to a MediaAggregate that are Valid (campaign beyond expiry date is not returned)
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/playing/mediaagregate/?"id=58c4f5931d41c828ff8bc6dc"
 
 The query format is,
 /mediacontent/playing/mediaagregate/?id=$aggregate_id
+
+
+# API to query all campaigns (inlcuding expired ones) attached to a MediaAggregate
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/playing/mediaagregate/?"id=58c4f5931d41c828ff8bc6dc&all"
 
 
 # Creating/Updating a dashboard for the User - set approriate dashboard type. (Media Agency - "MA", Billboard Owner - "BO", On baording partner -> "Partner", Service User -> "Unknown")

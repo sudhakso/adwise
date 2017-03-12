@@ -355,7 +355,14 @@ class MediaAggregatePlayingViewSet(APIView):
             params = request.query_params
             if 'id' in params:
                 maobj = MediaAggregate.objects.get(id=params['id'])
-                plays = Playing.objects.filter(primary_media_source=maobj.inhouse_source)
+                if 'all' in params:
+                    # Do not filter
+                    plays = Playing.objects.filter(
+                                    primary_media_source=maobj.inhouse_source)
+                else:
+                    plays = Playing.objects.filter(
+                                    primary_media_source=maobj.inhouse_source,
+                                    end_date__gte=datetime.now)
                 serializer = PlayingSerializer(plays, many=True)
                 return JSONResponse(serializer.data, status=HTTP_200_OK)
             else:
