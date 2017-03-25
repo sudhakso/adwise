@@ -550,6 +550,22 @@ class StayingExtensionSerializer(serializers.DocumentSerializer):
         return self.get_field_names(*args, **kwargs)
 
 
+class MultiplexExtensionSerializer(serializers.DocumentSerializer):
+
+#     amenityref = MediaAggregateSerializer(required=False, read_only=True)
+#     userref = UserSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = MultiplexExtension
+        exclude = ('image', 'userref', 'amenityref',)
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
 class AmenityExtensionCollectionSerializer(serializers.DocumentSerializer):
     retails = RetailExtensionSerializer(required=False,
                                         read_only=True,

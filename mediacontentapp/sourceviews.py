@@ -97,6 +97,10 @@ class AmenityExtensionViewSet(APIView):
             ser = SpecialityClinicExtensionSerializer(
                                 data=request.data,
                                 partial=update)
+        if extension_name == 'moviemultiplex':
+            ser = MultiplexExtensionSerializer(
+                                data=request.data,
+                                partial=update)
         return ser
 
     def _serialize_ex_types(self, extension_name, instance):
@@ -128,6 +132,8 @@ class AmenityExtensionViewSet(APIView):
             ser = StayingExtensionSerializer(instance)
         if extension_name == 'specialityclinic':
             ser = SpecialityClinicExtensionSerializer(instance)
+        if extension_name == 'moviemultiplex':
+            ser = MultiplexExtensionSerializer(instance)
         return ser
 
     def handle_update(self, request, extension_name, instance):
@@ -268,6 +274,8 @@ class MediaAggregateExtensionViewSet(APIView):
             ser = StayingExtensionSerializer(instances, many=True)
         if extension_name == 'specialityclinic':
             ser = SpecialityClinicExtensionSerializer(instances, many=True)
+        if extension_name == 'moviemultiplex':
+            ser = MultiplexExtensionSerializer(instances, many=True)
         return ser
 
     def get(self, request, aggregate_id, extension_name=None):

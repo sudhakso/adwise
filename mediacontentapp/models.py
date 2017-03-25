@@ -1185,7 +1185,7 @@ class AdventureSportExtension(AmenityExtension):
     _meta = DictField(required=False)
 
     def get_absolute_url(self):
-        return "/mediacontent/extension/clinic/%i/" % self.id
+        return "/mediacontent/extension/sport/%i/" % self.id
 
 
 # tribal dances, movies etc.
@@ -1212,7 +1212,7 @@ class SpecialInterestExtension(AmenityExtension):
     _meta = DictField(required=False)
 
     def get_absolute_url(self):
-        return "/mediacontent/extension/clinic/%i/" % self.id
+        return "/mediacontent/extension/special/%i/" % self.id
 
 
 class StayingExtension(AmenityExtension):
@@ -1241,6 +1241,39 @@ class StayingExtension(AmenityExtension):
 
     def get_absolute_url(self):
         return "/mediacontent/extension/staying/%i/" % self.id
+
+
+class MultiplexExtension(AmenityExtension):
+    """
+    This extension adds a multi-plex to be part of the
+    amenity.
+    """
+    ex_name = StringField(default='Multiplex', required=False)
+    ex_type = StringField(default='moviemultiplex')
+    brand_name = StringField(required=True)
+    brand_description = StringField(required=True)
+    brand_url = StringField(required=True)
+    # floor, shop number etc.
+    outlet_address1 = StringField(required=True)
+    outlet_address2 = StringField(required=True)
+    # > 400
+    audis = StringField()
+    capacity_per_audi = StringField()
+    # e.g. precaution etc.
+    service_condition = StringField()
+    reservation_facility = BooleanField()
+    reservation_number = StringField()
+    rservation_url = StringField()
+    average_price = StringField()
+    open_days = StringField()
+    # [9:30-12:30, 12:45-2:30]
+    show_timings = ListField()
+    # Internal data, Stored in ad-wise
+    # not to be serialized
+    _meta = DictField(required=False)
+
+    def get_absolute_url(self):
+        return "/mediacontent/extension/movie/%i/" % self.id
 
 
 class AmenityExtensionCollection(Document):
