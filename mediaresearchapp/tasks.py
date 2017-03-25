@@ -246,7 +246,8 @@ class CampaignSQLTask(Task):
             # Collect the campaigns playing in media aggregate
             mediasources = [ms.inhouse_source for ms in mas]
             plays = Playing.objects.filter(
-                            primary_media_source__in=set(mediasources))
+                            primary_media_source__in=set(mediasources),
+                            end_date__gte=datetime.datetime.now())
             print 'Search returned following plays %d ...' % len(plays)
             camps = [play.playing_content for play in plays]
             end = datetime.datetime.now()
