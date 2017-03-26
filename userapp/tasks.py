@@ -9,6 +9,12 @@ from __future__ import absolute_import
 from celery import shared_task
 from mediacontentapp.models import ImageAd
 
+import datetime
+import json
+from celery import Task
+from rest_framework.renderers import JSONRenderer
+from userapp.controller import IndexingService
+
 
 @shared_task
 def test(param):
@@ -27,3 +33,35 @@ def fetch_ad(user, geopoint):
                 ad_location_tag__near=geopoint['point'])
     print ads
     pass
+
+
+class UserIndexingTask(Task):
+    ignore_errors = True
+    _es = None
+
+    @property
+    def es(self):
+        if self._es is None:
+            self._es = IndexingService()
+        return self._es
+
+    # instancename=, object=
+    def run(self, *args, **kwargs):
+        start = datetime.datetime.now()
+        print 'Creating index for User : %s ...' % (
+                                kwargs['instancename'])
+        if 'many' in kwargs and kwargs['many'] == True:
+            data = {'root': kwargs['mediauser']}
+        else:
+            data = kwargs['mediauser']
+        print data
+        try:
+            self.es.connection.index(
+                                data,
+                                "mediauser",
+                                "external")
+        except Exception as e:
+            print "Failed creating index for mediauser : %s" % (
+                                    kwargs['instancename'])
+            print "Exception : %s" % str(e)
+

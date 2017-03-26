@@ -92,6 +92,26 @@ class UserSerializer(serializers.DocumentSerializer):
         return self.get_field_names(*args, **kwargs)
 
 
+class UserIndexSerializer(serializers.DocumentSerializer):
+
+    class Meta:
+        model = MediaUser
+        fields = ("name",
+                   "gender",
+                   "username",
+                   "email",
+                   "city",
+                   "state",
+                   "pin",
+                   "point",)
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
 class DeviceSerializer(serializers.DocumentSerializer):
     class Meta:
         model = UserDevicePref
