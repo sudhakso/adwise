@@ -96,14 +96,15 @@ class UserIndexSerializer(serializers.DocumentSerializer):
 
     class Meta:
         model = MediaUser
-        fields = ("name",
-                   "gender",
-                   "username",
-                   "email",
-                   "city",
-                   "state",
-                   "pin",
-                   "point",)
+        fields = ("id",
+                  "name",
+                  "gender",
+                  "username",
+                  "email",
+                  "city",
+                  "state",
+                  "pin",
+                  "point",)
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

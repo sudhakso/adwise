@@ -13,6 +13,9 @@ import json
 from mediacontentapp.sourceserializers import MediaSourceSerializer
 from userapp.models import MediaUser
 from userapp.serializers import UserDevicePrefSerializer
+from mediaresearchapp.querymapper import multifield_querymapper,\
+ querytype_factory
+from pyes import ES
 
 
 class ClassifierTask(Task):
@@ -56,15 +59,50 @@ class FindOOHFiltered(Task):
 
 
 class UserSelectorTask(Task):
+    # TBD (create the end-point through the controller)
     ignore_errors = True
+    _es = None
+    _qf = None
+
+    @property
+    def es(self):
+        if self._es is None:
+            self._es = ES("127.0.0.1:9200", default_indices='mediauser')
+        return self._es
+
+    @property
+    def qf(self):
+        if self._qf is None:
+            self._qf = querytype_factory()
+        return self._qf
 
     # TBD(Note:Sonu) It returns all the Users at the moment,
     # Need to build selectors
     def run(self, selector):
         print 'Selecting users for the following %s ...' % selector
-        # return all users
+        # Field ranking
+        if 'query_fields' in selector and selector['query_fields'].keys():
+            wfields = selector['query_fields']
+            print 'Searching %s ...' % selector['raw_strings']
+            print 'Fields for query %s ...' % wfields
+            qm = self.qf.create_mapper(selector['query_type'], wfields)
+            q4 = qm.create_query(selector['raw_strings'])
+            resultset = self.es.search(q4)
+            print 'Search returned %d records...' % len(resultset)
+            ids = []
+            for r in resultset:
+                if 'id' in r.keys():
+                    print r['id']
+                    ids.append(r['id'])
+            print 'Search returned following users %s ...' % ids
+            # Get filtered user objects
+            users = MediaUser.objects.filter(id__in=set(ids))
+        else:
+            # default - all users
+            users = MediaUser.objects.all()
+        # extract device information
         devices = []
-        for user in MediaUser.objects.all():
+        for user in users:
             devices.extend(user.device_pref)
         devs = UserDevicePrefSerializer(devices, many=True)
         _srjson = json.dumps(devs.data, encoding='utf-8')
