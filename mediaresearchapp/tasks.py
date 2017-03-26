@@ -11,7 +11,7 @@ import json
 from celery import shared_task
 from celery import Task
 from mediacontentapp.models import Campaign, OOHMediaSource,\
- MediaAggregate, Playing
+ MediaAggregate, Playing, MediaSource
 from mediaresearchapp.models import ResearchResult, MediaAggregateResearchResult
 from mediaresearchapp.serializers import ResearchResultSerializer,\
  MediaAggregateResearchResultSerializer
@@ -211,7 +211,7 @@ class MediaAggregateSQLTask(Task):
             return _srjson
 
 
-class CampaignSQLTask(Task):
+class CampaignOOHSourceSQLTask(Task):
     # TBD (create the end-point through the controller)
     ignore_errors = True
     _es = None
@@ -221,6 +221,62 @@ class CampaignSQLTask(Task):
     def es(self):
         if self._es is None:
             # Note: We still search mediaaggregate by location
+            # and then lookup relevant campaigns.
+            self._es = ES("127.0.0.1:9200", default_indices='oohmediasource')
+        return self._es
+
+    @property
+    def qf(self):
+        if self._qf is None:
+            self._qf = querytype_factory()
+        return self._qf
+
+    def run(self, *args, **kwargs):
+        start = datetime.datetime.now()
+        # Field ranking
+        if 'query' in kwargs:
+            print 'Searching %s ...' % kwargs['query']
+            qm = self.qf.create_mapper(kwargs['query_type'], None)
+            q4 = qm.create_query(kwargs['query'])
+            resultset = self.es.search(q4)
+            ids = [r['id'] for r in resultset]
+            print 'Search returned following aggregates %s ...' % ids
+            # Get all campaign objects
+            oohs = OOHMediaSource.objects.filter(id__in=set(ids))
+            # Collect the campaigns playing in OOH source
+            plays = Playing.objects.filter(
+                            primary_media_source__in=set(oohs),
+                            end_date__gte=datetime.datetime.now())
+            print 'Search returned following plays %d ...' % len(plays)
+            camps = [play.playing_content for play in plays]
+            end = datetime.datetime.now()
+            elapsed_time = end - start
+            _rr = ResearchResult(campaigns=camps,
+                                 query_runtime_duration=elapsed_time.total_seconds(
+                                                                ))
+            rr = _rr.save()
+            ser = ResearchResultSerializer(rr, many=False)
+            _srjson = json.dumps(ser.data, encoding='utf-8')
+            print _srjson
+            return _srjson
+        else:
+            rr = ResearchResult()
+            ser = ResearchResultSerializer(rr, many=False)
+            _srjson = json.dumps(ser.data, encoding='utf-8')
+            print _srjson
+            return _srjson
+
+
+class CampaignSQLTask(Task):
+    # TBD (create the end-point through the controller)
+    ignore_errors = True
+    _es = None
+    _qf = None
+
+    @property
+    def es(self):
+        if self._es is None:
+            # Note: We still search mediaaggregate/mediasources by location
             # and then lookup relevant campaigns.
             self._es = ES("127.0.0.1:9200", default_indices='mediaaggregate')
         return self._es
@@ -245,6 +301,9 @@ class CampaignSQLTask(Task):
             mas = MediaAggregate.objects.filter(id__in=set(ids))
             # Collect the campaigns playing in media aggregate
             mediasources = [ms.inhouse_source for ms in mas]
+            oohs = MediaSource.objects.filter(id__in=set(ids))
+            if oohs:
+                mediasources.append(oohs)
             plays = Playing.objects.filter(
                             primary_media_source__in=set(mediasources),
                             end_date__gte=datetime.datetime.now())

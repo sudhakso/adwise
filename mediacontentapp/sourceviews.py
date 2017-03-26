@@ -21,7 +21,8 @@ from datetime import datetime
 from userapp.models import MediaUser
 from templates import DigitalMediaSourceTemplate
 
-from controller import ActivityManager, TagManager, MediaAggregateController
+from controller import ActivityManager, TagManager, MediaAggregateController,\
+  OOHMediaController
 from typemanager import MediaTypeManager
 from mediacontentapp.etltasks import ExtractNearByAmenitiesTask,\
     AddAmenitiesToBillboardTask
@@ -37,6 +38,7 @@ activity_manager = ActivityManager()
 tag_manager = TagManager()
 category_types = MediaTypeManager()
 amentiycontroller = MediaAggregateController()
+oohmediacontroller = OOHMediaController()
 
 
 # Updates the amenity extension instance.
@@ -390,7 +392,39 @@ class MediaAggregatePlayingViewSet(APIView):
 
 
 class OOHSourcePlayingViewSet(APIView):
-    pass
+
+    def get(self, request):
+
+        """ Returns playing relation
+         ---
+         response_serializer: PlayingSerializer
+        """
+        try:
+            many = True
+            auth_manager.do_auth(request)
+            params = request.query_params
+            if 'id' in params:
+                ooh = OOHMediaSource.objects.get(id=params['id'])
+                plays = Playing.objects.filter(
+                                primary_media_source=ooh,
+                                end_date__gte=datetime.now)
+                serializer = PlayingSerializer(plays, many=True)
+                return JSONResponse(serializer.data, status=HTTP_200_OK)
+            else:
+                return JSONResponse('Id cannot be none',
+                                    status=HTTP_400_BAD_REQUEST)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class MediaAggregateTypeViewSet(APIView):
@@ -1079,7 +1113,7 @@ class OOHMediaSourceViewSet(APIView):
 
     def handle_update(self, request, id):
 
-        """ Updatees given OOH media source
+        """ Updates given OOH media source
          ---
          request_serializer: OOHMediaSourceSerializer
          response_serializer: OOHMediaSourceSerializer
@@ -1112,46 +1146,57 @@ class OOHMediaSourceViewSet(APIView):
                 return JSONResponse(str(
                                 "Anonymous user cannot modify resources."),
                             status=HTTP_401_UNAUTHORIZED)
-            # partial updates
-            serializer = OOHMediaSourceSerializer(
-                                data=request.data, partial=True)
-            if serializer.is_valid(raise_exception=True):
-                updated_obj = serializer.update(inst,
-                                                serializer.validated_data)
-                # Other reference fields
-                # Store image'
-                imageserializer = JpegImageContentSerializer(
-                            data=request.data)
-                if imageserializer.is_valid(raise_exception=False):
-                    img = imageserializer.save()
-                    img_url = img.get_absolute_url()
-                    updated_obj.update(primary_image_content=img,
-                                       image_url=img_url)
-                # Store Booking (optional)
-                if 'booking' in request.data:
-                    bookingserializer = BookingSerializer(
-                                data=request.data['booking'])
-                    if bookingserializer.is_valid(raise_exception=True):
-                        bookings = bookingserializer.save()
-                        updated_obj.update(booking=bookings)
-                # Store Pricing (optional)
-                if 'pricing' in request.data:
-                    pricingserializer = PricingSerializer(
-                                data=request.data['pricing'])
-                    if pricingserializer.is_valid(raise_exception=True):
-                        pricing = pricingserializer.save()
-                        updated_obj.update(pricing=pricing)
-                # Verify if Owner change operation is expected.
-                fields = request.query_params
-                if 'userid' in fields:
-                    xfer_ownership_to = MediaUser.objects.get(
-                                                    username=fields['userid'])
-                    if xfer_ownership_to:
-                        updated_obj.update(owner=xfer_ownership_to)
-                # Save finally!
-                updated_obj.save()
-                return JSONResponse(serializer.validated_data,
-                                    status=HTTP_200_OK)
+            # Check if actions?
+            do_action = True if 'action' in request.query_params\
+                else False
+            if do_action:
+                action = request.query_params['action']
+                return oohmediacontroller.handle_operations(
+                                                    inst,
+                                                    action,
+                                                    request.query_params,
+                                                    request.data)
+            else:
+                # handle partial updates
+                serializer = OOHMediaSourceSerializer(
+                                    data=request.data, partial=True)
+                if serializer.is_valid(raise_exception=True):
+                    updated_obj = serializer.update(inst,
+                                                    serializer.validated_data)
+                    # Other reference fields
+                    # Store image'
+                    imageserializer = JpegImageContentSerializer(
+                                data=request.data)
+                    if imageserializer.is_valid(raise_exception=False):
+                        img = imageserializer.save()
+                        img_url = img.get_absolute_url()
+                        updated_obj.update(primary_image_content=img,
+                                           image_url=img_url)
+                    # Store Booking (optional)
+                    if 'booking' in request.data:
+                        bookingserializer = BookingSerializer(
+                                    data=request.data['booking'])
+                        if bookingserializer.is_valid(raise_exception=True):
+                            bookings = bookingserializer.save()
+                            updated_obj.update(booking=bookings)
+                    # Store Pricing (optional)
+                    if 'pricing' in request.data:
+                        pricingserializer = PricingSerializer(
+                                    data=request.data['pricing'])
+                        if pricingserializer.is_valid(raise_exception=True):
+                            pricing = pricingserializer.save()
+                            updated_obj.update(pricing=pricing)
+                    # Verify if Owner change operation is expected.
+                    fields = request.query_params
+                    if 'userid' in fields:
+                        xfer_ownership_to = MediaUser.objects.get(
+                                                        username=fields['userid'])
+                        if xfer_ownership_to:
+                            updated_obj.update(owner=xfer_ownership_to)
+                    # Save finally!
+                    updated_obj.save()
+                    return JSONResponse(serializer.validated_data,
+                                        status=HTTP_200_OK)
         except UserNotAuthorizedException as e:
             print e
             return JSONResponse(str(e),

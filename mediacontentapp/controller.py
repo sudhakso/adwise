@@ -17,6 +17,51 @@ from mediacontentapp.serializers import PlayingSerializer
 from datetime import date, datetime
 
 
+class OOHMediaController():
+
+    ADD_MEDIA_CONTENT = 'addcontent'
+
+    def __init__(self):
+        self.playing_template = Template(
+                               open('%s%s' % (settings.MEDIAAPP_DIR,
+                                    'templates/playing.j2'),
+                                    'r').read())
+
+
+    # TBD
+    def handle_update(self, inst, *args, **kwargs):
+        pass
+
+    def handle_operations(self, ooh, action, action_args, action_data):
+        # action= add media etc., action_args= content-id, action_data= {}
+        print 'OOHMediaController: Performing action %s' % action
+
+        if action == self.ADD_MEDIA_CONTENT:
+            # Add media content to OOH Media source object
+            campid = action_args['id'] if 'id' in action_args else None
+            if campid is None:
+                return JSONResponse('content id cannot be None for action type'
+                                    ' %s' % self.ADD_MEDIA_CONTENT,
+                                    status=HTTP_400_BAD_REQUEST)
+            # get the campaign
+            campaign = Campaign.objects.get(id=campid)
+            _nv = {'source_type': 'oohmediasource',
+                   'start_date': action_data['start_date'],
+                   'end_date': action_data['end_date']}
+            _playing_data = json.loads(
+                                str(self.playing_template.render(**_nv)))
+            playing = PlayingSerializer(data=_playing_data)
+            if playing.is_valid(raise_exception=True):
+                play = playing.save()
+                play.update(primary_media_source=ooh,
+                            playing_content=campaign)
+                return JSONResponse(playing.validated_data,
+                                    status=HTTP_200_OK)
+        else:
+            # Unknown operation
+            pass
+
+
 class MediaAggregateController():
 
     ADD_MEDIA = 'addmedia'

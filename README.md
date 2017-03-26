@@ -204,6 +204,19 @@ curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.
 # Get an existing extension by its Id
 curl -X GET -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" http://localhost:8000/mediacontent/extension/amenity/<$extension-name>/<$extension-id>/
 
+
+##### API to attach a Campaign to OOHMediasource
+# API to attach a campaign to a OOHMediaSource
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"start_date" : "2016-02-25T18:37:21.766000","end_date" :"2016-02-25T18:37:21.766000"}' "http://127.0.0.1:8000/mediacontent/mediasource/ooh/57d844351d41c87ef6affad9/?action=addcontent&id=57c062201d41c83e549e8ae5"
+
+The query format is,
+/mediacontent/mediasource/ooh/$ooh_id/?action=addcontent&id=$campaign_id"
+
+#API to query campaign
+
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/playing/oohmediasource/?"id=58c4f5931d41c828ff8bc6dc"
+
+
 ##### API to attach a Campaign to MediaAggregate
 # API to attach a campaign to a MediaAggregate
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"start_date" : "2016-02-25T18:37:21.766000","end_date" :"2016-02-25T18:37:21.766000"}' "http://127.0.0.1:8000/mediacontent/mediaaggregates/57d844351d41c87ef6affad9/?action=addcontent&id=57c062201d41c83e549e8ae5"
@@ -344,8 +357,11 @@ curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" 
 # Location sensed query for MediaAggregate
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"query": {"geodistancefilter": {"field": "location","fieldvalue": [12.975667, 77.729083],"distance": 0.01},"optype": "And"},"query_type": "structured", "query_object_type": "MediaAggregateLocation"}' http://127.0.0.1:8000/research/search/_sql/
 
-# Location sensed query for Campaign
+# Location sensed query for Campaign in Mediaaggregate
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"query": {"geodistancefilter": {"field": "location","fieldvalue": [12.975667, 77.729083],"distance": 0.01},"optype": "And"},"query_type": "structured", "query_object_type": "CampaignByMaLocation"}' http://127.0.0.1:8000/research/search/_sql/
+
+# Location sensed query for Campaign in OOH
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"query": {"geodistancefilter": {"field": "point","fieldvalue": [12.975667, 77.729083],"distance": 50},"optype": "And"},"query_type": "structured", "query_object_type": "CampaignByMediaSourceLocation"}' http://127.0.0.1:8000/research/search/_sql/
 
 # Invoking search API internally, doesn't do any user validations.
 curl -H "Content-Type: application/json" -X POST -d '{"raw_strings": "fitness", "query_type": "OOHMediaSource", "query_fields":{"category":4, "description":2}}' http://127.0.0.1:8000/research/query/
