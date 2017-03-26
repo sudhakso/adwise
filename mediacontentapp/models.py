@@ -95,6 +95,11 @@ class Campaign(Document):
     state = ListField(default=[], required=False)
     country = ListField(default=[], required=False)
     target_group = ListField(default=[], required=False)
+
+    # social media URL for the campaign
+    social_url = StringField(required=False)
+    home_url = StringField(required=False)
+
     # search'able tags
     tags = StringField()
     # UI assumes certain categories

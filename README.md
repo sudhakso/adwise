@@ -303,7 +303,7 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 Note: ad_type value can be used to fetch the ad content for this campaign
 For example, /mediacontent/ads/<$ad_type>/<$campaign_id>
 
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"name": "IPL World T20", "description": "IPL T20 cricket championship", "launched_at": "2016-04-25T18:37:21.766000", "end_at": "2016-04-29T18:37:21.766000", "tags": "cricket football golf", "category": "sports", "city": ["bengaluru", "delhi"], "state": ["karnantaka","Delhi"], "spec" :{"name":"basic", "type": "basictype", "ad_type":"imagead"}}' http://localhost:8000/mediacontent/campaign/
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"name": "IPL World T20", "description": "IPL T20 cricket championship", "launched_at": "2016-04-25T18:37:21.766000", "end_at": "2016-04-29T18:37:21.766000", "tags": "cricket football golf", "social_url":"http://fb.com/ipl202017", "home_url": "http://ipl.com/", "category": "sports", "city": ["bengaluru", "delhi"], "state": ["karnantaka","Delhi"], "spec" :{"name":"basic", "type": "basictype", "ad_type":"imagead"}}' http://localhost:8000/mediacontent/campaign/
 
 # Get all campaigns for the User
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://localhost:8000/mediacontent/campaign/
