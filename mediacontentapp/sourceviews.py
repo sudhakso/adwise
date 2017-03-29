@@ -41,6 +41,47 @@ amentiycontroller = MediaAggregateController()
 oohmediacontroller = OOHMediaController()
 
 
+class PlayingViewSet(APIView):
+    """ Playing resource CRUD """
+
+    serializer_class = PlayingSerializer
+    model = Playing
+
+    def post(self, request, id=None):
+
+        """ Updates a Playing source
+         ---
+         request_serializer: PlayingSerializer
+         response_serializer: PlayingSerializer
+        """
+        # If it is an update request mentioning id.
+        if id is not None:
+            try:
+                auth_manager.do_auth(request)
+                play = Playing.objects.get(id=id)
+                # handle partial updates
+                serializer = PlayingSerializer(
+                                    data=request.data, partial=True)
+                if serializer.is_valid(raise_exception=True):
+                    updated_obj = serializer.update(play,
+                                                    serializer.validated_data)
+                    updated_obj.save()
+            except UserNotAuthorizedException as e:
+                print e
+                return JSONResponse(str(e),
+                                    status=HTTP_401_UNAUTHORIZED)
+            except Exception as e:
+                print e
+                return JSONResponse(str(e),
+                                    status=HTTP_400_BAD_REQUEST)
+
+            return JSONResponse(serializer.validated_data,
+                                status=HTTP_200_OK)
+        else:
+            return JSONResponse(str("Id cannot be None"),
+                                status=HTTP_400_BAD_REQUEST)
+
+
 # Updates the amenity extension instance.
 class AmenityExtensionViewSet(APIView):
     # Return serializer instances
