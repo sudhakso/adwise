@@ -22,7 +22,7 @@ from userapp.models import MediaUser
 from templates import DigitalMediaSourceTemplate
 
 from controller import ActivityManager, TagManager, MediaAggregateController,\
-  OOHMediaController
+  OOHMediaController, CloudMediaController
 from typemanager import MediaTypeManager
 from mediacontentapp.etltasks import ExtractNearByAmenitiesTask,\
     AddAmenitiesToBillboardTask
@@ -39,6 +39,7 @@ tag_manager = TagManager()
 category_types = MediaTypeManager()
 amentiycontroller = MediaAggregateController()
 oohmediacontroller = OOHMediaController()
+cloudmediacontroller = CloudMediaController()
 
 
 class PlayingViewSet(APIView):
@@ -448,6 +449,42 @@ class OOHSourcePlayingViewSet(APIView):
                 ooh = OOHMediaSource.objects.get(id=params['id'])
                 plays = Playing.objects.filter(
                                 primary_media_source=ooh,
+                                end_date__gte=datetime.now)
+                serializer = PlayingSerializer(plays, many=True)
+                return JSONResponse(serializer.data, status=HTTP_200_OK)
+            else:
+                return JSONResponse('Id cannot be none',
+                                    status=HTTP_400_BAD_REQUEST)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class CloudSourcePlayingViewSet(APIView):
+
+    def get(self, request):
+
+        """ Returns playing relation
+         ---
+         response_serializer: PlayingSerializer
+        """
+        try:
+            many = True
+            auth_manager.do_auth(request)
+            params = request.query_params
+            if 'id' in params:
+                cloud = CloudMediaSource.objects.get(id=params['id'])
+                plays = Playing.objects.filter(
+                                primary_media_source=cloud,
                                 end_date__gte=datetime.now)
                 serializer = PlayingSerializer(plays, many=True)
                 return JSONResponse(serializer.data, status=HTTP_200_OK)
@@ -1386,4 +1423,211 @@ class VODMediaSourceViewSet(APIView):
                                     status=HTTP_500_INTERNAL_SERVER_ERROR)
 
     def put(self, request, *args, **kwargs):
+        pass
+
+
+class CloudMediaSourceViewSet(APIView):
+
+    """ Cloud Media source resource """
+
+    serializer_class = CloudMediaSourceSerializer
+    model = CloudMediaSource
+
+    def get(self, request, *args, **kwargs):
+
+        """ Returns a list of cloud media sources
+         ---
+         response_serializer: CloudMediaSourceSerializer
+        """
+        # Request Get, all users
+        sources = None
+        multiple = False
+        try:
+            auth_manager.do_auth(request)
+            fields = request.query_params
+            # OOH-Id
+            if 'id' in fields:
+                sources = CloudMediaSource.objects.get(id=fields['id'])
+                multiple = False
+            # User-Id
+            # Workaround: Mongo doesn't support join of ref-field.
+            # Billboard owner use case, where only his billboards are
+            # shown.
+            elif 'userid' in fields:
+                queryUser = MediaUser.objects.get(
+                                    username=fields['userid'])
+                sources = CloudMediaSource.objects(
+                                            owner=queryUser)
+                multiple = True if len(sources) > 0 else False
+            # Media Agency case, where everything should be shown up
+            else:
+                sources = CloudMediaSource.objects.all()
+                multiple = True
+
+            serializer = CloudMediaSourceSerializer(sources, many=multiple)
+            return JSONResponse(serializer.data)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+
+        return JSONResponse(serializer.errors,
+                            status=HTTP_400_BAD_REQUEST)
+
+    def post(self, request, id=None):
+
+        """ Creates a cloud media source
+         ---
+         request_serializer: CloudMediaSourceSerializer
+         response_serializer: CloudMediaSourceSerializer
+        """
+        # If it is an update request mentioning id.
+        if id:
+            return self.handle_update(request, id)
+
+        try:
+            auth_user = auth_manager.do_auth(request)
+            operated_by = MediaUser.objects.get(
+                                    username=auth_user.username)
+
+            serializer = CloudMediaSourceSerializer(
+                                data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                src = serializer.save(created_time=datetime.now(),
+                                      updated_time=datetime.now())
+                src.update(operated_by=operated_by, owner=operated_by)
+                src.save()
+                return JSONResponse(serializer.data,
+                                    status=HTTP_201_CREATED)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return JSONResponse(serializer.errors,
+                            status=HTTP_400_BAD_REQUEST)
+
+    def handle_update(self, request, id):
+
+        """ Updates given cloud media source
+         ---
+         request_serializer: CloudMediaSourceSerializer
+         response_serializer: CloudMediaSourceSerializer
+        """
+        try:
+            auth_user = auth_manager.do_auth(request)
+            # TBD (Note:Sonu) : Update the image.
+            inst = CloudMediaSource.objects.get(id=id)
+            owner = inst.owner
+            operated_by = inst.operated_by
+            # For any property to be updated, validate
+            # that it is done by the user who created it or
+            # owns the instance to avoid billboard stealth.
+            if owner:
+                # Verify if owner is modifying the parameter
+                if auth_user.username != owner.username:
+                    return JSONResponse(str("Not Authorized"),
+                                        status=HTTP_401_UNAUTHORIZED)
+            elif operated_by:
+                # Verify if the operated by is set to
+                # the user requesting the modification.
+                if auth_user.username != operated_by.username:
+                    return JSONResponse(str("Not Authorized"),
+                                        status=HTTP_401_UNAUTHORIZED)
+            else:
+                # Anonymous user cannot modify Object
+                return JSONResponse(str(
+                                "Anonymous user cannot modify resources."),
+                            status=HTTP_401_UNAUTHORIZED)
+            # Check if actions?
+            do_action = True if 'action' in request.query_params\
+                else False
+            if do_action:
+                action = request.query_params['action']
+                return cloudmediacontroller.handle_operations(
+                                                    inst,
+                                                    action,
+                                                    request.query_params,
+                                                    request.data)
+            else:
+                # handle partial updates
+                serializer = CloudMediaSourceSerializer(
+                                    data=request.data, partial=True)
+                if serializer.is_valid(raise_exception=True):
+                    updated_obj = serializer.update(inst,
+                                                    serializer.validated_data)
+                    # Verify if Owner change operation is expected.
+                    fields = request.query_params
+                    if 'userid' in fields:
+                        xfer_ownership_to = MediaUser.objects.get(
+                                                        username=fields['userid'])
+                        if xfer_ownership_to:
+                            updated_obj.update(owner=xfer_ownership_to)
+                    # Save finally!
+                    updated_obj.save()
+                    return JSONResponse(serializer.validated_data,
+                                        status=HTTP_200_OK)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+        # Bad Request
+        return JSONResponse(serializer.errors,
+                            status=HTTP_400_BAD_REQUEST)
+
+
+class FloatingMediaSourceViewSet(APIView):
+
+    """ Floating Media source resource """
+
+    serializer_class = FloatingMediaSourceSerializer
+    model = FloatingMediaSource
+
+    def get(self, request, *args, **kwargs):
+
+        """ Returns a list of Floating media sources
+         ---
+         response_serializer: FloatingMediaSourceSeriealizer
+        """
+        # Request Get, all users
+        if request.method == 'GET':
+            sources = FloatingMediaSource.objects.all()
+            serializer = FloatingMediaSourceSerializer(sources, many=True)
+            return JSONResponse(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+
+        """ Creates a Floating media source
+         ---
+         request_serializer: FloatingMediaSourceSerializer
+         response_serializer: FloatingMediaSourceSerializer
+        """
+        # Request Post, create user
+        if request.method == 'POST':
+            try:
+                serializer = FloatingMediaSourceSerializer(data=request.data)
+                if serializer.is_valid(raise_exception=True):
+                    serializer.save()
+                    return JSONResponse(serializer.data,
+                                        status=HTTP_201_CREATED)
+                else:
+                    return JSONResponse(serializer.errors,
+                                        status=HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                print e
+                return JSONResponse(serializer.errors,
+                                    status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def put(self, request, *args, **kwargs):
+        pass
+
+    def delete(self, request, *args, **kwargs):
         pass

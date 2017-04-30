@@ -38,10 +38,21 @@ urlpatterns = [
     url(r'^extension/amenity/(?P<extension_name>[a-zA-Z]+)/$',
         sourceviews.AmenityExtensionViewSet.as_view()),
     # Media source
+    # ooh
     url(r'^mediasource/ooh/(?P<id>[0-9a-zA-Z]+)',
         sourceviews.OOHMediaSourceViewSet.as_view()),
     url(r'^mediasource/ooh/',
         sourceviews.OOHMediaSourceViewSet.as_view()),
+    # cloud
+    url(r'^mediasource/cloud/(?P<id>[0-9a-zA-Z]+)',
+        sourceviews.CloudMediaSourceViewSet.as_view()),
+    url(r'^mediasource/cloud/',
+        sourceviews.CloudMediaSourceViewSet.as_view()),
+    # floating
+    url(r'^mediasource/floating/(?P<id>[0-9a-zA-Z]+)',
+        sourceviews.FloatingMediaSourceViewSet.as_view()),
+    url(r'^mediasource/floating/',
+        sourceviews.FloatingMediaSourceViewSet.as_view()),
     # Nearby
     url(r'^mediasource/nearby/ooh/(?P<id>[0-9a-zA-Z]+)',
         sourceviews.OOHNearByViewSet.as_view()),
@@ -50,11 +61,15 @@ urlpatterns = [
         sourceviews.MediaAggregatePlayingViewSet.as_view()),
     url(r'^playing/oohmediasource/$',
         sourceviews.OOHSourcePlayingViewSet.as_view()),
+    url(r'^playing/cloudmediasource/$',
+        sourceviews.CloudSourcePlayingViewSet.as_view()),
     # Campaign
     url(r'^campaign/_index/$',
         views.CampaignIndexingViewSet.as_view()),
     url(r'^campaign/(?P<camp_id>[0-9a-zA-Z]+)/track/$',
         views.CampaignTrackingViewSet.as_view()),
+    url(r'^campaign/playing/(?P<id>[0-9a-zA-Z]+)',
+        views.CampaignPlayingViewSet.as_view()),
     url(r'^campaign/(?P<camp_id>[0-9a-zA-Z]+)/$',
         views.CampaignViewSet.as_view()),
     url(r'^campaign/',

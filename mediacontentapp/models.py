@@ -425,6 +425,45 @@ class OOHMediaSource(MediaSource):
         return "/mediasource/ooh/%i/" % self.id
 
 
+class FloatingMediaSource(MediaSource):
+    """
+    Floating media source represents a physical source that can be
+    moved along a path with a floating range of coverage with respect
+    to its current location.
+    For example, moving bus ,  etc.
+    """
+    type = 'floating'
+    category = StringField(required=True)
+    # Latest Geo location reported
+    point = GeoPointField()
+    # Radius in KMs
+    coverage_area = FloatField(default=0.5)
+
+    def get_absolute_url(self):
+        return "/mediasource/floating/%i/" % self.id
+
+
+class CloudMediaSource(MediaSource):
+    """
+    Cloud media source represents a virtual source that can be
+    specified with a floating range of coverage.
+    Cloud media source have multiple locations to deliver ads in, 
+    all simultaneously.
+    For example, online ,  etc.
+    """
+    type = 'cloud'
+    home_url = StringField(required=True)
+    verification_url = StringField(required=True)
+    category = StringField(required=True)
+    # Average visitors
+    visitors = IntegerField(required=False)
+    # Priority
+    priority = FloatField(required=False)
+
+    def get_absolute_url(self):
+        return "/mediasource/cloud/%i/" % self.id
+
+
 class DigitalMediaSource(MediaSource):
     """
     Digital media inside home/mall advertising media type.

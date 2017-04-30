@@ -311,6 +311,10 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 # Update a campaign
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"name": "P(x1) campaign", "description": "Starters T20", "launched_at": "2016-04-25T18:37:21.766000", "end_at": "2016-04-29T18:37:21.766000", "spec" :{"name":"basic1", "type": "basictype", "ad_type":"imagead", "target_group":[], "linked_source_ids":["56f75d6f1d41c81380d87b65","56f76fc01d41c81fe5ac9cd9"]}}' http://localhost:8000/mediacontent/campaign/56f76fc01d41c81fe5ac9cd9/
 
+# get all sources where the campaign is played
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://localhost:8000/mediacontent/campaign/playing/57c062201d41c83e549e8ae5/
+
+
 # Update home page image for a campaign
 curl -X POST -S -H 'Accept: application/json' -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -F "image=@/home/sonu/adimages/chineese_ad.jpg;type=image/jpg" http://localhost:8000/mediacontent/campaign/570746dd1d41c84bc448786b/
 
@@ -394,6 +398,13 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 # Send to all Users in the system.
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"topic": "Forum Mall Sale","type": "data", "content": {"context": "campaign", "content_ref": ["id1","id2"]}, "selector" : {}}' http://127.0.0.1:8000/modeller/planner/notification/
 
+
+### Cloud media source
+# Create cloud source
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{ "name" : "superbeing-test", "type" : "cloud", "display_name": "superbeing-test", "caption": "Wellness", "tags": "wellness", "home_url":"http://superbeing.in", "verification_url":"http://superbeing.in",  "category": "wellness", "priority": "-1"}' http://127.0.0.1:8000/mediacontent/mediasource/cloud/
+
+# Query campaigns running in the cloud source.
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/playing/cloudmediasource/?"id=590593e51d41c8402383a716"
 
 ### Tools
 # Tool for creating campaign

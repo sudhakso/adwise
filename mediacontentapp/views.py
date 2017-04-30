@@ -5,12 +5,13 @@ from mediacontentapp.serializers import AdSerializer, TextAdSerializer,\
     CallOnlyAdSerializer, ImageAdSerializer, CampaignSerializer,\
     ImageContentSerializer, JpegImageContentSerializer, CampaignSpecSerializer,\
     CampaignTrackingSerializer, AdExtensionSerializer, OfferExtensionSerializer,\
-    CampaignIndexSerializer, SocialMediaExtensionSerializer, T_C_ExtensionSerializer
+    CampaignIndexSerializer, SocialMediaExtensionSerializer, T_C_ExtensionSerializer,\
+    PlayingSerializer
 from mediacontentapp.sourceserializers import MediaDashboardSerializer
 from userapp.models import MediaUser
 from mediacontentapp.models import Ad, TextAd, CallOnlyAd, ImageAd, Campaign,\
     ImageContent, JpegImageContent, MediaDashboard, CampaignTracking,\
-    OfferExtension
+    OfferExtension, Playing
 from mediacontentapp.tasks import CampaignIndexingTask
 from mediacontentapp.controller import CampaignManager
 from mediacontentapp.IdentityService import IdentityManager
@@ -291,6 +292,34 @@ class CampaignViewSet(APIView):
             print e
         return JSONResponse(serializer.errors,
                             status=HTTP_400_BAD_REQUEST)
+
+
+class CampaignPlayingViewSet(APIView):
+    serializer_class = PlayingSerializer
+    model = Playing
+
+    def get(self, request, id):
+
+        """ Returns playing objects for the campaigns
+         ---
+         response_serializer: PlayingSerializer
+        """
+        try:
+            auth_user = auth_manager.do_auth(request)
+            # valid user
+            user = MediaUser.objects.get(username=auth_user.username)
+            camp = Campaign.objects.get(id=id)
+            plays = Playing.objects.filter(playing_content=camp)
+            serializer = PlayingSerializer(plays, many=True)
+            return JSONResponse(serializer.data)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
 
 
 class CampaignTrackingViewSet(APIView):
