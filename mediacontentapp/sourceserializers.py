@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from rest_framework_mongoengine import serializers
 from userapp.serializers import UserSerializer
 from mediacontentapp.models import *
@@ -19,7 +19,7 @@ class MediaDashboardSerializer(serializers.DocumentSerializer):
         return self.get_field_names(*args, **kwargs)
 
     def update(self, instance, validated_data=None):
-        today = datetime.datetime.now()
+        today = datetime.now()
         if instance:
             user = instance.user
             # Get all media source for the user
