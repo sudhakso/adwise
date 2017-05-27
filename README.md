@@ -415,9 +415,9 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"topic": "Forum Mall Sale","type": "data", "content": {"context": "campaign", "content_ref": ["id1","id2"]}, "selector" : {}}' http://127.0.0.1:8000/modeller/planner/notification/
 
 
-### Cloud media source
-# Create cloud source
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{ "name" : "superbeing-test", "type" : "cloud", "display_name": "superbeing-test", "caption": "Wellness", "tags": "wellness", "home_url":"http://superbeing.in", "verification_url":"http://superbeing.in",  "category": "wellness", "priority": "-1"}' http://127.0.0.1:8000/mediacontent/mediasource/cloud/
+### Online media source
+# Create online source
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{ "name" : "superbeing-test", "type" : "online", "display_name": "superbeing-test", "caption": "Wellness", "tags": "wellness", "home_url":"http://superbeing.in", "verification_url":"http://superbeing.in",  "category": "wellness", "fence": [], "radius": 100 }' http://127.0.0.1:8000/mediacontent/mediasource/online/
 
 # Query campaigns running in the cloud source.
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/playing/cloudmediasource/?"id=590593e51d41c8402383a716"

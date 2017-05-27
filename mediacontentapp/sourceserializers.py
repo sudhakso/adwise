@@ -612,14 +612,14 @@ class OOHMediaSourceIndexSerializer(serializers.DocumentSerializer):
         return self.get_field_names(*args, **kwargs)
 
 
-class CloudMediaSourceSerializer(serializers.DocumentSerializer):
+class OnlineMediaSourceSerializer(serializers.DocumentSerializer):
     # Owner details
     verified_by = UserSerializer(required=False, read_only=True)
     owner = UserSerializer(required=False, read_only=True)
     operated_by = UserSerializer(required=False, read_only=True)
 
     class Meta:
-        model = CloudMediaSource
+        model = OnlineMediaSource
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

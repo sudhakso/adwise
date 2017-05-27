@@ -22,7 +22,7 @@ from userapp.models import MediaUser
 from templates import DigitalMediaSourceTemplate
 
 from controller import ActivityManager, TagManager, MediaAggregateController,\
-  OOHMediaController, CloudMediaController
+  OOHMediaController, OnlineMediaController
 from typemanager import MediaTypeManager
 from mediacontentapp.etltasks import ExtractNearByAmenitiesTask,\
     AddAmenitiesToBillboardTask
@@ -39,7 +39,7 @@ tag_manager = TagManager()
 category_types = MediaTypeManager()
 amentiycontroller = MediaAggregateController()
 oohmediacontroller = OOHMediaController()
-cloudmediacontroller = CloudMediaController()
+onlinemediacontroller = OnlineMediaController()
 
 
 class PlayingViewSet(APIView):
@@ -471,7 +471,7 @@ class OOHSourcePlayingViewSet(APIView):
                                 status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class CloudSourcePlayingViewSet(APIView):
+class OnlineSourcePlayingViewSet(APIView):
 
     def get(self, request):
 
@@ -484,7 +484,7 @@ class CloudSourcePlayingViewSet(APIView):
             auth_manager.do_auth(request)
             params = request.query_params
             if 'id' in params:
-                cloud = CloudMediaSource.objects.get(id=params['id'])
+                cloud = OnlineMediaSource.objects.get(id=params['id'])
                 plays = Playing.objects.filter(
                                 primary_media_source=cloud,
                                 end_date__gte=datetime.now)
@@ -1428,18 +1428,18 @@ class VODMediaSourceViewSet(APIView):
         pass
 
 
-class CloudMediaSourceViewSet(APIView):
+class OnlineMediaSourceViewSet(APIView):
 
     """ Cloud Media source resource """
 
-    serializer_class = CloudMediaSourceSerializer
-    model = CloudMediaSource
+    serializer_class = OnlineMediaSourceSerializer
+    model = OnlineMediaSource
 
     def get(self, request, *args, **kwargs):
 
         """ Returns a list of cloud media sources
          ---
-         response_serializer: CloudMediaSourceSerializer
+         response_serializer: OnlineMediaSourceSerializer
         """
         # Request Get, all users
         sources = None
@@ -1449,7 +1449,7 @@ class CloudMediaSourceViewSet(APIView):
             fields = request.query_params
             # OOH-Id
             if 'id' in fields:
-                sources = CloudMediaSource.objects.get(id=fields['id'])
+                sources = OnlineMediaSource.objects.get(id=fields['id'])
                 multiple = False
             # User-Id
             # Workaround: Mongo doesn't support join of ref-field.
@@ -1458,15 +1458,15 @@ class CloudMediaSourceViewSet(APIView):
             elif 'userid' in fields:
                 queryUser = MediaUser.objects.get(
                                     username=fields['userid'])
-                sources = CloudMediaSource.objects(
+                sources = OnlineMediaSource.objects(
                                             owner=queryUser)
                 multiple = True if len(sources) > 0 else False
             # Media Agency case, where everything should be shown up
             else:
-                sources = CloudMediaSource.objects.all()
+                sources = OnlineMediaSource.objects.all()
                 multiple = True
 
-            serializer = CloudMediaSourceSerializer(sources, many=multiple)
+            serializer = OnlineMediaSourceSerializer(sources, many=multiple)
             return JSONResponse(serializer.data)
         except UserNotAuthorizedException as e:
             print e
@@ -1480,8 +1480,8 @@ class CloudMediaSourceViewSet(APIView):
 
         """ Creates a cloud media source
          ---
-         request_serializer: CloudMediaSourceSerializer
-         response_serializer: CloudMediaSourceSerializer
+         request_serializer: OnlineMediaSourceSerializer
+         response_serializer: OnlineMediaSourceSerializer
         """
         # If it is an update request mentioning id.
         if id:
@@ -1491,8 +1491,7 @@ class CloudMediaSourceViewSet(APIView):
             auth_user = auth_manager.do_auth(request)
             operated_by = MediaUser.objects.get(
                                     username=auth_user.username)
-
-            serializer = CloudMediaSourceSerializer(
+            serializer = OnlineMediaSourceSerializer(
                                 data=request.data)
             if serializer.is_valid(raise_exception=True):
                 src = serializer.save(created_time=datetime.now(),
@@ -1517,13 +1516,13 @@ class CloudMediaSourceViewSet(APIView):
 
         """ Updates given cloud media source
          ---
-         request_serializer: CloudMediaSourceSerializer
-         response_serializer: CloudMediaSourceSerializer
+         request_serializer: OnlineMediaSourceSerializer
+         response_serializer: OnlineMediaSourceSerializer
         """
         try:
             auth_user = auth_manager.do_auth(request)
             # TBD (Note:Sonu) : Update the image.
-            inst = CloudMediaSource.objects.get(id=id)
+            inst = OnlineMediaSource.objects.get(id=id)
             owner = inst.owner
             operated_by = inst.operated_by
             # For any property to be updated, validate
@@ -1550,14 +1549,14 @@ class CloudMediaSourceViewSet(APIView):
                 else False
             if do_action:
                 action = request.query_params['action']
-                return cloudmediacontroller.handle_operations(
+                return onlinemediacontroller.handle_operations(
                                                     inst,
                                                     action,
                                                     request.query_params,
                                                     request.data)
             else:
                 # handle partial updates
-                serializer = CloudMediaSourceSerializer(
+                serializer = OnlineMediaSourceSerializer(
                                     data=request.data, partial=True)
                 if serializer.is_valid(raise_exception=True):
                     updated_obj = serializer.update(inst,

@@ -44,10 +44,8 @@ urlpatterns = [
     url(r'^mediasource/ooh/',
         sourceviews.OOHMediaSourceViewSet.as_view()),
     # cloud
-    url(r'^mediasource/cloud/(?P<id>[0-9a-zA-Z]+)',
-        sourceviews.CloudMediaSourceViewSet.as_view()),
-    url(r'^mediasource/cloud/',
-        sourceviews.CloudMediaSourceViewSet.as_view()),
+    url(r'^mediasource/online/(?P<id>[0-9a-zA-Z]+)',
+        sourceviews.OnlineMediaSourceViewSet.as_view()),
     # floating
     url(r'^mediasource/floating/(?P<id>[0-9a-zA-Z]+)',
         sourceviews.FloatingMediaSourceViewSet.as_view()),
@@ -61,8 +59,8 @@ urlpatterns = [
         sourceviews.MediaAggregatePlayingViewSet.as_view()),
     url(r'^playing/oohmediasource/$',
         sourceviews.OOHSourcePlayingViewSet.as_view()),
-    url(r'^playing/cloudmediasource/$',
-        sourceviews.CloudSourcePlayingViewSet.as_view()),
+    url(r'^playing/onlinemediasource/$',
+        sourceviews.OnlineSourcePlayingViewSet.as_view()),
     # Campaign
     url(r'^campaign/_index/$',
         views.CampaignIndexingViewSet.as_view()),

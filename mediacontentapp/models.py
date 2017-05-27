@@ -443,25 +443,25 @@ class FloatingMediaSource(MediaSource):
         return "/mediasource/floating/%i/" % self.id
 
 
-class CloudMediaSource(MediaSource):
+class OnlineMediaSource(MediaSource):
     """
-    Cloud media source represents a virtual source that can be
+    Online media source represents a virtual source that can be
     specified with a floating range of coverage.
     Cloud media source have multiple locations to deliver ads in, 
     all simultaneously.
     For example, online ,  etc.
     """
-    type = 'cloud'
+    type = 'online'
     home_url = StringField(required=True)
     verification_url = StringField(required=True)
     category = StringField(required=True)
-    # Average visitors
-    visitors = IntegerField(required=False)
-    # Priority
-    priority = FloatField(required=False)
+
+    # geo-fences
+    fence = GeoPointField(required=True)
+    radius = IntegerField(default=100)
 
     def get_absolute_url(self):
-        return "/mediasource/cloud/%i/" % self.id
+        return "/mediasource/online/%i/" % self.id
 
 
 class DigitalMediaSource(MediaSource):

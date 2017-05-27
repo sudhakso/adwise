@@ -17,7 +17,7 @@ from mediacontentapp.models import Campaign, Playing
 from mediacontentapp.serializers import PlayingSerializer
 
 
-class CloudMediaController():
+class OnlineMediaController():
 
     ADD_MEDIA_CONTENT = 'addcontent'
 
@@ -30,9 +30,9 @@ class CloudMediaController():
     def handle_update(self, inst, *args, **kwargs):
         pass
 
-    def handle_operations(self, cloud, action, action_args, action_data):
+    def handle_operations(self, online, action, action_args, action_data):
         # action= add media etc., action_args= content-id, action_data= {}
-        print 'CloudMediaController: Performing action %s' % action
+        print 'OnlineMediaController: Performing action %s' % action
 
         if action == self.ADD_MEDIA_CONTENT:
             # Add media content to OOH Media source object
@@ -43,7 +43,7 @@ class CloudMediaController():
                                     status=HTTP_400_BAD_REQUEST)
             # get the campaign
             campaign = Campaign.objects.get(id=campid)
-            _nv = {'source_type': 'cloudmediasource',
+            _nv = {'source_type': 'online',
                    'start_date': action_data['start_date'],
                    'end_date': action_data['end_date']}
             _playing_data = json.loads(
@@ -51,7 +51,7 @@ class CloudMediaController():
             playing = PlayingSerializer(data=_playing_data)
             if playing.is_valid(raise_exception=True):
                 play = playing.save()
-                play.update(primary_media_source=cloud,
+                play.update(primary_media_source=online,
                             playing_content=campaign)
                 return JSONResponse(playing.validated_data,
                                     status=HTTP_200_OK)
