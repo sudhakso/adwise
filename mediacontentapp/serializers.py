@@ -9,7 +9,6 @@ from mediacontentapp.models import AdExtension,\
 from rest_framework_mongoengine import serializers
 from rest_framework.serializers import ListSerializer
 
-
 class CampaignSpecSerializer(serializers.DocumentSerializer):
     class Meta:
         model = CampaignSpec
@@ -320,7 +319,7 @@ class PeriodSerializer(serializers.DocumentSerializer):
 class PlayingSerializer(serializers.DocumentSerializer):
 
     playing_content = CampaignSerializer(required=False, read_only=True)
-    # primary_media_source = DigitalMediaSourceSerializer(required=False, read_only=True)
+    #primary_media_source = DigitalMediaSourceSerializer(required=False, read_only=True)
 
     class Meta:
         model = Playing
