@@ -414,7 +414,8 @@ class MediaAggregatePlayingViewSet(APIView):
                 else:
                     plays = Playing.objects.filter(
                                     primary_media_source=maobj.inhouse_source,
-                                    end_date__gte=datetime.now)
+                                    end_date__gte=datetime.now,
+                                    pause_playing=False)
                 serializer = PlayingSerializer(plays, many=True)
                 return JSONResponse(serializer.data, status=HTTP_200_OK)
             else:
@@ -449,7 +450,8 @@ class OOHSourcePlayingViewSet(APIView):
                 ooh = OOHMediaSource.objects.get(id=params['id'])
                 plays = Playing.objects.filter(
                                 primary_media_source=ooh,
-                                end_date__gte=datetime.now)
+                                end_date__gte=datetime.now,
+                                pause_playing=False)
                 serializer = PlayingSerializer(plays, many=True)
                 return JSONResponse(serializer.data, status=HTTP_200_OK)
             else:

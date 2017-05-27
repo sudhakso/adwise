@@ -246,7 +246,8 @@ class CampaignOOHSourceSQLTask(Task):
             # Collect the campaigns playing in OOH source
             plays = Playing.objects.filter(
                             primary_media_source__in=set(oohs),
-                            end_date__gte=datetime.datetime.now())
+                            end_date__gte=datetime.datetime.now(),
+                            pause_playing=False)
             print 'Search returned following plays %d ...' % len(plays)
             camps = [play.playing_content for play in plays]
             end = datetime.datetime.now()
@@ -306,7 +307,8 @@ class CampaignSQLTask(Task):
                 mediasources.append(oohs)
             plays = Playing.objects.filter(
                             primary_media_source__in=set(mediasources),
-                            end_date__gte=datetime.datetime.now())
+                            end_date__gte=datetime.datetime.now(),
+                            pause_playing=False)
             print 'Search returned following plays %d ...' % len(plays)
             camps = [play.playing_content for play in plays]
             end = datetime.datetime.now()

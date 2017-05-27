@@ -553,6 +553,8 @@ class Playing(Document):
     # official start-end date
     start_date = DateTimeField(default=datetime.now())
     end_date = DateTimeField()
+    # forceful setting of the play flag
+    pause_playing = BooleanField(default=False)
     # book-keeping entries
     creation_date = DateTimeField(default=datetime.now())
     deletion_date = DateTimeField()

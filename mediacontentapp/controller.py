@@ -10,11 +10,11 @@ from mediacontentapp import Config
 from mediacontentapp.models import OOHMediaSource
 from mongoengine.fields import GeoPointField
 from pyes import ES
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK,\
+    HTTP_304_NOT_MODIFIED
 from userapp.JSONFormatter import JSONResponse
-from mediacontentapp.models import Campaign
+from mediacontentapp.models import Campaign, Playing
 from mediacontentapp.serializers import PlayingSerializer
-from datetime import date, datetime
 
 
 class CloudMediaController():
@@ -63,6 +63,8 @@ class CloudMediaController():
 class OOHMediaController():
 
     ADD_MEDIA_CONTENT = 'addcontent'
+    PAUSE_MEDIA_CONTENT = 'pausecontent'
+    RESUME_MEDIA_CONTENT = 'resumecontent'
 
     def __init__(self):
         self.playing_template = Template(
@@ -100,6 +102,42 @@ class OOHMediaController():
                             playing_content=campaign)
                 return JSONResponse(playing.validated_data,
                                     status=HTTP_200_OK)
+        elif action == self.PAUSE_MEDIA_CONTENT:
+            # Add media content to MediaAggregate object
+            campid = action_args['id'] if 'id' in action_args else None
+            if campid is None:
+                return JSONResponse('content id cannot be None for action type'
+                                    ' %s' % self.PAUSE_MEDIA_CONTENT,
+                                    status=HTTP_400_BAD_REQUEST)
+            # get the campaign
+            campaign = Campaign.objects.get(id=campid)
+            play = Playing.objects.get(primary_media_source=ooh,
+                                       playing_content=campaign)
+            # Valid playing object
+            if play.pause_playing is False:
+                play.update(pause_playing=True)
+                play.save()
+
+            return JSONResponse("Campaign paused momentarily",
+                                status=HTTP_200_OK)
+        elif action == self.RESUME_MEDIA_CONTENT:
+            # Add media content to MediaAggregate object
+            campid = action_args['id'] if 'id' in action_args else None
+            if campid is None:
+                return JSONResponse('content id cannot be None for action type'
+                                    ' %s' % self.RESUME_MEDIA_CONTENT,
+                                    status=HTTP_400_BAD_REQUEST)
+            # get the campaign
+            campaign = Campaign.objects.get(id=campid)
+            play = Playing.objects.get(primary_media_source=ooh,
+                                       playing_content=campaign)
+            # Valid playing object
+            if play.pause_playing is True:
+                play.update(pause_playing=False)
+                play.save()
+
+            return JSONResponse("Campaign resumed",
+                                status=HTTP_200_OK)
         else:
             # Unknown operation
             pass
@@ -109,6 +147,8 @@ class MediaAggregateController():
 
     ADD_MEDIA = 'addmedia'
     ADD_MEDIA_CONTENT = 'addcontent'
+    PAUSE_MEDIA_CONTENT = 'pausecontent'
+    RESUME_MEDIA_CONTENT = 'resumecontent'
     ADD_SERVICE = 'addservice'
 
     def __init__(self):
@@ -150,6 +190,39 @@ class MediaAggregateController():
                             playing_content=campaign)
                 return JSONResponse(playing.validated_data,
                                     status=HTTP_200_OK)
+        elif action == self.PAUSE_MEDIA_CONTENT:
+            # Add media content to MediaAggregate object
+            campid = action_args['id'] if 'id' in action_args else None
+            if campid is None:
+                return JSONResponse('content id cannot be None for action type'
+                                    ' %s' % self.PAUSE_MEDIA_CONTENT,
+                                    status=HTTP_400_BAD_REQUEST)
+            # get the campaign
+            campaign = Campaign.objects.get(id=campid)
+            play = Playing.objects.get(primary_media_source=amenity.inhouse_source,
+                                       playing_content=campaign)
+            if play.pause_playing is False:
+                play.pause_playing = True
+                play.save()
+
+            return JSONResponse("Campaign paused momentarily",
+                                status=HTTP_200_OK)
+        elif action == self.RESUME_MEDIA_CONTENT:
+            # Add media content to MediaAggregate object
+            campid = action_args['id'] if 'id' in action_args else None
+            if campid is None:
+                return JSONResponse('content id cannot be None for action type'
+                                    ' %s' % self.RESUME_MEDIA_CONTENT,
+                                    status=HTTP_400_BAD_REQUEST)
+            # get the campaign
+            campaign = Campaign.objects.get(id=campid)
+            play = Playing.objects.get(primary_media_source=amenity.inhouse_source,
+                                       playing_content=campaign)
+            if play.pause_playing is True:
+                play.pause_playing = False
+                play.save()
+            return JSONResponse("Campaign resumed",
+                                status=HTTP_200_OK)
         elif action == self.ADD_SERVICE:
             # Fill directory service in MediaAggregate object
             pass

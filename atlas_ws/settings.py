@@ -98,13 +98,13 @@ DATABASES = {
    'default' : {
       'ENGINE' : 'django_mongodb_engine',
       'NAME' : 'my_database',
-      'HOST': '192.168.71.133',
+      'HOST': '192.168.71.137',
       'USER': 'serviceuser',
       'PASSWORD': 'adwise123'
    }
 }
 
-connection.connect(_MONGODB_NAME, host='192.168.71.133',
+connection.connect(_MONGODB_NAME, host='192.168.71.137',
                    username='serviceuser',
                    password='adwise123')
 

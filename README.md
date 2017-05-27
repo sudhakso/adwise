@@ -216,6 +216,10 @@ The query format is,
 
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/playing/oohmediasource/?"id=58c4f5931d41c828ff8bc6dc"
 
+# API to pause and resume content
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{}' "http://127.0.0.1:8000/mediacontent/mediasource/ooh/5928f7ca1d41c885656a92f2/?action=pausecontent&id=57c0621e1d41c83e549e8ae0"
+
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{}' "http://127.0.0.1:8000/mediacontent/mediasource/ooh/5928f7ca1d41c885656a92f2/?action=resumecontent&id=57c0621e1d41c83e549e8ae0"
 
 ##### API to attach a Campaign to MediaAggregate
 # API to attach a campaign to a MediaAggregate
@@ -229,6 +233,18 @@ curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" 
 
 The query format is,
 /mediacontent/playing/mediaagregate/?id=$aggregate_id
+
+# Pause a campaing
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{}' "http://127.0.0.1:8000/mediacontent/mediaaggregates/5928f5b11d41c883096fde9b/?action=pausecontent&id=57c0621e1d41c83e549e8ae0"
+
+The query format is,
+/mediacontent/mediaaggregates/$aggregate_id/?action=pausecontent&id=$campaign_id"
+
+# Resume a campaing
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{}' "http://127.0.0.1:8000/mediacontent/mediaaggregates/5928f5b11d41c883096fde9b/?action=resumecontent&id=57c0621e1d41c83e549e8ae0"
+
+The query format is,
+/mediacontent/mediaaggregates/$aggregate_id/?action=resumecontent&id=$campaign_id"
 
 
 # API to query all campaigns (inlcuding expired ones) attached to a MediaAggregate
