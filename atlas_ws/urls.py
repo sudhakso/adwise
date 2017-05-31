@@ -11,8 +11,6 @@ urlpatterns = [
     url(r'^users/', include('userapp.urls')),
     # User
     url(r'^research/', include('mediaresearchapp.urls')),
-    # ETL
-    url(r'^etl/', include('mediaetlapp.urls')),
     # Modeller
     url(r'^modeller/', include('modeller.urls')),
     # Documentation engine

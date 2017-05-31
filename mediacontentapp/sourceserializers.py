@@ -3,7 +3,7 @@ from rest_framework_mongoengine import serializers
 from userapp.serializers import UserSerializer
 from mediacontentapp.models import *
 from datetime import timedelta
-from mediacontentapp.controller import ActivityManager
+from mediacontentapp import ActivityManager
 
 
 class MediaDashboardSerializer(serializers.DocumentSerializer):
@@ -636,6 +636,56 @@ class FloatingMediaSourceSerializer(serializers.DocumentSerializer):
 
     class Meta:
         model = FloatingMediaSource
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class SensorSerializer(serializers.DocumentSerializer):
+
+    class Meta:
+        model = Sensor
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class BeaconSerializer(serializers.DocumentSerializer):
+
+    class Meta:
+        model = Beacon
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class WiFiSerializer(serializers.DocumentSerializer):
+
+    class Meta:
+        model = WiFi
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class VenueSerializer(serializers.DocumentSerializer):
+
+    source = MediaSourceSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = Venue
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

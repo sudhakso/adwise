@@ -417,10 +417,24 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 
 ### Online media source
 # Create online source
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{ "name" : "superbeing-test", "type" : "online", "display_name": "superbeing-test", "caption": "Wellness", "tags": "wellness", "home_url":"http://superbeing.in", "verification_url":"http://superbeing.in",  "category": "wellness", "fence": [], "radius": 100 }' http://127.0.0.1:8000/mediacontent/mediasource/online/
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{ "name" : "superbeing-test", "type" : "online", "display_name": "superbeing-test", "caption": "Wellness", "tags": "wellness", "home_url":"http://superbeing.in", "verification_url":"http://superbeing.in",  "category": "wellness", "fence": [12.99, 77.89], "radius": 100 }' http://127.0.0.1:8000/mediacontent/mediasource/online/
 
 # Query campaigns running in the cloud source.
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/playing/cloudmediasource/?"id=590593e51d41c8402383a716"
+
+### Physical web objects
+# creating venue
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"venue_name": "somename", "venue_address": "someaddr", "venue_meta": {}}' http://127.0.0.1:8000/mediacontent/mediasource/venue/
+
+# attach an existing sensor to venue
+curl POST -d { "sensor_data": {"id": "747474747", "type": "beacon", "range": "10", "location": [19.0, 20.0], "name":"gp10", "major":"2", "minor":"3", "beacon_type":"ibeacon", "max_tx_power":"63", "broadcast_url":"http://series-5.com"}},"sensor_type": "Beacon" } http://127.0.0.1:8000/mediacontent/mediasource/venue/$id/?action=attach
+
+# attach a venue to the OOHMediaSource
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{}' "http://127.0.0.1:8000/mediacontent/mediasource/ooh/57d844351d41c87ef6affad9/?action=addvenue&id=592ec9ca1d41c87120963ed2"
+
+# attach a venue to the MediaAggregate
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{}' "http://127.0.0.1:8000/mediacontent/mediaaggregates/57d844351d41c87ef6affad9/?action=addvenue&id=592ec9ca1d41c87120963ed2"
+
 
 ### Tools
 # Tool for creating campaign
@@ -430,6 +444,14 @@ python ./ad_import.py tabseparated_ad.data http://127.0.0.1:8000 /home/sonu/adim
 
 
 ### Wishlists
+
+
+# add venue to the mall, ooh etc.
+
+# Attach a content to venue (plays the content when a sensor is detected)
+
+
+
 
 # API to attach a campaign to a OOHMediaSource
 POST http://localhost:8000/mediacontent/oohmediasource/<$source_id>/?action=addcontent&id=<$id> -d {}

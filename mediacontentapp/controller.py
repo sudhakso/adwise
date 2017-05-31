@@ -10,11 +10,61 @@ from mediacontentapp import Config
 from mediacontentapp.models import OOHMediaSource
 from mongoengine.fields import GeoPointField
 from pyes import ES
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK,\
-    HTTP_304_NOT_MODIFIED
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
 from userapp.JSONFormatter import JSONResponse
-from mediacontentapp.models import Campaign, Playing
+from mediacontentapp.models import Campaign, Playing, Venue
 from mediacontentapp.serializers import PlayingSerializer
+from mediacontentapp.sourceserializers import SensorSerializer, BeaconSerializer,\
+    WiFiSerializer
+
+
+class VenueController():
+
+    # Use case where you would import all sensors from
+    # partner portal. e.g GET nikaasa.com/sensors
+    ATTACH_SENSOR = 'attach'
+    ACTIVATE_SENSOR = 'activate'
+    DEACTIVATE_SENSOR = 'deactivate'
+
+    def __init__(self):
+        pass
+
+    def handle_update(self, inst, *args, **kwargs):
+        pass
+
+    def handle_operations(self, venue, action, action_args, action_data):
+        # action= add media etc., action_args= content-id, action_data= {}
+        print 'VenueController: Performing action %s' % action
+
+        if action == self.ATTACH_SENSOR:
+            # Add a sensor to the Venue object
+            sensortype = action_data['sensor_type'] if 'sensor_type' in action_data else None
+            sensordata = action_data['sensor_data'] if 'sensor_data' in action_data else None
+            if sensortype is None or sensordata is None:
+                return JSONResponse('sensor type and data cannot be None for action type'
+                                    ' %s' % self.ATTACH_SENSOR,
+                                    status=HTTP_400_BAD_REQUEST)
+            # prepare the sensor based on type
+            if sensortype.lower() == 'beacon':
+                ser = BeaconSerializer(data=sensordata)
+            elif sensortype.lower() == 'wifi':
+                ser = WiFiSerializer(data=sensordata)
+            else:
+                return JSONResponse("Unknown sensor type. wifi and beacon are supported.",
+                                    status=HTTP_400_BAD_REQUEST)
+            # Save the venue
+            if ser.is_valid(raise_exception=True):
+                sensor = ser.save()
+                venue.sensors.append(sensor)
+                venue.save()
+            return JSONResponse("Sensor added",
+                                status=HTTP_200_OK)
+        elif action == self.ACTIVATE_SENSOR:
+            pass
+        elif action == self.DEACTIVATE_SENSOR:
+            pass
+        else:
+            pass
 
 
 class OnlineMediaController():
@@ -62,6 +112,7 @@ class OnlineMediaController():
 
 class OOHMediaController():
 
+    ADD_VENUE = 'addvenue'
     ADD_MEDIA_CONTENT = 'addcontent'
     PAUSE_MEDIA_CONTENT = 'pausecontent'
     RESUME_MEDIA_CONTENT = 'resumecontent'
@@ -138,6 +189,20 @@ class OOHMediaController():
 
             return JSONResponse("Campaign resumed",
                                 status=HTTP_200_OK)
+        elif action == self.ADD_VENUE:
+            # Add venue to OOH Media source object
+            # Venue has sensors that can detect users
+            venueid = action_args['id'] if 'id' in action_args else None
+            if venueid is None:
+                return JSONResponse('venue id cannot be None for action type'
+                                    ' %s' % self.ADD_VENUE,
+                                    status=HTTP_400_BAD_REQUEST)
+            # get the venue and update
+            venue = Venue.objects.get(id=venueid)
+            venue.source = ooh
+            venue.save()
+            return JSONResponse("venue updated with source information",
+                                status=HTTP_200_OK)
         else:
             # Unknown operation
             pass
@@ -145,6 +210,7 @@ class OOHMediaController():
 
 class MediaAggregateController():
 
+    ADD_VENUE = 'addvenue'
     ADD_MEDIA = 'addmedia'
     ADD_MEDIA_CONTENT = 'addcontent'
     PAUSE_MEDIA_CONTENT = 'pausecontent'
@@ -222,6 +288,20 @@ class MediaAggregateController():
                 play.pause_playing = False
                 play.save()
             return JSONResponse("Campaign resumed",
+                                status=HTTP_200_OK)
+        elif action == self.ADD_VENUE:
+            # Add venue to a media source object
+            # Venue has sensors that can detect users
+            venueid = action_args['id'] if 'id' in action_args else None
+            if venueid is None:
+                return JSONResponse('venue id cannot be None for action type'
+                                    ' %s' % self.ADD_VENUE,
+                                    status=HTTP_400_BAD_REQUEST)
+            # get the venue and update
+            venue = Venue.objects.get(id=venueid)
+            venue.source = amenity.inhouse_source
+            venue.save()
+            return JSONResponse("venue updated with source information",
                                 status=HTTP_200_OK)
         elif action == self.ADD_SERVICE:
             # Fill directory service in MediaAggregate object
@@ -340,22 +420,6 @@ class DashboardController():
             return "PARTNER"
         else:
             return "UNKNOWN"
-
-
-class ActivityManager():
-
-    @staticmethod
-    def get_activity_id(activity_name):
-        activities = dict(share=1,
-                          like=2,
-                          dislike=3,
-                          quote=4,
-                          view=5)
-
-        if activity_name in activities:
-            return activities[activity_name]
-        else:
-            return -1
 
 
 class TagManager():

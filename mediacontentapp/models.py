@@ -3,8 +3,6 @@ from mongoengine.fields import GeoPointField, DictField, ListField,\
     ReferenceField, ImageField
 # from django_mongodb_engine.fields import GridFSField
 from mongoengine.document import Document
-from mongoengine import connect
-from atlas_ws.settings import _MONGODB_NAME
 from rest_framework import fields
 from rest_framework.fields import IntegerField
 from datetime import datetime
@@ -1342,4 +1340,83 @@ class JpegImageContent(Document):
 
     def get_absolute_url(self):
         return "/mediacontent/images/%s/" % (
+                                self.id)
+
+
+class Venue(Document):
+    """
+    A venue that is relevant to a visitor.
+    For example, a retail outlet can have multiple
+    venues.
+
+    Typically a venue represents an information
+    source. A visitor can extract some information
+    being near to the venue.
+
+    A visitor can be in vicitnity of many venues at
+    any given point in time.
+
+    Venue forms the grouping of sensors.
+    Venue forms the object for reporting.
+    """
+    # Which source
+    source = ReferenceField('MediaSource', required=False)
+    # venue properties
+    venue_name = StringField()
+    venue_address = StringField()
+    venue_meta = DictField(default={}, required=False)
+    # created
+    created_time = DateTimeField(default=datetime.now(), required=False)
+
+    sensors = ListField(ReferenceField('Sensor'))
+
+    def get_absolute_url(self):
+        return "/mediacontent/venue/%s/" % (
+                                self.id)
+
+
+class Sensor(Document):
+    beacon_uuid = StringField(required=True)
+    # beacon, wifi, gps etc.
+    type = StringField(required=True)
+    range = FloatField(default=10.0)
+
+    # Every sensor can be associated with
+    # an optional [lat,lng] fields.
+    location = GeoPointField(required=False)
+
+    meta = {'allow_inheritance': True}
+
+    class Meta:
+        abstract = True
+
+
+    def get_absolute_url(self):
+        return "/mediacontent/sensor/%s/" % (
+                                self.id)
+
+
+class Beacon(Sensor):
+    name = StringField()
+    major = IntegerField(default=0)
+    minor = IntegerField(default=0)
+    beacon_type = StringField(default='iBeacon')
+
+    max_tx_power = FloatField(required=True)
+
+    # content
+    broadcast_url = StringField(default="http://www.series-5.com/research")
+
+    def get_absolute_url(self):
+        return "/mediacontent/beacon/%s/" % (
+                                self.id)
+
+
+class WiFi(Sensor):
+    name = StringField()
+    hw_addr = StringField()
+    max_tx_power = FloatField()
+
+    def get_absolute_url(self):
+        return "/mediacontent/wifi/%s/" % (
                                 self.id)

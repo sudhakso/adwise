@@ -21,8 +21,10 @@ from datetime import datetime
 from userapp.models import MediaUser
 from templates import DigitalMediaSourceTemplate
 
-from controller import ActivityManager, TagManager, MediaAggregateController,\
-  OOHMediaController, OnlineMediaController
+from mediacontentapp.ActivityManager import ActivityManager
+
+from controller import TagManager, MediaAggregateController,\
+  OOHMediaController, OnlineMediaController, VenueController
 from typemanager import MediaTypeManager
 from mediacontentapp.etltasks import ExtractNearByAmenitiesTask,\
     AddAmenitiesToBillboardTask
@@ -40,6 +42,7 @@ category_types = MediaTypeManager()
 amentiycontroller = MediaAggregateController()
 oohmediacontroller = OOHMediaController()
 onlinemediacontroller = OnlineMediaController()
+venuecontroller = VenueController()
 
 
 class PlayingViewSet(APIView):
@@ -1632,3 +1635,77 @@ class FloatingMediaSourceViewSet(APIView):
 
     def delete(self, request, *args, **kwargs):
         pass
+
+
+class VenueViewSet(APIView):
+    """ Venue views """
+
+    def get(self, request, id=None):
+
+        """ Returns venue by id.
+         ---
+         response_serializer: VenueSerializer
+        """
+        try:
+            auth_user = auth_manager.do_auth(request)
+            if id is not None:
+                many = False
+                venue = Venue.objects.get(id=id)
+            else:
+                many = True
+                venue = Venue.objects.all()
+            # Serialize
+            serializer = VenueSerializer(venue, many=many)
+            return JSONResponse(serializer.data)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def post(self, request, id=None):
+
+        """ Registers a Venue
+         ---
+         request_serializer: VenueSerializer
+         response_serializer: VenueSerializer
+        """
+        try:
+            venue = None
+            # Authenticate the user
+            auth_user = auth_manager.do_auth(request)
+            # Handle actions and updates
+            if id is not None:
+                # Updates an Venue
+                venue = Venue.objects.get(id=id)
+                do_action = True if 'action' in request.query_params\
+                    else False
+                if do_action:
+                    action = request.query_params['action']
+                    return venuecontroller.handle_operations(
+                                                    venue,
+                                                    action,
+                                                    request.query_params,
+                                                    request.data)
+            # Create a new venue instance
+            serializer = VenueSerializer(
+                                data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                venue = serializer.save()
+                return JSONResponse(serializer.data,
+                                    status=HTTP_201_CREATED)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)

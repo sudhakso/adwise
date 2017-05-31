@@ -46,11 +46,6 @@ urlpatterns = [
     # cloud
     url(r'^mediasource/online/(?P<id>[0-9a-zA-Z]+)',
         sourceviews.OnlineMediaSourceViewSet.as_view()),
-    # floating
-    url(r'^mediasource/floating/(?P<id>[0-9a-zA-Z]+)',
-        sourceviews.FloatingMediaSourceViewSet.as_view()),
-    url(r'^mediasource/floating/',
-        sourceviews.FloatingMediaSourceViewSet.as_view()),
     # Nearby
     url(r'^mediasource/nearby/ooh/(?P<id>[0-9a-zA-Z]+)',
         sourceviews.OOHNearByViewSet.as_view()),
@@ -87,4 +82,9 @@ urlpatterns = [
         views.ImageAdViewSet.as_view()),
     url(r'^ads/textads/', views.TextAdViewSet.as_view()),
     url(r'^ads/callads/', views.CallOnlyAdViewSet.as_view()),
+    # Venues
+    url(r'^mediasource/venue/(?P<id>[0-9a-zA-Z]+)',
+        sourceviews.VenueViewSet.as_view()),
+    url(r'^mediasource/venue/',
+        sourceviews.VenueViewSet.as_view()),
 ]
