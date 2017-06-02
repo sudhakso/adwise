@@ -510,6 +510,81 @@ class OnlineSourcePlayingViewSet(APIView):
                                 status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class SensorPlayingViewSet(APIView):
+
+    def get(self, request):
+
+        """ Returns playing relation
+         ---
+         response_serializer: PlayingSerializer
+        """
+        try:
+            many = True
+            auth_manager.do_auth(request)
+            params = request.query_params
+            if 'id' in params:
+                sensor = Sensor.objects.get(beacon_uuid=params['id'])
+                plays = Playing.objects.filter(
+                                        primary_media_source=sensor,
+                                        end_date__gte=datetime.now)
+                serializer = PlayingSerializer(plays, many=True)
+                return JSONResponse(serializer.data, status=HTTP_200_OK)
+            else:
+                return JSONResponse('Id cannot be none',
+                                    status=HTTP_400_BAD_REQUEST)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class VenuePlayingViewSet(APIView):
+
+    def get(self, request):
+
+        """ Returns playing relation
+         ---
+         response_serializer: PlayingSerializer
+        """
+        try:
+            many = True
+            auth_manager.do_auth(request)
+            params = request.query_params
+            if 'id' in params:
+                venue = Venue.objects.get(id=params['id'])
+                if venue.sensors:
+                    plays = Playing.objects.filter(
+                                primary_media_source__in=set(venue.sensors),
+                                end_date__gte=datetime.now)
+                    serializer = PlayingSerializer(plays, many=True)
+                    return JSONResponse(serializer.data, status=HTTP_200_OK)
+                else:
+                    return JSONResponse("Empty venue", status=HTTP_204_NO_CONTENT)
+            else:
+                return JSONResponse('Id cannot be none',
+                                    status=HTTP_400_BAD_REQUEST)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class MediaAggregateTypeViewSet(APIView):
     """ Media aggregator types """
 

@@ -56,6 +56,10 @@ urlpatterns = [
         sourceviews.OOHSourcePlayingViewSet.as_view()),
     url(r'^playing/onlinemediasource/$',
         sourceviews.OnlineSourcePlayingViewSet.as_view()),
+    url(r'^playing/venue/$',
+        sourceviews.VenuePlayingViewSet.as_view()),
+    url(r'^playing/sensor/$',
+        sourceviews.SensorPlayingViewSet.as_view()),
     # Campaign
     url(r'^campaign/_index/$',
         views.CampaignIndexingViewSet.as_view()),

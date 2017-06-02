@@ -427,13 +427,19 @@ curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" 
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"venue_name": "somename", "venue_address": "someaddr", "venue_meta": {}}' http://127.0.0.1:8000/mediacontent/mediasource/venue/
 
 # attach an existing sensor to venue
-curl POST -d { "sensor_data": {"id": "747474747", "type": "beacon", "range": "10", "location": [19.0, 20.0], "name":"gp10", "major":"2", "minor":"3", "beacon_type":"ibeacon", "max_tx_power":"63", "broadcast_url":"http://series-5.com"}},"sensor_type": "Beacon" } http://127.0.0.1:8000/mediacontent/mediasource/venue/$id/?action=attach
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"sensor_data": {"name":"simplename", "display_name":"simplename", "caption":"simplename", "beacon_uuid": "06091979", "type": "beacon", "range": "10", "location": [19.0, 20.0], "name":"gp11", "major":"2", "minor":"3", "beacon_type":"ibeacon", "max_tx_power":"63", "broadcast_url":"http://series-5.com"},"sensor_type": "Beacon"}' http://127.0.0.1:8000/mediacontent/mediasource/venue/592ef0db1d41c879e15a5ad4/?action=attach
 
 # attach a venue to the OOHMediaSource
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{}' "http://127.0.0.1:8000/mediacontent/mediasource/ooh/57d844351d41c87ef6affad9/?action=addvenue&id=592ec9ca1d41c87120963ed2"
 
 # attach a venue to the MediaAggregate
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{}' "http://127.0.0.1:8000/mediacontent/mediaaggregates/57d844351d41c87ef6affad9/?action=addvenue&id=592ec9ca1d41c87120963ed2"
+
+# attach a campaign to the venue
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"start_date" : "2016-02-25T18:37:21.766000","end_date" :"2016-02-25T18:37:21.766000"}' "http://127.0.0.1:8000/mediacontent/mediasource/venue/592ec9ca1d41c87120963ed2/?action=addcontent&id=57c062231d41c83e549e8af9"
+
+# API to query playing campaign on a venue
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/playing/venue/?"id=5931a53a1d41c81914155a2a"
 
 
 ### Tools

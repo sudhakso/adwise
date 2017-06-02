@@ -646,6 +646,11 @@ class FloatingMediaSourceSerializer(serializers.DocumentSerializer):
 
 class SensorSerializer(serializers.DocumentSerializer):
 
+    # Owner details
+    verified_by = UserSerializer(required=False, read_only=True)
+    owner = UserSerializer(required=False, read_only=True)
+    operated_by = UserSerializer(required=False, read_only=True)
+
     class Meta:
         model = Sensor
 
@@ -658,6 +663,11 @@ class SensorSerializer(serializers.DocumentSerializer):
 
 class BeaconSerializer(serializers.DocumentSerializer):
 
+    # Owner details
+    verified_by = UserSerializer(required=False, read_only=True)
+    owner = UserSerializer(required=False, read_only=True)
+    operated_by = UserSerializer(required=False, read_only=True)
+
     class Meta:
         model = Beacon
 
@@ -669,6 +679,11 @@ class BeaconSerializer(serializers.DocumentSerializer):
 
 
 class WiFiSerializer(serializers.DocumentSerializer):
+
+    # Owner details
+    verified_by = UserSerializer(required=False, read_only=True)
+    owner = UserSerializer(required=False, read_only=True)
+    operated_by = UserSerializer(required=False, read_only=True)
 
     class Meta:
         model = WiFi

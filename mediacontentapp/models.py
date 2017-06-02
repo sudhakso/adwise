@@ -292,10 +292,10 @@ class MediaSource(Document):
     # Basic properties
     name = StringField()
     display_name = StringField()
-    caption = StringField()
+    caption = StringField(required=False)
     type = StringField()
     # tag data
-    tags = StringField()
+    tags = StringField(required=False)
     # Can display
     enabled = BooleanField(default=True, required=False)
     # Verification,
@@ -305,8 +305,8 @@ class MediaSource(Document):
     owner = ReferenceField('MediaUser', required=False)
     # Creation attributes
     operated_by = ReferenceField('MediaUser', required=False)
-    created_time = DateTimeField()
-    updated_time = DateTimeField()
+    created_time = DateTimeField(default=datetime.now())
+    updated_time = DateTimeField(required=False)
     # Subscription details
 #     subscription = ReferenceField('Subscription', required=False)
 
@@ -546,7 +546,7 @@ class Playing(Document):
     # for e.g. Mall's default source
     primary_media_source = ReferenceField('MediaSource', required=False)
     playing_content = ReferenceField('Campaign', required=False)
-    # for e.g. VOD, OOH etc.
+    # for e.g. VOD, OOH, Sensor etc.
     source_type = StringField()
     # official start-end date
     start_date = DateTimeField(default=datetime.now())
@@ -1375,7 +1375,7 @@ class Venue(Document):
                                 self.id)
 
 
-class Sensor(Document):
+class Sensor(MediaSource):
     beacon_uuid = StringField(required=True)
     # beacon, wifi, gps etc.
     type = StringField(required=True)
@@ -1390,9 +1390,8 @@ class Sensor(Document):
     class Meta:
         abstract = True
 
-
     def get_absolute_url(self):
-        return "/mediacontent/sensor/%s/" % (
+        return "/mediasource/sensor/%s/" % (
                                 self.id)
 
 
@@ -1404,11 +1403,11 @@ class Beacon(Sensor):
 
     max_tx_power = FloatField(required=True)
 
-    # content
+    # optional content
     broadcast_url = StringField(default="http://www.series-5.com/research")
 
     def get_absolute_url(self):
-        return "/mediacontent/beacon/%s/" % (
+        return "/mediasource/beacon/%s/" % (
                                 self.id)
 
 
@@ -1418,5 +1417,5 @@ class WiFi(Sensor):
     max_tx_power = FloatField()
 
     def get_absolute_url(self):
-        return "/mediacontent/wifi/%s/" % (
+        return "/mediasource/wifi/%s/" % (
                                 self.id)

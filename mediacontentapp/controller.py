@@ -25,9 +25,15 @@ class VenueController():
     ATTACH_SENSOR = 'attach'
     ACTIVATE_SENSOR = 'activate'
     DEACTIVATE_SENSOR = 'deactivate'
+    ADD_MEDIA_CONTENT = 'addcontent'
+    PAUSE_MEDIA_CONTENT = 'pausecontent'
+    RESUME_MEDIA_CONTENT = 'resumecontent'
 
     def __init__(self):
-        pass
+        self.playing_template = Template(
+                               open('%s%s' % (settings.MEDIAAPP_DIR,
+                                    'templates/playing.j2'),
+                                    'r').read())
 
     def handle_update(self, inst, *args, **kwargs):
         pass
@@ -63,6 +69,65 @@ class VenueController():
             pass
         elif action == self.DEACTIVATE_SENSOR:
             pass
+        elif action == self.ADD_MEDIA_CONTENT:
+            # Add media content to the Venue object
+            # It adds the content to all the sensors attached to the venue.
+            campid = action_args['id'] if 'id' in action_args else None
+            if campid is None:
+                return JSONResponse('content id cannot be None for action type'
+                                    ' %s' % self.ADD_MEDIA_CONTENT,
+                                    status=HTTP_400_BAD_REQUEST)
+            # get the campaign
+            campaign = Campaign.objects.get(id=campid)
+            # Get the sensors attached to the venue object
+            for sensor in venue.sensors:
+                _nv = {'source_type': 'sensor',
+                       'start_date': action_data['start_date'],
+                       'end_date': action_data['end_date']}
+                _playing_data = json.loads(
+                                    str(self.playing_template.render(**_nv)))
+                playing = PlayingSerializer(data=_playing_data)
+                if playing.is_valid(raise_exception=True):
+                    play = playing.save()
+                    play.update(primary_media_source=sensor,
+                                playing_content=campaign)
+            return JSONResponse("Playing started",
+                                status=HTTP_200_OK)
+        elif action == self.PAUSE_MEDIA_CONTENT:
+            # Add media content to MediaAggregate object
+            campid = action_args['id'] if 'id' in action_args else None
+            if campid is None:
+                return JSONResponse('content id cannot be None for action type'
+                                    ' %s' % self.PAUSE_MEDIA_CONTENT,
+                                    status=HTTP_400_BAD_REQUEST)
+            # get the campaign
+            campaign = Campaign.objects.get(id=campid)
+            for sensor in venue.sensors:
+                play = Playing.objects.filter(primary_media_source=sensor,
+                                              playing_content=campaign)
+                if play.pause_playing is False:
+                    play.pause_playing = True
+                    play.save()
+
+            return JSONResponse("Campaigns paused momentarily",
+                                status=HTTP_200_OK)
+        elif action == self.RESUME_MEDIA_CONTENT:
+            # Add media content to MediaAggregate object
+            campid = action_args['id'] if 'id' in action_args else None
+            if campid is None:
+                return JSONResponse('content id cannot be None for action type'
+                                    ' %s' % self.RESUME_MEDIA_CONTENT,
+                                    status=HTTP_400_BAD_REQUEST)
+            # get the campaign
+            campaign = Campaign.objects.get(id=campid)
+            for sensor in venue.sensors:
+                play = Playing.objects.get(primary_media_source=sensor,
+                                           playing_content=campaign)
+                if play.pause_playing is True:
+                    play.pause_playing = False
+                    play.save()
+            return JSONResponse("Campaign resumed",
+                                status=HTTP_200_OK)
         else:
             pass
 
