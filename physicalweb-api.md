@@ -1,4 +1,9 @@
+# README #
+
+This README documents the concepts and API to interact with Physical Web objects.
+
 * Quick summary
+
 Sensors form the most basic element in the workd of PhysicalWeb. And using AdWise, user's can attach a pre-defined content to such Sensors.
 Adwise platform hosts these content and relays them to user's mobile application based on "Device enter" event received through the AdWise SDK.
 
@@ -30,5 +35,5 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 # API to query playing campaign on a venue
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/playing/venue/?"id=5931a53a1d41c81914155a2a"
 
-# API to query playing campaign on a venue
+# API to query playing campaign on a sensor
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/playing/sensor/?"id=06091980"
