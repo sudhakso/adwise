@@ -30,5 +30,5 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 # API to query playing campaign on a venue
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/playing/venue/?"id=5931a53a1d41c81914155a2a"
 
-
-
+# API to query playing campaign on a venue
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/playing/sensor/?"id=06091980"
