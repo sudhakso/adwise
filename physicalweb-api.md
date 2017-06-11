@@ -52,5 +52,5 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/mediasource/venue/$id/
 
 # Get venue applicable to a MediaAggregate
-curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET "http://127.0.0.1:8000/mediacontent/mediasource/venue/?action=filter_by_mediaagregate&id=57d844351d41c87ef6affad9/"
+ curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET "http://ec2-35-167-104-107.us-west-2.compute.amazonaws.com:8000/mediacontent/mediasource/venue/?action=filter_by_mediaaggregate&id=59343622981c926d5a284c61"
 
