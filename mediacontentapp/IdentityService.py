@@ -27,6 +27,10 @@ class IdentityDriver(object):
         pass
 
     @abstractmethod
+    def log_auth(self, request):
+        pass
+
+    @abstractmethod
     def do_create(self, request):
         pass
 
@@ -85,6 +89,25 @@ class NoopDriver(IdentityDriver):
         except DoesNotExist:
             raise UserNotFoundException("User does not exist.")
 
+    @abstractmethod
+    def log_auth(self, request):
+        from django.contrib.auth import login
+#         from mongoengine.django.auth import User
+        from mongoengine.queryset import DoesNotExist
+        from django.contrib import messages
+        # Get all Http headers
+        import re
+        regex = re.compile('^HTTP_')
+        head = dict((regex.sub('', header), value) for (header, value)
+                    in request.META.items() if header.startswith('HTTP_'))
+
+        if 'USERNAME' in head:
+            try:
+                user = User.objects.get(username=head['USERNAME'])
+                return user
+            except DoesNotExist:
+                return None
+
 
 class DriverFactory(object):
     @staticmethod
@@ -120,6 +143,10 @@ class IdentityManager(object):
 
     def _load_driver(self, typ):
         return DriverFactory.get_driver(typ)
+
+    def log_auth(self, request):
+        # Initiate an auth request to the driver
+        return self.driver.log_auth(request)
 
     def do_auth(self, request):
         # Initiate an auth request to the driver

@@ -1376,7 +1376,7 @@ class Venue(Document):
 
 
 class Sensor(MediaSource):
-    beacon_uuid = StringField(required=True)
+    uuid = StringField(required=True)
     # beacon, wifi, gps etc.
     type = StringField(required=True)
     range = FloatField(default=10.0)
@@ -1419,3 +1419,18 @@ class WiFi(Sensor):
     def get_absolute_url(self):
         return "/mediasource/wifi/%s/" % (
                                 self.id)
+
+
+class SensorActivity(Document):
+    """
+    Sensor Activity, enter, leave, block
+    """
+    interacting_user = ReferenceField('MediaUser', required=False)
+    sensor = ReferenceField('Sensor', required=False)
+    activity_time = DateTimeField(required=False)
+    # 1 -> enter
+    # 2 -> exit
+    # 3 -> optout
+    activity_type = FloatField(default=0.0, required=False)
+    # E.g. email:something, phone: some-number
+    activity_data = DictField(default="", required=False)

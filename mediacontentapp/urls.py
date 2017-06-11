@@ -87,8 +87,13 @@ urlpatterns = [
     url(r'^ads/textads/', views.TextAdViewSet.as_view()),
     url(r'^ads/callads/', views.CallOnlyAdViewSet.as_view()),
     # Venues
+    url(r'^mediasource/venue/(?P<id>[0-9a-zA-Z]+)/activity/$',
+        sourceviews.VenueActivityViewSet.as_view()),
     url(r'^mediasource/venue/(?P<id>[0-9a-zA-Z]+)',
         sourceviews.VenueViewSet.as_view()),
     url(r'^mediasource/venue/',
         sourceviews.VenueViewSet.as_view()),
+    # sensor activity
+    url(r'^mediasource/sensor/(?P<id>[0-9a-zA-Z]+)/activity/$',
+        sourceviews.SensorActivityViewSet.as_view()),
 ]

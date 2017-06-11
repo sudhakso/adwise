@@ -10,12 +10,13 @@ from mediacontentapp import Config
 from mediacontentapp.models import OOHMediaSource
 from mongoengine.fields import GeoPointField
 from pyes import ES
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK,\
+ HTTP_500_INTERNAL_SERVER_ERROR
 from userapp.JSONFormatter import JSONResponse
-from mediacontentapp.models import Campaign, Playing, Venue
+from mediacontentapp.models import Campaign, Playing, Venue, MediaAggregate
 from mediacontentapp.serializers import PlayingSerializer
 from mediacontentapp.sourceserializers import SensorSerializer, BeaconSerializer,\
-    WiFiSerializer
+    WiFiSerializer, VenueSerializer
 
 
 class VenueController():
@@ -28,6 +29,7 @@ class VenueController():
     ADD_MEDIA_CONTENT = 'addcontent'
     PAUSE_MEDIA_CONTENT = 'pausecontent'
     RESUME_MEDIA_CONTENT = 'resumecontent'
+    FILTER_BY_MEDIAAGGREGATE = "filter_by_mediaaggregate"
 
     def __init__(self):
         self.playing_template = Template(
@@ -127,6 +129,23 @@ class VenueController():
                     play.pause_playing = False
                     play.save()
             return JSONResponse("Campaign resumed",
+                                status=HTTP_200_OK)
+        elif action == self.FILTER_BY_MEDIAAGGREGATE:
+            maid = action_args['id'] if 'id' in action_args else None
+            if maid is None:
+                return JSONResponse('media aggregate id cannot be None for action type'
+                                    ' %s' % self.FILTER_BY_MEDIAAGGREGATE,
+                                    status=HTTP_400_BAD_REQUEST)
+            # get the MA
+            ma = MediaAggregate.objects.get(id=maid)
+            src = ma.inhouse_source
+            if src is None:
+                return JSONResponse('Mediaaggregate with source none, uncommon!'
+                                    ' %s' % self.FILTER_BY_MEDIAAGGREGATE,
+                                    status=HTTP_500_INTERNAL_SERVER_ERROR)
+            venues = Venue.objects.filter(source=src)
+            venser = VenueSerializer(venues, many=True)
+            return JSONResponse(venser.data,
                                 status=HTTP_200_OK)
         else:
             pass

@@ -1726,12 +1726,23 @@ class VenueViewSet(APIView):
             if id is not None:
                 many = False
                 venue = Venue.objects.get(id=id)
+                # Serialize
+                serializer = VenueSerializer(venue, many=many)
+                return JSONResponse(serializer.data)
             else:
-                many = True
-                venue = Venue.objects.all()
-            # Serialize
-            serializer = VenueSerializer(venue, many=many)
-            return JSONResponse(serializer.data)
+                # Check for filters
+                do_action = True if 'action' in request.query_params\
+                    else False
+                if do_action:
+                    action = request.query_params['action']
+                    return venuecontroller.handle_operations(
+                                                    None,
+                                                    action,
+                                                    request.query_params,
+                                                    request.data)
+                else:
+                    return JSONResponse("Id cannot be None",
+                                        status=HTTP_400_BAD_REQUEST)
         except DoesNotExist as e:
             print e
             return JSONResponse(str(e),
@@ -1770,6 +1781,106 @@ class VenueViewSet(APIView):
                                 data=request.data)
             if serializer.is_valid(raise_exception=True):
                 venue = serializer.save()
+                return JSONResponse(serializer.data,
+                                    status=HTTP_201_CREATED)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class VenueActivityViewSet(APIView):
+    """ Venue activity views """
+
+    def get(self, request, id):
+
+        """ Returns venue activity by its id.
+         ---
+         response_serializer: SensorActivitySerializer
+        """
+        try:
+            auth_user = auth_manager.do_auth(request)
+            venue = Venue.objects.get(id=id)
+            # Get all sensors
+            all_sensors = venue.sensors
+            actser = SensorActivitySerializer(
+                            SensorActivity.objects.filter(
+                                            sensor__in=set(all_sensors)),
+                                            many=True)
+            return JSONResponse(actser.data)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class SensorActivityViewSet(APIView):
+    """ Sensor activity views """
+
+    def get(self, request, id):
+
+        """ Returns sensor activity by its id.
+         ---
+         response_serializer: SensorActivitySerializer
+        """
+        try:
+            auth_user = auth_manager.do_auth(request)
+            sensor = Sensor.objects.get(uuid=id)
+            actser = SensorActivitySerializer(
+                                SensorActivity.objects.filter(
+                                        sensor=sensor),
+                                        many=True)
+            return JSONResponse(actser.data)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def post(self, request, id):
+
+        """ Post an activity on a Sensor
+         ---
+         request_serializer: SensorActivitySerializer
+         response_serializer: SensorActivitySerializer
+        """
+        try:
+            sensor = None
+            # Grab the user if information exist
+            auth_user = auth_manager.log_auth(request)
+            if auth_user:
+                user = MediaUser.objects.get(
+                        username=auth_user.username)
+            else:
+                user = None
+
+            if id is None:
+                return JSONResponse("Sensor ID cannot be none",
+                                    status=HTTP_404_NOT_FOUND)
+            # get the sensor
+            sensor = Sensor.objects.get(uuid=id)
+            # Create a new venue instance
+            serializer = SensorActivitySerializer(
+                                    data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                activity = serializer.save(activity_time=datetime.now())
+                activity.update(interacting_user=user,
+                                sensor=sensor)
                 return JSONResponse(serializer.data,
                                     status=HTTP_201_CREATED)
         except DoesNotExist as e:

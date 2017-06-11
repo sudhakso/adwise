@@ -4,6 +4,7 @@ from userapp.serializers import UserSerializer
 from mediacontentapp.models import *
 from datetime import timedelta
 from mediacontentapp import ActivityManager
+from userapp.models import MediaUser
 
 
 class MediaDashboardSerializer(serializers.DocumentSerializer):
@@ -701,6 +702,21 @@ class VenueSerializer(serializers.DocumentSerializer):
 
     class Meta:
         model = Venue
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class SensorActivitySerializer(serializers.DocumentSerializer):
+
+    interacting_user = UserSerializer(required=False, read_only=True)
+    sensor = SensorSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = SensorActivity
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

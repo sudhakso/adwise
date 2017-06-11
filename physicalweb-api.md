@@ -37,3 +37,20 @@ curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" 
 
 # API to query playing campaign on a sensor
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/playing/sensor/?"id=06091980"
+
+# API to query venue activity
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/mediasource/venue/593d6b4f1d41c8c9cdd1b10b/activity/
+
+# API to get sensor activity
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/mediasource/sensor/$id/activity/
+
+# API to post a sensor activity (user checkin, checkout, disable)
+# Choose "activity_type" in range {check-in = 1, check-out = 2, opt-out = 3}
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"activity_type": 1, "activity_data": {} }' "http://127.0.0.1:8000/mediacontent/mediasource/sensor/$id/activity/"
+
+# Get a venue
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/mediasource/venue/$id/
+
+# Get venue applicable to a MediaAggregate
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET "http://127.0.0.1:8000/mediacontent/mediasource/venue/?action=filter_by_mediaagregate&id=57d844351d41c87ef6affad9/"
+
