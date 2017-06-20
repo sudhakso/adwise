@@ -85,9 +85,9 @@ class Campaign(Document):
 
     creator = ReferenceField('MediaUser')
     creation_time = DateTimeField(default=datetime.now())
-
-    launched_at = DateTimeField()
-    end_at = DateTimeField()
+    # These fields are not used and deprecated.
+    launched_at = DateTimeField(default=datetime.now())
+    end_at = DateTimeField(required=False)
     # TODO (Sonu:) Move them to extension
     city = ListField(default=[], required=False)
     state = ListField(default=[], required=False)
@@ -99,17 +99,17 @@ class Campaign(Document):
     home_url = StringField(required=False)
 
     # search'able tags
-    tags = StringField()
+    tags = StringField(required=False)
     # UI assumes certain categories
-    category = StringField()
+    category = StringField(required=False)
     # Administrative control
     enabled = BooleanField(default=True, required=False)
     # TODO(Sonu): Why not generalize tags?
     # Tag
     geo_tags = ListField(default=[], required=False)
-    # Home page
-    image_url = StringField()
-    image_content = ReferenceField('ImageContent')
+    # Home page image
+    image_url = StringField(required=False)
+    image_content = ReferenceField('ImageContent', required=False)
     # Specifications! Do we need a list of them?
     spec = ReferenceField('CampaignSpec', required=False)
 
