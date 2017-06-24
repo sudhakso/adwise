@@ -1,0 +1,47 @@
+@startuml
+entity URLSensor
+actor AndroidUser
+entity AppleUser
+entity MediaAgency
+entity Series5Operations
+
+group Ordering Package
+MediaAgency -> SDMPortal  : Login to designer plane
+SDMPortal -> SDMPortal : Request Series5 URL sensors
+SDMPortal -> Series5Operations : Purchase intimation raised
+Series5Operations --> MediaAgency : URL sensors delivered and registered
+end
+group Campaign Creation
+MediaAgency -> SDMPortal : Create URL campaign
+MediaAgency -> SDMPortal : Input a valid web URL (any length)
+SDMPortal -> AdwisePlatform  : Shortify campaign URL
+MediaAgency -> SDMPortal : Save campaign
+MediaAgency -> SDMPortal : Choose a venue to play the campaign
+SDMPortal --> MediaAgency : Campaign ready to be activated on-prem
+end
+group Campaign Activation
+MediaAgency -> SDMLite : Discover registered sensors on premise
+MediaAgency -> SDMLite : Discover campaigns ready to be played
+SDMLite --> MediaAgency : List campaigns that are created
+loop 1..N campaigns
+MediaAgency -> SDMLite : Choose a campaign and attach to available sensor
+SDMLite -> URLSensor : Program URL into the sensor
+end
+end
+group App'less Android Interaction
+URLSensor -> AndroidUser : Push URL to Bluetooth enabled near-by (20m) phone
+AndroidUser -> AndroidUser : Open URL in Google chrome
+alt 
+AndroidUser -> AndroidUser : Open URL in near-by tool
+end
+alt 
+AndroidUser -> AndroidUser : Open URL in Google PhysicalWeb app.
+end
+end
+group App'less Apple Interaction
+URLSensor -> AppleUser : Push URL to Bluetooth enabled near-by (20m) phone
+AppleUser -> AppleUser : Enable Chrome's today widget
+AppleUser -> AppleUser : Open URL in Google chrome
+end
+
+@enduml
