@@ -4,13 +4,16 @@ actor AndroidUser
 entity AppleUser
 entity MediaAgency
 entity Series5Operations
+entity ResearchApp
 
 group Ordering Package
 MediaAgency -> SDMPortal  : Login to designer plane
 SDMPortal -> SDMPortal : Request Series5 URL sensors
 SDMPortal -> Series5Operations : Purchase intimation raised
 Series5Operations --> MediaAgency : URL sensors delivered and registered
+Series5Operations -> SDMPortal : Register sensor to the portal
 end
+
 group Campaign Creation
 MediaAgency -> SDMPortal : Create URL campaign
 MediaAgency -> SDMPortal : Input a valid web URL (any length)
@@ -19,6 +22,7 @@ MediaAgency -> SDMPortal : Save campaign
 MediaAgency -> SDMPortal : Choose a venue to play the campaign
 SDMPortal --> MediaAgency : Campaign ready to be activated on-prem
 end
+
 group Campaign Activation
 MediaAgency -> SDMLite : Discover registered sensors on premise
 MediaAgency -> SDMLite : Discover campaigns ready to be played
@@ -42,6 +46,12 @@ group App'less Apple Interaction
 URLSensor -> AppleUser : Push URL to Bluetooth enabled near-by (20m) phone
 AppleUser -> AppleUser : Enable Chrome's today widget
 AppleUser -> AppleUser : Open URL in Google chrome
+end
+
+group Research App Interaction
+AndroidUser -> ResearchApp : View near-by screen in research app
+ResearchApp -> ResearchApp : Scans for Beacon transmitting content
+ResearchApp -> AndroidUser : Display URL content that is clickable
 end
 
 @enduml
