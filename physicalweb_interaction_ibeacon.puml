@@ -1,0 +1,68 @@
+@startuml
+entity iBeaconSensor
+actor AndroidUser
+entity MediaAgency
+entity Series5Operations
+entity Google
+entity NikazaService
+
+
+group Ordering Package
+MediaAgency -> SDMPortal  : Login to designer plane
+MediaAgency -> SDMPortal : Request Series5 advanced sensors
+SDMPortal -> Series5Operations : Purchase intimation raised
+Series5Operations --> MediaAgency : iBeacon sensors delivered
+Series5Operations -> iBeaconSensor : Setup WiFi hotspot information
+iBeaconSensor -> NikazaService : Register device to the portal
+end
+
+group Import Nikaza Sensors to Series-5
+MediaAgency -> SDMPortal : Login to designer plane
+SDMPortal -> NikazaService : Import beacons for the Media Agency
+SDMPortal -> Google : Register the sensor with series-5 Google dashboard
+SDMPortal --> MediaAgency : Portal shows the registered sensors for use
+loop 1..N times
+MediaAgency -> SDMPortal : Refresh view
+SDMPortal -> NikazaService : Import beacons for the Media Agency
+SDMPortal -> Google : Register the sensor to Series-5 Google dashboard if found new
+end
+MediaAgency -> SDMPortal : Create Venue and attach sensors
+SDMPortal --> MediaAgency : Venues are listed that can be programmed
+end
+
+group Campaign Creation
+MediaAgency -> SDMPortal : Create URL campaign
+MediaAgency -> SDMPortal : Input a valid web URL (any length)
+SDMPortal -> AdwiseBackend  : Create a Series-5 local URL for the campaign for 302 redirect
+AdwiseBackend -> AdwiseBackend : Host series-5 local URL,and \nimplement 302 re-direct to real URL
+MediaAgency -> SDMPortal : Save campaign
+MediaAgency -> SDMPortal : Choose a venue to play the campaign
+SDMPortal -> Google : Create a URL attachement for the sensor, and \nsupply local series-5 campaign URL
+alt
+SDMPortal -> NikazaService : Create campaign (if app based required) 
+end
+end
+
+group App'less Android Interaction
+iBeaconSensor -> Google : Google near-by detected beacon
+Google -> Google : Get attachments (if any)
+Google -> AndroidUser : Show URL as neraby notification
+AndroidUser -> Google : Open URL in Google chrome
+Google -> AdwiseBackend : 302 redirect to actual campaign URL
+alt 
+AndroidUser -> AndroidUser : Open URL in near-by tool
+end
+alt 
+AndroidUser -> AndroidUser : Open URL in Google PhysicalWeb app.
+end
+end
+
+group Research App Interaction
+AndroidUser -> ResearchApp : Open research App near-by screen
+ResearchApp -> ResearchApp : Scan near-by sensors
+ResearchApp -> NikazaService : getBeaconDetails API call
+ResearchApp -> Google: Open URL
+Google -> AdwiseBackend : 302 redirect to actual campaign URL
+end
+
+@enduml
