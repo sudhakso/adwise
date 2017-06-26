@@ -7,6 +7,7 @@ from jinja2 import Template
 import json
 from django.conf import settings
 from mediacontentapp import Config
+from mediacontentapp import urlutils
 from mediacontentapp.models import OOHMediaSource
 from mongoengine.fields import GeoPointField
 from pyes import ES
@@ -17,6 +18,7 @@ from mediacontentapp.models import Campaign, Playing, Venue, MediaAggregate
 from mediacontentapp.serializers import PlayingSerializer
 from mediacontentapp.sourceserializers import SensorSerializer, BeaconSerializer,\
     WiFiSerializer, VenueSerializer
+from urlutils import TinyUrlDriver
 
 
 class VenueController():
@@ -467,6 +469,8 @@ class IndexingService():
 
 class CampaignManager():
 
+    driver = TinyUrlDriver()
+
     def _valid_geo(self, param):
         if isinstance(param, GeoPointField):
             return True
@@ -479,6 +483,13 @@ class CampaignManager():
                 if ooh and ooh[0].point:
                     camp.geo_tags.append(ooh[0].point)
             camp.save()
+
+    def update_nearby_fields(self, camp):
+        near_by_args = {"short_url": camp.home_url}
+        if camp:
+            tiny_url = self.driver.get_URL(camp.home_url)
+            near_by_args["short_url"] = tiny_url
+        return near_by_args
 
     def enable_campaign(self):
         pass

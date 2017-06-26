@@ -117,6 +117,7 @@ class MediaAggregateIndexSerializer(serializers.DocumentSerializer):
 
 class CampaignTrackingSerializer(serializers.DocumentSerializer):
     campaign = CampaignSerializer(required=False, read_only=True)
+
     class Meta:
         model = CampaignTracking
 

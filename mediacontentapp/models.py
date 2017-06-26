@@ -52,6 +52,11 @@ class CampaignTracking(Document):
     Campaign specification
     """
     name = StringField()
+    description = StringField()
+    language_code = StringField()
+    # Will be auto-filled
+    short_url = StringField(required=False)
+
     campaign = ReferenceField('Campaign', required=False)
 
     def get_absolute_url(self):

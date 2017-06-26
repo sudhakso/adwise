@@ -24,6 +24,8 @@ from datetime import datetime
 from django.http.response import HttpResponse
 from mongoengine.errors import DoesNotExist
 
+from mediacontentapp import urlutils
+
 auth_manager = IdentityManager()
 dashboard_controller = DashboardController()
 
@@ -221,11 +223,6 @@ class CampaignViewSet(APIView):
                                             user=user,
                                             camp=campaign,
                                             spec=spec)
-                # Create tracker object
-                trackerser = CampaignTrackingSerializer(data=request.data)
-                if trackerser.is_valid(raise_exception=True):
-                    tracker = trackerser.save()
-                    tracker.update(campaign=campaign)
                 return JSONResponse(serializer.data,
                                     status=HTTP_201_CREATED)
             else:
@@ -342,6 +339,7 @@ class CampaignTrackingViewSet(APIView):
             user = MediaUser.objects.get(username=auth_user.username)
             camp = Campaign.objects.get(creator=user, id=camp_id)
             track = CampaignTracking.objects.get(campaign=camp)
+
             serializer = CampaignTrackingSerializer(track)
             return JSONResponse(serializer.data)
         except DoesNotExist as e:
@@ -352,6 +350,49 @@ class CampaignTrackingViewSet(APIView):
             print e
             return JSONResponse(str(e),
                                 status=HTTP_401_UNAUTHORIZED)
+
+    def post(self, request, camp_id):
+
+        """ Creates a campaign tracking object
+         ---
+         request_serializer: CampaignTrackingSerializer
+         response_serializer: CampaignTrackingSerializer
+        """
+        try:
+            auth_user = auth_manager.do_auth(request)
+            camp = Campaign.objects.get(id=camp_id)
+            # Get if there are campaign tracker for this campaign
+            # if found, update/reset it.
+            tracking_obj = None
+            objs = CampaignTracking.objects.filter(campaign=camp)
+            if objs:
+                tracking_obj = objs[0]
+
+            serializer = CampaignTrackingSerializer(data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                if tracking_obj:
+                    serializer.update(tracking_obj, serializer.validated_data)
+                else:
+                    nearby_fields = self.controller.update_nearby_fields(camp)
+                    ct = serializer.save(**nearby_fields)
+                    ct.update(campaign=camp)
+                return JSONResponse(serializer.data,
+                                    status=HTTP_201_CREATED)
+            else:
+                return JSONResponse(serializer.errors,
+                                    status=HTTP_400_BAD_REQUEST)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print e
+            return JSONResponse("Error",
+                                status=HTTP_400_BAD_REQUEST)
 
 
 class AdViewSet(APIView):
