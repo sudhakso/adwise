@@ -1,0 +1,41 @@
+@startuml
+entity MediaAgency
+
+MediaAgency -> "SDM:Keystone" : Login user
+"SDM:Keystone" --> "MediaAgency" : Return Token
+MediaAgency -> "SDM:VenueMgr" : Pick a venue to host campaign 
+MediaAgency -> "SDM:ContentMgr" : Create a URL campaign \n(e.g. www.facebook.com/nsrcel/today?)
+"SDM:ContentMgr" -> "SDM:ContentSvr" : Create a series5 tiny URL.
+"SDM:ContentSvr" -> "series5:TinyURL" : Create a series5 tiny URL.
+"series5:TinyURL" --> "SDM:ContentSvr" : tiny URL created.
+"SDM:ContentSvr" -> "SDM:ContentSvr" : Save the Campaign\n with orig. URL \nalongwith tiny URL.
+"SDM:ContentSvr" -> "SDM:ContentSvr" : Ensure a 302\n redirect to \ncampaign URL from the tiny URL.
+"SDM:ContentSvr" -> "SDM:VenueMgr" : Program\n all sensors with the\n tiny URL.
+"SDM:VenueMgr" -> "SDM:VenueMgr" : Get all sensors in the venue.
+loop 1..N sensors
+alt URL Beacon
+"SDM:VenueMgr" -> "SDM:ContentSvr" : Get campaign tiny url for \ncampaign\n by id(e.g. series-5.com/s5iim405).
+"SDM:ContentSvr" --> "SDM:VenueMgr" : return tiny URL for the \ncampaaign.
+"SDM:VenueMgr" -> "SDM:SensorMgr" : Generate request to program\n the Sensors.
+"SDM:SensorMgr" -> "SDM:URLSensorDrv" : Program tiny URL.
+"SDM:URLSensorDrv" -> "SDMLite:WriteURLConfig": Write URL to Sensor \nhardware.
+"SDM:SensorMgr" --> "SDM:VenueMgr" : Sensor configured.
+end
+alt Nikaza (app driven)
+"SDM:VenueMgr" -> "SDM:ContentSvr" : Get campaign tiny url for campaign\n by id(e.g. series-5.com/s5iim405).
+"SDM:ContentSvr" --> "SDM:VenueMgr" : return tiny URL for the\n campaign.
+"SDM:VenueMgr" -> "SDM:SensorMgr" : Generate request to program the Sensors.
+"SDM:SensorMgr" -> "SDM:NikazaSensorDrv" : Create campaign with\n tiny URL.
+"SDM:NikazaSensorDrv" -> "SDM:NikazaSensorDrv": POST request to \nNikaza server\n with Tiny URL.
+"SDM:SensorMgr" --> "SDM:VenueMgr" : Sensor configured.
+end
+alt Nikaza (appless)
+"SDM:VenueMgr" -> "SDM:ContentSvr" : Get campaign tiny url for campaign\n by id(e.g. series-5.com/s5iim405).
+"SDM:ContentSvr" --> "SDM:VenueMgr" : return tiny URL for the \ncampaign.
+"SDM:VenueMgr" -> "SDM:SensorMgr" : Generate request to program\n the Sensors (for appless delivery)
+"SDM:SensorMgr" -> "SDM:GoogleBeaconDrv" : Get registered beacon\n object from Google.
+"SDM:GoogleBeaconDrv" -> "SDM:GoogleBeaconDrv": Create attachement\n for Nearby notification using \nTiny URL of campaign.
+"SDM:SensorMgr" --> "SDM:VenueMgr" : Sensor configured.
+end
+end
+@enduml
