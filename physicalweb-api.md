@@ -58,3 +58,5 @@ curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" 
 # update short url for the campaign as part of CampaignTracking objects
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"name": "gp-2", "description": "gp flipkart offers", "language_code": "en"}' http://localhost:8000/mediacontent/campaign/59511ec71d41c8f7e82c0daf/track/
 
+#retrieve the short URL for the campaign to program into sensor
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://localhost:8000/mediacontent/campaign/59511ec71d41c8f7e82c0daf/track/
