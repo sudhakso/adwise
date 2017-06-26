@@ -321,6 +321,11 @@ For example, /mediacontent/ads/<$ad_type>/<$campaign_id>
 
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"name": "IPL World T20", "description": "IPL T20 cricket championship", "launched_at": "2016-04-25T18:37:21.766000", "end_at": "2016-04-29T18:37:21.766000", "tags": "cricket football golf", "social_url":"http://fb.com/ipl202017", "home_url": "http://ipl.com/", "category": "sports", "city": ["bengaluru", "delhi"], "state": ["karnantaka","Delhi"], "spec" :{"name":"basic", "type": "basictype", "ad_type":"imagead"}}' http://localhost:8000/mediacontent/campaign/
 
+# Update campaign tracking
+# updates a short url for the campaign
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"name": "gp-2", "description": "gp flipkart offers", "language_code": "en"}' http://localhost:8000/mediacontent/campaign/59511ec71d41c8f7e82c0daf/track/
+
+
 # Get all campaigns for the User
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://localhost:8000/mediacontent/campaign/
 

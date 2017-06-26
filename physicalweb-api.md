@@ -54,3 +54,7 @@ curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" 
 # Get venue applicable to a MediaAggregate
  curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET "http://ec2-35-167-104-107.us-west-2.compute.amazonaws.com:8000/mediacontent/mediasource/venue/?action=filter_by_mediaaggregate&id=59343622981c926d5a284c61"
 
+# Campaign Management
+# update short url for the campaign as part of CampaignTracking objects
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"name": "gp-2", "description": "gp flipkart offers", "language_code": "en"}' http://localhost:8000/mediacontent/campaign/59511ec71d41c8f7e82c0daf/track/
+
