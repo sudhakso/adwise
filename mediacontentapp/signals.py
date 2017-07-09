@@ -5,19 +5,19 @@ Created on Dec 25, 2015
 '''
 import json
 from mediacontentapp.models import OOHAnalyticalAttributes,\
-    Campaign, OfferExtension, ImageAd, MediaAggregate, OOHMediaSource
+    Campaign, OfferExtension, ImageAd, MediaAggregate, OOHMediaSource,\
+    Playing
 from mongoengine import signals
 from mediacontentapp.tasks import CampaignIndexingTask, OfferIndexingTask,\
     AdIndexingTask, OOHyticsIndexingTask, MediaAggregateIndexingTask,\
     OOHMediaSourceIndexingTask
-from mediacontentapp.etltasks import *
 from mediacontentapp.serializers import CampaignIndexSerializer,\
     ImageAdIndexSerializer, OfferIndexSerializer,\
     MediaAggregateIndexSerializer
 from mediacontentapp.controller import IndexingService
 from mediacontentapp.sourceserializers import OOHAnalyticalAttributesSerializer,\
  OOHMediaSourceIndexSerializer
-
+ 
 
 def index_oohanalytics(sender, document, created):
     print "Placeholder for source analytics"
@@ -125,6 +125,8 @@ def index_oohmediasource(sender, document, created):
             print "index_oohmediasource task status: Not OK."
     else:
             print "index_oohmediasource: task status: Unchanged OK."
+
+
 # Register all model handlers
 signals.post_save.connect(index_oohanalytics, OOHAnalyticalAttributes)
 signals.post_save.connect(index_campaign, Campaign)
@@ -132,3 +134,4 @@ signals.post_save.connect(index_offer, OfferExtension)
 signals.post_save.connect(index_ad, ImageAd)
 signals.post_save.connect(index_mediaaggregate, MediaAggregate)
 signals.post_save.connect(index_oohmediasource, OOHMediaSource)
+

@@ -18,10 +18,10 @@ AdWise backend returns the attached content to the SDK/research app.
 0.1.01 master
 
 # creating venue
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"venue_name": "somename", "venue_address": "someaddr", "venue_meta": {}}' http://127.0.0.1:8000/mediacontent/mediasource/venue/
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"venue_name": "inorbit-entry", "venue_address": "someaddr", "venue_meta": {}}' http://127.0.0.1:8000/mediacontent/mediasource/venue/
 
 # attach a sensor to venue
-sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"sensor_data": {"name":"simplename", "display_name":"simplename", "caption":"simplename", "uuid": "8e0e714daf3b3e00336a", "type": "beacon", "range": "10", "location": [19.0, 20.0], "name":"gp11", "major":"2", "minor":"3", "beacon_type":"ibeacon", "max_tx_power":"63", "broadcast_url":"http://series-5.com"},"sensor_type": "Beacon"}' http://127.0.0.1:8000/mediacontent/mediasource/venue/592ef0db1d41c879e15a5ad4/?action=attach
+sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"sensor_data": {"name":"simplename", "display_name":"simplename", "caption":"simplename", "uuid": "8e0e714daf3b3e00336a", "type": "beacon", "range": "10", "location": [19.0, 20.0], "name":"gp11", "major":"2", "minor":"3", "beacon_type":"ibeacon", "max_tx_power":"63", "broadcast_url":"http://series-5.com", "vendor": "nikaza"},"sensor_type": "Beacon"}' http://127.0.0.1:8000/mediacontent/mediasource/venue/592ef0db1d41c879e15a5ad4/?action=attach
 
 # attach a venue to the OOHMediaSource
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{}' "http://127.0.0.1:8000/mediacontent/mediasource/ooh/57d844351d41c87ef6affad9/?action=addvenue&id=592ec9ca1d41c87120963ed2"

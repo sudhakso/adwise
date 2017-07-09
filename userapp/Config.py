@@ -27,3 +27,8 @@ class config(object):
 
     def get_config(self, ns, key):
         return self.cfg_parser.get(ns, key)
+
+    def get_config_list(self, ns):
+        l = [item for item in self.cfg_parser.items(ns) if item[0] not in self.cfg_parser.defaults()]
+        return l
+

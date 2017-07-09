@@ -12,7 +12,7 @@ from mediacontentapp.models import OOHMediaSource
 from mongoengine.fields import GeoPointField
 from pyes import ES
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK,\
- HTTP_500_INTERNAL_SERVER_ERROR
+ HTTP_500_INTERNAL_SERVER_ERROR, HTTP_204_NO_CONTENT
 from userapp.JSONFormatter import JSONResponse
 from mediacontentapp.models import Campaign, Playing, Venue, MediaAggregate
 from mediacontentapp.serializers import PlayingSerializer
@@ -38,6 +38,22 @@ class VenueController():
                                open('%s%s' % (settings.MEDIAAPP_DIR,
                                     'templates/playing.j2'),
                                     'r').read())
+
+    def _publish_campaign_to_sensors(self, play, sensor, campaign):
+        from mediacontentapp.tasks import CampaignPublishingTask
+
+        ps = PlayingSerializer(play)
+        publishing_task = CampaignPublishingTask()
+        # Publish the campaign
+        rc = publishing_task.delay(args=[],
+                                   pub_content_id=str(campaign.id),
+                                   pub_source_id=str(sensor.id),
+                                   pub_detail=json.dumps(ps.data),
+                                   ignore_failures=True)
+        if rc.state == "SUCCESS":
+            print "Posted campaign publish task: OK."
+        else:
+            print "Posted campaign publish task: Failed."
 
     def handle_update(self, inst, *args, **kwargs):
         pass
@@ -65,6 +81,11 @@ class VenueController():
             # Save the venue
             if ser.is_valid(raise_exception=True):
                 sensor = ser.save()
+                # Save the venue information for use in sensor
+                # e.g. publishing campaign needs venue Id with
+                # some sensor cases.
+                sensor.update(venue=venue)
+                # Update sensors inside Venue
                 venue.sensors.append(sensor)
                 venue.save()
             return JSONResponse("Sensor added",
@@ -95,8 +116,17 @@ class VenueController():
                     play = playing.save()
                     play.update(primary_media_source=sensor,
                                 playing_content=campaign)
-            return JSONResponse("Playing started",
-                                status=HTTP_200_OK)
+            if venue.sensors:
+                # Push the tasks to respective vendors.
+                self._publish_campaign_to_sensors(play=play,
+                                                  sensor=sensor,
+                                                  campaign=campaign)
+                return JSONResponse("Playing started",
+                                    status=HTTP_200_OK)
+            else:
+                return JSONResponse("No sensors to play campaign",
+                                    status=HTTP_204_NO_CONTENT)
+
         elif action == self.PAUSE_MEDIA_CONTENT:
             # Add media content to MediaAggregate object
             campid = action_args['id'] if 'id' in action_args else None

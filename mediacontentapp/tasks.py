@@ -10,7 +10,8 @@ import datetime
 import json
 from celery import shared_task
 from celery import Task
-from mediacontentapp.models import Campaign, OfferExtension
+from mediacontentapp.models import Campaign, OfferExtension, CampaignTracking,\
+ Sensor
 from mediaresearchapp.models import SearchQuery, ResearchResult
 from celery import Celery
 from mediaresearchapp.serializers import ResearchResultSerializer
@@ -19,9 +20,12 @@ from django.core import serializers
 from mediacontentapp.serializers import CampaignSerializer,\
     CampaignIndexSerializer
 from mediacontentapp.controller import IndexingService
+from mediacontentapp.sensormanager import SensorManager
+from mongoengine.errors import DoesNotExist
 
 # Initialize the service
 # indexing_service = IndexingService()
+#sensor_manager = SensorManager()
 
 
 class BasicSearchTask(Task):
@@ -72,6 +76,51 @@ class OOHyticsIndexingTask(Task):
         except Exception as e:
             print "Failed creating index for ooh  : %s" % (
                                     kwargs['instancename'])
+            print "Exception : %s" % str(e)
+
+
+class CampaignPublishingTask(Task):
+    ignore_errors = True
+    _sm = None
+
+    @property
+    def sm(self):
+        if self._sm is None:
+            self._sm = SensorManager()
+        return self._sm
+
+    def run(self, *args, **kwargs):
+        start = datetime.datetime.now()
+        # 1 - Check if campaign is enabled for URL
+        print 'Checking if campaign publish is required for : %s ...' % (
+                                kwargs['pub_content_id'])
+        # get the campaign tracking object
+        try:
+            c = Campaign.objects.get(id=kwargs['pub_content_id'])
+            ct = CampaignTracking.objects.get(campaign=c)
+            s = Sensor.objects.get(id=kwargs['pub_source_id'])
+        except DoesNotExist as e:
+            print 'Warning: Enable tracking for the campaign - %s ...' % (
+                                    kwargs['pub_content_id'])
+            print 'Warning: Campaign not published.'
+            print str(e)
+            return
+        # 2- Check the name of the sensor where this is played
+        # 3 - Check if we have the driver that can handle the
+        # publishing of the campaign
+        try:
+            pd = kwargs['pub_detail'] if 'pub_detail' in kwargs.keys() else None
+            print 'Extracting publishing details for campaign : %s ...' % (
+                                    kwargs['pub_content_id'])
+            driver = self.sm.sensor_factory.driver(s.vendor)
+            if driver:
+                print 'Loaded vendor %s driver to publish content' % s.vendor
+                driver.publish_campaign(s, s.venue, c, ct, pd)
+            else:
+                print 'Loading vendor %s driver encountered error' % s.vendor
+        except Exception as e:
+            print "Failed publishing campaign : %s" % (
+                                    kwargs['pub_content_id'])
             print "Exception : %s" % str(e)
 
 

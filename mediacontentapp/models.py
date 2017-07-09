@@ -550,7 +550,7 @@ class Playing(Document):
     """
     # for e.g. Mall's default source
     primary_media_source = ReferenceField('MediaSource', required=False)
-    playing_content = ReferenceField('Campaign', required=False)
+    playing_content = ReferenceField('Campaign', default=None, required=False)
     # for e.g. VOD, OOH, Sensor etc.
     source_type = StringField()
     # official start-end date
@@ -1369,6 +1369,9 @@ class Venue(Document):
     # venue properties
     venue_name = StringField()
     venue_address = StringField()
+    venue_type = StringField()
+    point = GeoPointField()
+
     venue_meta = DictField(default={}, required=False)
     # created
     created_time = DateTimeField(default=datetime.now(), required=False)
@@ -1383,12 +1386,17 @@ class Venue(Document):
 class Sensor(MediaSource):
     uuid = StringField(required=True)
     # beacon, wifi, gps etc.
-    type = StringField(required=True)
+    type = "sensor"
     range = FloatField(default=10.0)
+
+    # vendor info - nikaza, nearby, google
+    vendor = StringField(default='nearby', required=False)
 
     # Every sensor can be associated with
     # an optional [lat,lng] fields.
     location = GeoPointField(required=False)
+    # reference to the venue
+    venue = ReferenceField('Venue', required=False)
 
     meta = {'allow_inheritance': True}
 

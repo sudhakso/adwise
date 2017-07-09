@@ -25,6 +25,8 @@ from mediacontentapp.ActivityManager import ActivityManager
 
 from controller import TagManager, MediaAggregateController,\
   OOHMediaController, OnlineMediaController, VenueController
+from mediacontentapp.sensormanager import SensorManager
+
 from typemanager import MediaTypeManager
 from mediacontentapp.etltasks import ExtractNearByAmenitiesTask,\
     AddAmenitiesToBillboardTask
@@ -43,6 +45,7 @@ amentiycontroller = MediaAggregateController()
 oohmediacontroller = OOHMediaController()
 onlinemediacontroller = OnlineMediaController()
 venuecontroller = VenueController()
+sensormanager = SensorManager()
 
 
 class PlayingViewSet(APIView):
