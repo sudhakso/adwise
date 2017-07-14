@@ -17,6 +17,10 @@ AdWise backend returns the attached content to the SDK/research app.
 * Version
 0.1.01 master
 
+* Control message structure
+https://pastebin.com/HbNfPK83
+
+
 # creating venue
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"venue_name": "inorbit-entry", "venue_address": "someaddr", "venue_meta": {}}' http://127.0.0.1:8000/mediacontent/mediasource/venue/
 
