@@ -24,10 +24,7 @@ class NikazaCampaignTemplate():
         # Create the serializer
         _str = str(self.j2_template.render(**kwargs)).encode('utf-8')
 #         _str = _str.replace("\'","\"").replace("u\"","\"").replace("u\'","\'")
-        print _str
-        _data = json.loads(_str)
-        print _data
-        return _data
+        return _str
 
 
 class NikazaDriver(SensorDriverBase):
@@ -49,8 +46,6 @@ class NikazaDriver(SensorDriverBase):
         self.GET_BEACON_PLACEMENT = "get_beacon_placement"
         self.UPDATE_CAMPAIGN_STATUS = 'update_campaign_status'
         self.UPDATE_CAMPAIGN = 'update_campaign'
-        # Constant zoneId
-        self.ZONE_ID = "series5-001"
 
         # Campaign template
         self._template = NikazaCampaignTemplate()
@@ -79,13 +74,15 @@ class NikazaDriver(SensorDriverBase):
         data = {"campaignName": campaign.name,
                 "beginDate": start_dt.strftime("%m/%d/%Y"),
                 "endDate": end_dt.strftime("%m/%d/%Y"),
-                "venueId": venue.venue_name if venue is not None else 'default',
-                "zoneId": self.ZONE_ID,
+                "numDays": (end_dt-start_dt).days if (end_dt-start_dt).days else 1,
+                "venueId": venue.venue_id if venue is not None else 'default',
+                "zoneId": venue.zone_id if venue is not None else 'default',
                 "description": campaign.description,
                 "url": tracking_data.short_url}
 
         api_endpoint = self._endpoint + self.CREATE_CAMPAIGN
         body = self._template.req_body(**data)
+        print "HTTP header : %s" % (self.headers)
         print "Launching campaign using Nikaza url:%s data:%s" % (
                                                         api_endpoint, body)
         response = requests.post(url=api_endpoint,

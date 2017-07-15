@@ -1367,7 +1367,12 @@ class Venue(Document):
     # Which source
     source = ReferenceField('MediaSource', required=False)
     # venue properties
-    venue_name = StringField()
+    venue_name = StringField(unique=True)
+    venue_id = StringField(required=True)
+    
+    zone_name = StringField(required=True)
+    zone_id = StringField(required=True)
+
     venue_address = StringField()
     venue_type = StringField()
     point = GeoPointField()

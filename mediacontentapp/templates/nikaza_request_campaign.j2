@@ -1,1 +1,18 @@
-{"platform" : "series5", "platformId" : "series5", "campaignName" : "{{ campaignName }}", "beginDate": "{{ beginDate }}", "endDate": "{{ endDate }}", "startMinute": "00:00", "endMinute": "00:00", "timeZone" : "IST", "advertiser" : "series5", "advertiserId" : "series5", "venueId": "{{ venueId }}", "zoneId": "{{ zoneId }}", "campaignType" : "web_content", "description" : "{{ description }}", "url":"{{ url }}"}
+{
+  "platform" : "series5",
+  "platformId" : "series5",
+  "campaignName" : "{{ campaignName }}",
+  "beginDate": "{{ beginDate }}",
+  "endDate": "{{ endDate }}",
+  "days":[{% for n in range(numDays) %}{"startMinute":"00:00","endMinute":"00:00","day":{{n+1}}{% if loop.index < (range(numDays) | length) %}},{% else %}}{% endif %}{% endfor %}],
+  "startMinute": "00:00",
+  "endMinute": "00:00",
+  "timeZone" : "IST",
+  "advertiser" : "series5",
+  "advertiserId" : "5939fff9cb61eb298650b72f",
+  "venueId": "{{ venueId }}",
+  "zoneId": "{{ zoneId }}",
+  "campaignType" : "web_content",
+  "description" : "{{ description }}",
+  "url":"{{ url }}"
+ }
