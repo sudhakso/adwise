@@ -1,0 +1,142 @@
+-------------------------------------------------------------------------------------------------
+# Register venue
+{
+    "version" : "1.0"
+	"cmdType": "registerVenue",
+	#Represents header, any user defined key - value pair.
+	"header": [
+	],
+	"venuename": "venue name as registered",
+	"location": [lat, lng]
+	"auth": {
+		"user": "someuser",
+		"password": "some passwd"
+	}
+    #Request parameter
+	"requestDate": "somedate"
+}
+
+#response
+{
+  "cmdStatus": "OK|Failed",
+  "cmdCode": "200-500"
+  "errorMessage": "",
+  "responseDate": ""
+}
+
+-------------------------------------------------------------------------------------------------
+#Program URL
+{
+    "version" : "1.0"
+	"cmdType": "UrlWrite",
+	#Represents header, any user defined key - value pair.
+	"header": [
+		"key-1": "value-1",
+		"key-2": "value-2"
+	],
+	#Name(controller name)
+	"venuename": "venue name as registered",
+	"auth": {
+		"user": "someuser",
+		"password": "some passwd"
+	}
+    #Request parameter
+	"requestDate": "somedate",
+	"beginDate": "somedate in future to program",
+	"endDate": "somedate in future to clear the URL"
+	"ackQueueName": "return ack message queue",
+	"url": "http://series-5.com/url1",
+	"sensors": [{
+			"sensorId": "someid",
+			"macAddr": "12:34:56:78:98",
+			"url": "http://series-5.com/url1"
+		},
+		{
+			"sensorId": "someid",
+			"macAddr": "12:34:56:78:99",
+			"url": "http://series-5.com/url2"
+		}
+	]
+]
+
+#response
+{
+  "cmdStatus": "OK|Failed",
+  "cmdCode": "200-500"
+  "errorMessage": "",
+  "responseDate": "",
+  "sensors": [{"SensorId": "someid", "url": "url playing", "macAddr": ""}, {"SensorId": "someid", "url": "url playing", "macAddr": ""}]
+}
+
+-------------------------------------------------------------------------------------------------
+#Clear URL
+{
+    "version" : "1.0"
+	"cmdType": "UrlReset",
+	#Represents header, any user defined key - value pair.
+	"header": [
+		"key-1": "value-1",
+		"key-2": "value-2"
+	],
+	#Name(controller name)
+	"venuename": "venue name as registered",
+	"auth": {
+		"user": "someuser",
+		"password": "some passwd"
+	}
+    #Request parameter
+	"requestDate": "somedate",
+	"beginDate": "somedate in future to program",
+	"endDate": "somedate in future to clear the URL"
+	"ackQueueName": "return ack message queue",
+	"url": "NA",
+	"sensors": [{
+			"sensorId": "someid",
+			"macAddr": "12:34:56:78:98"
+		},
+		{
+			"sensorId": "someid",
+			"macAddr": "12:34:56:78:99"
+		}
+	]
+]
+
+#response
+{
+  "cmdStatus": "OK|Failed",
+  "cmdCode": "200-500"
+  "errorMessage": "",
+  "responseDate": ""
+}
+
+-------------------------------------------------------------------------------------------------
+#Venue status
+{
+    "version" : "1.0"
+	"cmdType": "SensorStatus",
+	#Represents header, any user defined key - value pair.
+	"header": [
+		"key-1": "value-1",
+		"key-2": "value-2"
+	],
+	#Name(controller name)
+	"venuename": "venue name as registered",
+	"auth": {
+		"user": "someuser",
+		"password": "some passwd"
+	}
+    #Request parameter
+	"requestDate": "somedate",
+	"ackQueueName": "return ack message queue",
+]
+
+#response
+{
+  "cmdStatus": "OK|Failed",
+  "cmdCode": "200-500"
+  "errorMessage": "",
+  "responseDate": "",
+  "sensors": [{"SensorId": "someid", "url": "url playing", "macAddr": ""}, {"SensorId": "someid", "url": "url playing", "macAddr": ""}]
+}
+
+-------------------------------------------------------------------------------------------------
