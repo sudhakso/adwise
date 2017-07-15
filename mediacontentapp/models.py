@@ -1396,6 +1396,8 @@ class Sensor(MediaSource):
 
     # vendor info - nikaza, nearby, google
     vendor = StringField(default='nearby', required=False)
+    # Mac Addr
+    mac_address = StringField(required=True)
 
     # Every sensor can be associated with
     # an optional [lat,lng] fields.
