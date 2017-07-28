@@ -221,6 +221,9 @@ curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" 
 
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{}' "http://127.0.0.1:8000/mediacontent/mediasource/ooh/5928f7ca1d41c885656a92f2/?action=resumecontent&id=57c0621e1d41c83e549e8ae0"
 
+
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{}' "http://127.0.0.1:8000/mediacontent/mediasource/venue/5928f7ca1d41c885656a92f2/?action=resumecontent&id=57c0621e1d41c83e549e8ae0"
+
 ##### API to attach a Campaign to MediaAggregate
 # API to attach a campaign to a MediaAggregate
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"start_date" : "2016-02-25T18:37:21.766000","end_date" :"2016-02-25T18:37:21.766000"}' "http://127.0.0.1:8000/mediacontent/mediaaggregates/57d844351d41c87ef6affad9/?action=addcontent&id=57c062201d41c83e549e8ae5"

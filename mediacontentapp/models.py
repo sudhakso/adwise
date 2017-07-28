@@ -562,6 +562,9 @@ class Playing(Document):
     creation_date = DateTimeField(default=datetime.now())
     deletion_date = DateTimeField()
 
+    # vendor book-keeping (campaign-id, sensor-id, zone-id etc.)
+    playing_vendor_attributes = DictField(required=False)
+
     def get_absolute_url(self):
         return "/mediacontent/playing/%i/" % self.id
 
@@ -1369,7 +1372,7 @@ class Venue(Document):
     # venue properties
     venue_name = StringField(unique=True)
     venue_id = StringField(required=True)
-    
+
     zone_name = StringField(required=True)
     zone_id = StringField(required=True)
 
@@ -1393,6 +1396,8 @@ class Sensor(MediaSource):
     # beacon, wifi, gps etc.
     type = "sensor"
     range = FloatField(default=10.0)
+    zone_name = StringField(required=False)
+    zone_id = StringField(required=True)
 
     # vendor info - nikaza, nearby, google
     vendor = StringField(default='nearby', required=False)

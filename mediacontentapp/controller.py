@@ -50,10 +50,38 @@ class VenueController():
                                    pub_source_id=str(sensor.id),
                                    pub_detail=json.dumps(ps.data),
                                    ignore_failures=True)
-        if rc.state == "SUCCESS":
-            print "Posted campaign publish task: OK."
-        else:
-            print "Posted campaign publish task: Failed."
+        if rc.ready():
+            if rc.state == "SUCCESS":
+                # put the meta returned by the vendor into play
+                # attributes.
+                if rc.get() is not None:
+                    vendor_meta = rc.get()
+                    play.playing_vendor_attributes = eval(vendor_meta)
+                    play.save()
+                    print "Posted campaign publish task: OK. Response %s" % vendor_meta
+                else:
+                    print "Posted campaign publish task: Failed. Unknown error"
+            else:
+                print "Posted campaign publish task: Celery task framework failed."
+
+    def _control_campaign_on_sensors(self, play, sensor, campaign, update):
+        from mediacontentapp.tasks import CampaignControlTask
+
+        ps = PlayingSerializer(play)
+        control_task = CampaignControlTask()
+        # retrieve vendor data and pass it along for update operation.
+        # ps.data has the details
+        rc = control_task.delay(args=[],
+                                pub_content_id=str(campaign.id),
+                                pub_source_id=str(sensor.id),
+                                pub_detail=json.dumps(ps.data),
+                                update=update,
+                                ignore_failures=True)
+        if rc.ready():
+            if rc.state == "SUCCESS":
+                print "Post of udpate campaign task: OK. Response %s" % rc.get()
+            else:
+                print "Post of update campaign publish task: Failed."
 
     def handle_update(self, inst, *args, **kwargs):
         pass
@@ -112,21 +140,29 @@ class VenueController():
                 _playing_data = json.loads(
                                     str(self.playing_template.render(**_nv)))
                 playing = PlayingSerializer(data=_playing_data)
-                if playing.is_valid(raise_exception=True):
+                # validate what we get
+                playing.is_valid(raise_exception=True)
+                # Check if there is a playing object already for the
+                # campaign and source combination.
+                plays = Playing.objects.filter(playing_content=campaign)
+                if plays:
+                    play = plays[0]
+                    # Update the playing object with incoming request
+                    playing.update(play, playing.validated_data)
+                else:
                     play = playing.save()
                     play.update(primary_media_source=sensor,
                                 playing_content=campaign)
-            if venue.sensors:
                 # Push the tasks to respective vendors.
                 self._publish_campaign_to_sensors(play=play,
                                                   sensor=sensor,
                                                   campaign=campaign)
-                return JSONResponse("Playing started",
-                                    status=HTTP_200_OK)
-            else:
+            if not venue.sensors:
                 return JSONResponse("No sensors to play campaign",
                                     status=HTTP_204_NO_CONTENT)
-
+            else:
+                return JSONResponse("Playing started",
+                                    status=HTTP_200_OK)
         elif action == self.PAUSE_MEDIA_CONTENT:
             # Add media content to MediaAggregate object
             campid = action_args['id'] if 'id' in action_args else None
@@ -137,13 +173,20 @@ class VenueController():
             # get the campaign
             campaign = Campaign.objects.get(id=campid)
             for sensor in venue.sensors:
-                play = Playing.objects.filter(primary_media_source=sensor,
-                                              playing_content=campaign)
+                play = Playing.objects.get(primary_media_source=sensor,
+                                           playing_content=campaign)
                 if play.pause_playing is False:
                     play.pause_playing = True
                     play.save()
-
-            return JSONResponse("Campaigns paused momentarily",
+                # Pause the content by passing the command to driver
+                self._control_campaign_on_sensors(play=play,
+                                                  sensor=sensor,
+                                                  campaign=campaign,
+                                                  update='pause')
+            if not venue.sensors:
+                return JSONResponse("No sensors playing the campaign",
+                                    status=HTTP_204_NO_CONTENT)
+            return JSONResponse("Playing stopped",
                                 status=HTTP_200_OK)
         elif action == self.RESUME_MEDIA_CONTENT:
             # Add media content to MediaAggregate object
@@ -160,6 +203,11 @@ class VenueController():
                 if play.pause_playing is True:
                     play.pause_playing = False
                     play.save()
+                # Resume the content by passing the command to driver
+                self._control_campaign_on_sensors(play=play,
+                                                  sensor=sensor,
+                                                  campaign=campaign,
+                                                  update='resume')
             return JSONResponse("Campaign resumed",
                                 status=HTTP_200_OK)
         elif action == self.FILTER_BY_MEDIAAGGREGATE:

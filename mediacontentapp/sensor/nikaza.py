@@ -38,7 +38,7 @@ class NikazaDriver(SensorDriverBase):
     def __init__(self, endpoint, apikey, username, password):
         self.headers = {"Content-type": "application/json",
                         "APIKey": apikey,
-                        "Accept": "text/plain",
+                        "User-Agent": "series5"
                         }
         self._endpoint = endpoint
         # APIs supported
@@ -66,17 +66,17 @@ class NikazaDriver(SensorDriverBase):
                          campaign,
                          tracking_data,
                          pub_data):
+        from dateutil.parser import parse
         playing_data = json.loads(pub_data)
-        start_dt = datetime.strptime(playing_data['start_date'],
-                                     "%Y-%m-%dT%H:%M:%S.%fZ")
-        end_dt = datetime.strptime(playing_data['end_date'],
-                                   "%Y-%m-%dT%H:%M:%S.%fZ")
+        start_dt = parse(playing_data['start_date'])
+        end_dt = parse(playing_data['end_date'])
+
         data = {"campaignName": campaign.name,
                 "beginDate": start_dt.strftime("%m/%d/%Y"),
                 "endDate": end_dt.strftime("%m/%d/%Y"),
                 "numDays": (end_dt-start_dt).days if (end_dt-start_dt).days else 1,
                 "venueId": venue.venue_id if venue is not None else 'default',
-                "zoneId": venue.zone_id if venue is not None else 'default',
+                "zoneId": sensor.zone_id if sensor is not None else 'default',
                 "description": campaign.description,
                 "url": tracking_data.short_url}
 
@@ -88,13 +88,44 @@ class NikazaDriver(SensorDriverBase):
         response = requests.post(url=api_endpoint,
                                  headers=self.headers,
                                  data=body)
-#       print "Campaign result response:%s" % (response.text)
         return response.text
+
+    def control_campaign(self, sensor, venue, campaign_data, tracking_data,
+                         pub_data, update):
+        playing_data = json.loads(pub_data)
+        control = update
+        # campaigns:[]
+        # campaignStatus: "run"
+
+        # check the playing data for vendor campaign id
+        if playing_data['playing_vendor_attributes']:
+            vendor_attrib = playing_data['playing_vendor_attributes']
+            nikaza_campaign_id = vendor_attrib['campaignId']
+            print "Nikaza driver attributes for the campaign %s" % vendor_attrib
+            print "Updating campaign status to %s for %s" % (
+                                            update, nikaza_campaign_id)
+            body = {
+                # remove unicode prefixes, Nikaza doesnt understand them
+                "campaigns": [nikaza_campaign_id],
+                "campaignStatus": "run" if control == 'resume' else "pause"
+            }
+            body_str = json.dumps(body).replace("u\"","\"").replace("u\'","\'")
+            api_endpoint = self._endpoint + self.UPDATE_CAMPAIGN_STATUS
+            print "HTTP header : %s" % (self.headers)
+            print "Controlling campaign using Nikaza url:%s data:%s" % (
+                                                            api_endpoint, body_str)
+            response = requests.post(url=api_endpoint,
+                                     headers=self.headers,
+                                     data=body_str)
+            return response.text
 
     def get_campaign(self):
         pass
 
     def delete_campaign(self):
+        pass
+
+    def update_campaign(self):
         pass
 
     def get_sensor_details(self, venue_id):

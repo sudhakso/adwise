@@ -32,6 +32,11 @@ class SensorDriverBase(object):
         pass
 
     @abstractmethod
+    def control_campaign(self, sensor, venue, campaign_data, tracking_data,
+                         pub_data, update):
+        pass
+
+    @abstractmethod
     def get_campaign(self):
         pass
 

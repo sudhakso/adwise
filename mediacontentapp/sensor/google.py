@@ -26,6 +26,10 @@ class GoogleDriver(SensorDriverBase):
                          pub_data):
         pass
 
+    def control_campaign(self, sensor, venue, campaign_data, tracking_data,
+                        pub_data, update):
+        pass
+
     def get_campaign(self):
         pass
 
