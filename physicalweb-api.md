@@ -36,6 +36,9 @@ sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.
 # attach a campaign to the venue
 sudo curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{"start_date" : "2016-02-25T18:37:21.766000","end_date" :"2016-02-25T18:37:21.766000"}' "http://127.0.0.1:8000/mediacontent/mediasource/venue/592ec9ca1d41c87120963ed2/?action=addcontent&id=57c062231d41c83e549e8af9"
 
+# resume the content on a venue
+curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X POST -d '{}' "http://127.0.0.1:8000/mediacontent/mediasource/venue/5974ba1f1d41c8119bf4205b/?action=resumecontent&id=597b4a231d41c89a66e6c5a5"
+
 # API to query playing campaign on a venue
 curl -H "Content-Type: application/json" -H "username:serviceuser@series-5.com" -H "password:adwise123" -H "email:serviceuser@series-5.com" -X GET http://127.0.0.1:8000/mediacontent/playing/venue/?"id=5931a53a1d41c81914155a2a"
 
