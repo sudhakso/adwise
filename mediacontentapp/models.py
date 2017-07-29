@@ -562,6 +562,9 @@ class Playing(Document):
     creation_date = DateTimeField(default=datetime.now())
     deletion_date = DateTimeField()
 
+    # Status
+    state = StringField(required=False)
+
     # vendor book-keeping (campaign-id, sensor-id, zone-id etc.)
     playing_vendor_attributes = DictField(required=False)
 
@@ -1371,10 +1374,10 @@ class Venue(Document):
     source = ReferenceField('MediaSource', required=False)
     # venue properties
     venue_name = StringField(unique=True)
-    venue_id = StringField(required=True)
+    venue_id = StringField(required=False)
 
-    zone_name = StringField(required=True)
-    zone_id = StringField(required=True)
+    zone_name = StringField(required=False)
+    zone_id = StringField(required=False)
 
     venue_address = StringField()
     venue_type = StringField()

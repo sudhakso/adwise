@@ -83,15 +83,18 @@ class NearbyDriver(SensorDriverBase):
         connection = pika.BlockingConnection(params)
         channel = connection.channel()
         # send a message
-        channel.basic_publish(exchange='', routing_key=routing_key,
-                              body=body)
-        print " [x] Message sent to consumer"
+        rc = channel.basic_publish(exchange='', routing_key=routing_key,
+                                   body=body)
+        code = "200" if rc else "500"
+        rcvars = {"queue_name": routing_key, "code": code, "message": ""}
+        rcvarstr = json.dumps(rcvars)
+        print " [x] Message sent to consumer, response %s" % rcvarstr
         connection.close()
-        return
+        return rcvarstr
 
     def control_campaign(self, sensor, venue, campaign_data, tracking_data,
-                        pub_data, update):
-        pass
+                         pub_data, update):
+        return 0
 
     def get_campaign(self):
         pass

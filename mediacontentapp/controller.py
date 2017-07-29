@@ -59,10 +59,17 @@ class VenueController():
                     play.playing_vendor_attributes = eval(vendor_meta)
                     play.save()
                     print "Posted campaign publish task: OK. Response %s" % vendor_meta
+                    return 0
                 else:
                     print "Posted campaign publish task: Failed. Unknown error"
+                    return -1
             else:
                 print "Posted campaign publish task: Celery task framework failed."
+                return -1
+
+    def _update_campaign_to_sensors(self, play, sensor, campaign):
+        print "Update campaign not implemented"
+        return -1
 
     def _control_campaign_on_sensors(self, play, sensor, campaign, update):
         from mediacontentapp.tasks import CampaignControlTask
@@ -79,9 +86,15 @@ class VenueController():
                                 ignore_failures=True)
         if rc.ready():
             if rc.state == "SUCCESS":
-                print "Post of udpate campaign task: OK. Response %s" % rc.get()
+                if rc.get() is not None:
+                    print "Post of udpate campaign task: OK. Response %s" % rc.get()
+                    return 0
+                else:
+                    print "Post of udpate campaign task: Failed. Response Unknown Error"
+                    return -1
             else:
                 print "Post of update campaign publish task: Failed."
+                return -1
 
     def handle_update(self, inst, *args, **kwargs):
         pass
@@ -130,6 +143,9 @@ class VenueController():
                 return JSONResponse('content id cannot be None for action type'
                                     ' %s' % self.ADD_MEDIA_CONTENT,
                                     status=HTTP_400_BAD_REQUEST)
+            # error strings
+            rcs = {}
+            somefailed = False
             # get the campaign
             campaign = Campaign.objects.get(id=campid)
             # Get the sensors attached to the venue object
@@ -144,22 +160,54 @@ class VenueController():
                 playing.is_valid(raise_exception=True)
                 # Check if there is a playing object already for the
                 # campaign and source combination.
-                plays = Playing.objects.filter(playing_content=campaign)
-                if plays:
-                    play = plays[0]
+                plays = Playing.objects.filter(playing_content=campaign,
+                                               primary_media_source=sensor)
+                # Expect only one play per campaign, sensor pair
+                play = plays[0] if plays else None
+                if play:
                     # Update the playing object with incoming request
                     playing.update(play, playing.validated_data)
+                    if play.state == 'ok':
+                        rc = self._update_campaign_to_sensors(play=play,
+                                                              sensor=sensor,
+                                                              campaign=campaign)
+                    else:
+                        # Try to post the campaign to vendor once again
+                        # after an earlier attempt.
+                        rc = self._publish_campaign_to_sensors(play=play,
+                                                               sensor=sensor,
+                                                               campaign=campaign)
+                        if rc != 0:
+                            # Set the playing state to error.
+                            play.update(state='error')
+                            rcs[str(sensor.id)] = 'error'
+                            somefailed = True
+                        else:
+                            # Set the playing state to error.
+                            play.update(state='ok')
                 else:
                     play = playing.save()
                     play.update(primary_media_source=sensor,
                                 playing_content=campaign)
-                # Push the tasks to respective vendors.
-                self._publish_campaign_to_sensors(play=play,
-                                                  sensor=sensor,
-                                                  campaign=campaign)
+                    # Push the tasks to respective vendors.
+                    rc = self._publish_campaign_to_sensors(play=play,
+                                                           sensor=sensor,
+                                                           campaign=campaign)
+                    if rc != 0:
+                        # Set the playing state to error.
+                        play.update(state='error')
+                        rcs[str(sensor.id)] = 'error'
+                        somefailed = True
+                    else:
+                        # Set the playing state to error.
+                        play.update(state='ok')
             if not venue.sensors:
                 return JSONResponse("No sensors to play campaign",
                                     status=HTTP_204_NO_CONTENT)
+            elif somefailed:
+                failed_attach = [key for key in rcs.keys() if rcs[key] != 0]
+                return JSONResponse("Playing failed on sensors %s" % failed_attach,
+                                    status=HTTP_200_OK)
             else:
                 return JSONResponse("Playing started",
                                     status=HTTP_200_OK)
