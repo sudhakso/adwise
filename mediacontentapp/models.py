@@ -1374,15 +1374,17 @@ class Venue(Document):
     source = ReferenceField('MediaSource', required=False)
     # venue properties
     venue_name = StringField(unique=True)
-    venue_id = StringField(required=False)
+#     venue_id = StringField(required=False)
 
-    zone_name = StringField(required=False)
-    zone_id = StringField(required=False)
+#     zone_name = StringField(required=False)
+#     zone_id = StringField(required=False)
 
     venue_address = StringField()
     venue_type = StringField()
     point = GeoPointField()
 
+    # vendor specific meta by vendor name
+    # for e.g. {"nikaza": {venueId:""}, "nearby": {}}
     venue_meta = DictField(default={}, required=False)
     # created
     created_time = DateTimeField(default=datetime.now(), required=False)
@@ -1395,12 +1397,13 @@ class Venue(Document):
 
 
 class Sensor(MediaSource):
+    name = StringField(required=True)
     uuid = StringField(required=True)
     # beacon, wifi, gps etc.
     type = "sensor"
     range = FloatField(default=10.0)
-    zone_name = StringField(required=False)
-    zone_id = StringField(required=True)
+#     zone_name = StringField(required=False)
+#     zone_id = StringField(required=True)
 
     # vendor info - nikaza, nearby, google
     vendor = StringField(default='nearby', required=False)
@@ -1412,6 +1415,9 @@ class Sensor(MediaSource):
     location = GeoPointField(required=False)
     # reference to the venue
     venue = ReferenceField('Venue', required=False)
+    # vendor metadata
+    # for e.g. Nikaza {zoneId: "", zoneName: ""}
+    sensor_meta = DictField(default={}, required=False)
 
     meta = {'allow_inheritance': True}
 
@@ -1424,7 +1430,6 @@ class Sensor(MediaSource):
 
 
 class Beacon(Sensor):
-    name = StringField()
     major = IntegerField(default=0)
     minor = IntegerField(default=0)
     beacon_type = StringField(default='iBeacon')
@@ -1440,7 +1445,6 @@ class Beacon(Sensor):
 
 
 class WiFi(Sensor):
-    name = StringField()
     hw_addr = StringField()
     max_tx_power = FloatField()
 

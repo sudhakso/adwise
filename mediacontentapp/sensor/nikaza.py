@@ -60,6 +60,37 @@ class NikazaDriver(SensorDriverBase):
     def teardown_driver(self, service_id):
         pass
 
+    def get_venue_details(self, venuename):
+        data = {"venueName": venuename}
+        datastr = str(data)
+        api_endpoint = self._endpoint + self.GET_BEACON_PLACEMENT
+        print "HTTP header : %s" % (self.headers)
+        datastr = datastr.replace("\'","\"").replace("u\"","\"").replace("u\'","\'")
+        print "Get sensor details using Nikaza url:%s data:%s" % (
+                                                        api_endpoint, datastr)
+        response = requests.post(url=api_endpoint,
+                                 headers=self.headers,
+                                 data=datastr)
+        venuedetail = json.loads(response.text)
+        # If successful
+        venueId = ""
+        numSensors = 0
+        sensors = []
+        if venuedetail['status'] == 'success':
+            venues = venuedetail['venues']
+            for venue in venues:
+                if venue['venueName'] == venuename:
+                    venueId = venue['venueId']
+                    numSensors = venue['noOfDevices']
+                    break
+            if numSensors:
+                zones = venuedetail['zones']
+                for sensor in zones:
+                    sensorname = sensor['zone']
+                    sensorId = sensor['zoneId']
+                    sensors.append((sensorname, sensorId))
+        return (venueId, sensors)
+
     def publish_campaign(self,
                          sensor,
                          venue,
@@ -70,13 +101,43 @@ class NikazaDriver(SensorDriverBase):
         playing_data = json.loads(pub_data)
         start_dt = parse(playing_data['start_date'])
         end_dt = parse(playing_data['end_date'])
+        # venueId and ZoneId must be filled in the driver.
+        # This need not be auto-filled and needs to be removed
+        # from the model.
+        venueId, sensors = self.get_venue_details(venue.venue_name)
+        if venueId is None:
+            rcvars = {"message": "No matching venue registered. VenueId returned is None for %s " % (venue.name),
+                      "code": "500"}
+            rcvarstr = json.dumps(rcvars)
+            print "Matching Venue not found : %s" % (rcvarstr)
+            return rcvarstr
+
+        if not sensors:
+            rcvars = {"message": "No sensors were registered for venue %s " % (venue.name),
+                      "code": "500"}
+            rcvarstr = json.dumps(rcvars)
+            print "Empty sensors : %s" % (rcvarstr)
+
+        # Grab the sensor to program by name.
+        sensorId = None
+        for zone in sensors:
+            name = zone[0]
+            if name.lower() == sensor.name.lower():
+                sensorId = zone[1]
+                break
+        if sensorId is None:
+            rcvars = {"message": "No valid sensors were found by name %s under venue %s " % (
+                                                                                sensor.name, venue.name),
+                      "code": "500"}
+            rcvarstr = json.dumps(rcvars)
+            print "Sensor not found : %s" % (rcvarstr)
 
         data = {"campaignName": campaign.name,
                 "beginDate": start_dt.strftime("%m/%d/%Y"),
                 "endDate": end_dt.strftime("%m/%d/%Y"),
                 "numDays": (end_dt-start_dt).days if (end_dt-start_dt).days else 1,
-                "venueId": venue.venue_id if venue is not None else 'default',
-                "zoneId": sensor.zone_id if sensor is not None else 'default',
+                "venueId": venueId,
+                "zoneId": sensorId,
                 "description": campaign.description,
                 "url": tracking_data.short_url}
 
