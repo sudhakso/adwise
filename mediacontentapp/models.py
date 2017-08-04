@@ -1398,7 +1398,7 @@ class Venue(Document):
 
 class Sensor(MediaSource):
     name = StringField(required=True)
-    uuid = StringField(required=True)
+    uuid = StringField(required=True, unique=True)
     # beacon, wifi, gps etc.
     type = "sensor"
     range = FloatField(default=10.0)

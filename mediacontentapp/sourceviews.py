@@ -1744,8 +1744,10 @@ class VenueViewSet(APIView):
                                                     request.query_params,
                                                     request.data)
                 else:
-                    return JSONResponse("Id cannot be None",
-                                        status=HTTP_400_BAD_REQUEST)
+                    venues = Venue.objects.all()
+                    # Serialize
+                    serializer = VenueSerializer(venues, many=True)
+                    return JSONResponse(serializer.data)
         except DoesNotExist as e:
             print e
             return JSONResponse(str(e),
