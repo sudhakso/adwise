@@ -24,6 +24,22 @@
   "responseDate": ""
 }
 
+#Adding a sensor to the venue
+
+{
+ "name": "id4-item1",
+ "display_name": "id4-sensor-1",
+ "hardware_id": "91827464873727",
+ "type": "beacon",
+ "range": "10",
+ "location": [0.0, 0.0],
+ "beacon_type": "ibeacon",
+ "max_tx_power": "65",
+ "vendor": "nearby",
+ "mac_address": "AA:BB:CC:DD:EE",
+ "locator_id": "somelocator_unique_id"
+}
+
 -------------------------------------------------------------------------------------------------
 #Program URL
 {

@@ -165,13 +165,16 @@ class CloudAMQPConnection(object):
         params.socket_timeout = 5
 
         self._connection = pika.BlockingConnection(params)
+        self._connection.add_timeout(10, self.on_timeout)
         self._channel = self._connection.channel()
         self._queues = {}
+        self._sensors = []
 
     def create_queue(self, name):
         if self._channel:
             q = self._channel.queue_declare(queue=name)
-            self._queues[name] = q
+            qCtrl = self._channel.queue_declare(queue=name+'_control')
+            self._queues[name] = (q, qCtrl)
             return q
         else:
             return None
@@ -189,9 +192,59 @@ class CloudAMQPConnection(object):
 
     def load_sensors(self, venuename):
         print "CloudAMQPConnection:load_sensors() venuename %s" % venuename
+        # create a function which is called on incoming messages
+        self._channel.basic_consume(self.amqp_callback,
+                                    queue=venuename+'_control',
+                                    no_ack=True)
+        # start consuming (blocks)
+        self._channel.start_consuming()
+        # At this time, we have all sensors loaded in memory
+        return self._sensors
+
+    def on_timeout(self):
+        self._connection.close()
+
+    def amqp_callback(self, ch, method, properties, body):
+        self._parse_sensor(body)
+
+    def _parse_sensor(self, body):
+        self._sensors.append(body)
 
     def persist_sensor(self, connection, venuename, venueid, sensordata):
-        print "CloudAMQPConnection:load_sensors() venuename %s" % venuename
+#     {
+#         "name": "id4-item1",
+#         "display_name": "id4-sensor-1",
+#         "uuid": "91827464873727",
+#         "type": "beacon",
+#         "range": "10",
+#         "location": [0.0, 0.0],
+#         "beacon_type": "ibeacon",
+#         "max_tx_power": "65",
+#         "vendor": "nearby",
+#         "mac_address": "AA:BB:CC:DD:EE",
+#         "sensor_meta": {"zoneId": "RPI-ID"}
+#     }
+
+        for arecord in sensordata:
+            sensor = eval(arecord)
+            sensor_data = {"name": sensor['name'],
+                           "display_name": sensor['name'],
+                           "caption": "Nearby-" + sensor['name'],
+                           "uuid": sensor['hardware_id'],
+                           "type": "beacon",
+                           "range": "10",
+                           "location": [0.0, 0.0],
+                           "beacon_type": "ibeacon",
+                           "max_tx_power": "65",
+                           "vendor": "nearby",
+                           "mac_address": sensor['mac_address'],
+                           "sensor_meta": {"zoneId": sensor['locator_id']}}
+            # create and attach the sensor to the venue
+            res = connection.persist_sensor(venueid, sensor_data)
+            if res:
+                print "Added sensor to venue %s" % venueid
+            else:
+                print "Failed adding sensor to venue %s" % venueid
 
     def close_connection(self):
         if self._connection:
