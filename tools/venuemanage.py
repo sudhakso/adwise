@@ -314,6 +314,106 @@ class AdwiseHttpConnection(object):
         else:
             return None
 
+    def _get_campaign_tracking(self, campId):
+        api_endpoint = self._endpoint + (
+                                "/mediacontent/campaign/%s/track/" % (campId))
+        headers = {"Content-type": "application/json",
+                   "accept": "application/json",
+                   "username": self._user,
+                   "password": self._passwd,
+                   "email": self._user}
+
+        response = requests.get(url=api_endpoint,
+                                headers=headers)
+        return response
+
+    def list_campaign(self):
+        api_endpoint = self._endpoint + "/mediacontent/campaign/"
+        headers = {"Content-type": "application/json",
+                   "accept": "application/json",
+                   "username": self._user,
+                   "password": self._passwd,
+                   "email": self._user}
+
+        response = requests.get(url=api_endpoint,
+                                headers=headers)
+        if response.ok:
+            campresp = json.loads(response.text)
+            camptrack = {}
+            campplay = {}
+            for camp in campresp:
+                trackresp = self._get_campaign_tracking(camp['id'])
+                if trackresp.ok:
+                    camptrack[camp['id']] = json.loads(trackresp.text)
+                else:
+                    continue
+            return (campresp, camptrack, campplay)
+        else:
+            return (None, None, None)
+
+    def _enable_campaign_tracking(self, campId):
+        api_endpoint = self._endpoint + (
+                                "/mediacontent/campaign/%s/track/" % (campId))
+        data = {"name": campId, "description": ".", "language_code": "en"}
+        data_str = json.dumps(data)
+        headers = {"Content-type": "application/json",
+                   "accept": "application/json",
+                   "username": self._user,
+                   "password": self._passwd,
+                   "email": self._user}
+
+        response = requests.post(url=api_endpoint,
+                                 headers=headers,
+                                 data=data_str)
+        return response
+
+    def create_campaign(self, name, url):
+        api_endpoint = self._endpoint + "/mediacontent/campaign/"
+        data = {"name": name,
+                "description": ".",
+                "launched_at": str(datetime.now()),
+                "end_at": str(datetime.now()),
+                "target_group": [],
+                "spec": {"name": "basic", "type": "basictype", "ad_type": "imagead"},
+                "tags": ".",
+                "social_url": url,
+                "home_url": url,
+                "category": "."}
+        data_str = json.dumps(data)
+        headers = {"Content-type": "application/json",
+                   "accept": "application/json",
+                   "username": self._user,
+                   "password": self._passwd,
+                   "email": self._user}
+
+        response = requests.post(url=api_endpoint,
+                                 headers=headers,
+                                 data=data_str)
+        if response.ok:
+            campaign = json.loads(response.text)
+            campId = campaign['id']
+            track_response = self._enable_campaign_tracking(campId)
+            return (response, track_response)
+        else:
+            return (None, None)
+
+    def play_campaign(self, venueId, campId, start, end):
+        api_endpoint = self._endpoint + (
+                        "mediacontent/mediasource/venue/%s/?action=addcontent&id=%s" % (venueId, campId))
+        data = {"start_date": start,
+                "end_date": end}
+        data_str = json.dumps(data)
+        headers = {"Content-type": "application/json",
+                   "accept": "application/json",
+                   "username": self._user,
+                   "password": self._passwd,
+                   "email": self._user}
+
+        response = requests.post(url=api_endpoint,
+                                 headers=headers,
+                                 data=data_str)
+        return response
+
 
 def load_sensors(options, endpointtype, venuename, venueid, save=False):
     types = endpointtype.split(',')
@@ -373,6 +473,42 @@ def venue_summary(venuedata):
                 row_line=True, fix_col_width=False,)
 
 
+def campaign_summary(campaigndata, campaigntrack=None, campaignplaying=None):
+#     [
+#      [3,2, {"whatever": 1, "bla": [1,2]}],
+#      [5,"function",777],
+#      [1,1,1]
+#     ]
+    campaignRecords = []
+    for campaign in campaigndata:
+        campId = campaign['id']
+        short_url = campaigntrack[campId]['short_url'] if campaigntrack and campId in campaigntrack.keys() else ""
+        _rec = [campaign['name'], campaign['id'],
+                {"short_url": short_url},
+                {"playing_time": campaignplaying[campaign['id']] if campaignplaying else ""}]
+        campaignRecords.append(_rec)
+
+    print_table(campaignRecords,
+                header=[ "Campaign Name", "Campaign Id", "URL", "Playing"],
+                wrap=True, max_col_width=50, wrap_style='wrap',
+                row_line=True, fix_col_width=False,)
+
+
+def list_campaign(user, passwd):
+    connection = AdwiseHttpConnection(ADWISE_URL, user, passwd)
+    return connection.list_campaign()
+
+
+def prep_campaign(user, passwd, name, url):
+    connection = AdwiseHttpConnection(ADWISE_URL, user, passwd)
+    return connection.create_campaign(name, url)
+
+
+def play_campaign(user, passwd, venueId, campId, playstart, playend):
+    connection = AdwiseHttpConnection(ADWISE_URL, user, passwd)
+    return connection.play_campaign(venueId, campId, playstart, playend)
+
+
 def main(argv):
     usage = "usage: %prog [options] arg"
     parser = OptionParser(usage)
@@ -391,6 +527,17 @@ def main(argv):
                       help="Adwise  user access provided to You by Series-5")
     parser.add_option("-t", "--nikaza-key", dest="nikazapasswd")
     parser.add_option("-i", "--venue-id", dest="venueid")
+
+    parser.add_option("-j", "--create-campaign", action="store_true", dest="campcreate")
+    parser.add_option("-n", "--list-campaign", action="store_true", dest="listcamp")
+    parser.add_option("-k", "--campaign-name", dest="campname")
+    parser.add_option("-w", "--campaign-url", dest="campurl",
+                      help="Provide HTTPS URL for physical-web.")
+    parser.add_option("-o", "--play-campaign", action="store_true", dest="campplay",
+                      help="Plays a campaign on the given Venue.")
+    parser.add_option("-x", "--play-start", action="store_true", dest="playstart")
+    parser.add_option("-r", "--play-end", action="store_true", dest="playend")
+    parser.add_option("-u", "--camp-id", action="store_true", dest="campid")
 
     (options, args) = parser.parse_args()
     if not options.adwiseuser or not options.adwisepasswd:
@@ -413,6 +560,42 @@ def main(argv):
         else:
             print "Venue name is required."
             return -1
+    elif options.listcamp:
+        # List campaign with tracking
+        (camp, track, play) = list_campaign(options.adwiseuser,
+                                            options.adwisepasswd)
+        if camp:
+            campaign_summary(camp, track, play)
+        else:
+            print "Error listing campaigns"
+        return 0
+    elif options.campcreate:
+        if not options.campname or not options.campurl:
+            print "Usage error: campaign name and url must be specified."
+            return -1
+        # create campaign workflow for Physical web
+        (camp, camptrack) = prep_campaign(options.adwiseuser,
+                                          options.adwisepasswd,
+                                          options.campname, options.campurl)
+        if camp and not camp.ok and camptrack and camptrack.ok:
+            print "Encountered error in creating campaign."
+            return -1
+        print "Created campaign."
+        camp_js = json.loads(camp.text)
+        campaign_summary([camp_js])
+        return 0
+    elif options.campplay:
+        if not options.playstart and not options.playend and options.campid:
+            print "Usage error: Mention start-time and end-time for play campaign."
+            return -1
+        resp = play_campaign(options.venueid,
+                             options.campid,
+                             options.adwiseuser,
+                             options.adwisepasswd)
+        if not resp.ok:
+            print "Error in playing campaign"
+            return -1
+        return 0
     elif options.load:
         # load sensor
         if not options.endpointtype:

@@ -337,7 +337,7 @@ class CampaignTrackingViewSet(APIView):
             auth_user = auth_manager.do_auth(request)
             # valid user
             user = MediaUser.objects.get(username=auth_user.username)
-            camp = Campaign.objects.get(creator=user, id=camp_id)
+            camp = Campaign.objects.get(id=camp_id)
             track = CampaignTracking.objects.get(campaign=camp)
 
             serializer = CampaignTrackingSerializer(track)
