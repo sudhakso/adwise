@@ -399,7 +399,7 @@ class AdwiseHttpConnection(object):
 
     def play_campaign(self, venueId, campId, start, end):
         api_endpoint = self._endpoint + (
-                        "mediacontent/mediasource/venue/%s/?action=addcontent&id=%s" % (venueId, campId))
+                        "/mediacontent/mediasource/venue/%s/?action=addcontent&id=%s" % (venueId, campId))
         data = {"start_date": start,
                 "end_date": end}
         data_str = json.dumps(data)
@@ -535,9 +535,9 @@ def main(argv):
                       help="Provide HTTPS URL for physical-web.")
     parser.add_option("-o", "--play-campaign", action="store_true", dest="campplay",
                       help="Plays a campaign on the given Venue.")
-    parser.add_option("-x", "--play-start", action="store_true", dest="playstart")
-    parser.add_option("-r", "--play-end", action="store_true", dest="playend")
-    parser.add_option("-u", "--camp-id", action="store_true", dest="campid")
+    parser.add_option("-x", "--play-start", dest="playstart")
+    parser.add_option("-r", "--play-end", dest="playend")
+    parser.add_option("-u", "--camp-id", dest="campid")
 
     (options, args) = parser.parse_args()
     if not options.adwiseuser or not options.adwisepasswd:
@@ -588,13 +588,18 @@ def main(argv):
         if not options.playstart and not options.playend and options.campid:
             print "Usage error: Mention start-time and end-time for play campaign."
             return -1
-        resp = play_campaign(options.venueid,
+        # Playing start-stop
+        resp = play_campaign(options.adwiseuser,
+                             options.adwisepasswd,
+                             options.venueid,
                              options.campid,
-                             options.adwiseuser,
-                             options.adwisepasswd)
+                             options.playstart,
+                             options.playend)
         if not resp.ok:
             print "Error in playing campaign"
             return -1
+        else:
+            print "Playing started"
         return 0
     elif options.load:
         # load sensor
