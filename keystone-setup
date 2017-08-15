@@ -1,0 +1,7 @@
+# Setup process
+
+Step1 : Install Maria-DB as documented here - https://www.liquidweb.com/kb/how-to-install-mariadb-5-5-on-ubuntu-14-04-lts/
+Step2 : Update the apt repository with latest mitaka based packages as documented here - https://docs.openstack.org/mitaka/install-guide-ubuntu/environment-packages.html
+Step3 : Configure keystone as documented here - https://docs.openstack.org/keystone/latest/install/keystone-install-ubuntu.html
+
+Approximate time taken = 20 mins.
