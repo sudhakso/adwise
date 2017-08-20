@@ -16,3 +16,96 @@ export OS_PROJECT_DOMAIN_NAME=Default
 export OS_AUTH_URL=http://controller:35357/v3
 export OS_IDENTITY_API_VERSION=3
 export OS_REGION_NAME=RegionOne
+
+# To request a token for a user
+curl -i   -H "Content-Type: application/json"   -d '
+{ "auth": {
+    "identity": {
+      "methods": ["password"],
+      "password": {
+        "user": {
+          "name": "olaadmanager",
+          "domain": { "name": "default" },
+          "password": "ola123"
+        }
+      }
+    }
+  }
+}'   "http://controller:35357/v3/auth/tokens"
+
+# Response to token request
+{
+	"token": {
+		"methods": ["password"],
+		"roles": [{
+			"id": "ad7da3251b30488c9c7fb24b86477df4",
+			"name": "admin"
+		}],
+		"expires_at": "2017-08-20T05:59:16.000000Z",
+		"project": {
+			"domain": {
+				"id": "1d8c86adb5cc4da9b23e112c4da3996b",
+				"name": "streettalk"
+			},
+			"id": "9b7b1cab2f134595b9fc27dde841e31d",
+			"name": "ola"
+		},
+		"catalog": [{
+			"endpoints": [{
+				"region_id": "regionOne",
+				"url": "http://controller:8000/v2/",
+				"region": "regionOne",
+				"interface": "internal",
+				"id": "2b5f688f6f6245a294efd289a9d03d84"
+			}, {
+				"region_id": "regionOne",
+				"url": "http://controller:8000/v2/",
+				"region": "regionOne",
+				"interface": "admin",
+				"id": "aaaf105aa25c43089ef0a003c4ffa508"
+			}, {
+				"region_id": "regionOne",
+				"url": "http://controller:8000/v2/",
+				"region": "regionOne",
+				"interface": "public",
+				"id": "c4adcefa109c4acbb5dd11d6195e00a8"
+			}],
+			"type": "content",
+			"id": "64de4847b97c4aa39f36aecfa0fdb9f3",
+			"name": "adwisemanager"
+		}, {
+			"endpoints": [{
+				"region_id": "RegionOne",
+				"url": "http://controller:5000/v3/",
+				"region": "RegionOne",
+				"interface": "internal",
+				"id": "44e4a49c7c9c4f30bbfd349508c096b5"
+			}, {
+				"region_id": "RegionOne",
+				"url": "http://controller:35357/v3/",
+				"region": "RegionOne",
+				"interface": "admin",
+				"id": "61fc52200b2f422fa7ad553857d1a279"
+			}, {
+				"region_id": "RegionOne",
+				"url": "http://controller:5000/v3/",
+				"region": "RegionOne",
+				"interface": "public",
+				"id": "e8391422fc66471999d5bfecb7da5215"
+			}],
+			"type": "identity",
+			"id": "f7f2d795414f49bd8e8360d37ce79ef4",
+			"name": "keystone"
+		}],
+		"user": {
+			"domain": {
+				"id": "default",
+				"name": "Default"
+			},
+			"id": "737070b8c40e4090b00490b5df212f81",
+			"name": "olaadmanager"
+		},
+		"audit_ids": ["kkeKi_w4QPaRsjZMdgtN2A"],
+		"issued_at": "2017-08-20T04:59:16.000000Z"
+	}
+}
