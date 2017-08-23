@@ -1,10 +1,20 @@
 from datetime import datetime
 from rest_framework_mongoengine import serializers
 from userapp.serializers import UserSerializer
-from mediacontentapp.models import *
 from datetime import timedelta
 from mediacontentapp import ActivityManager
 from userapp.models import MediaUser
+from mediacontentapp.models import MediaDashboard, SourceTag, Booking,\
+    Pricing, OOHOperationalDailyDataFeed, OOHAnalyticalAttributes,\
+    MediaSource, OOHMediaSource, DigitalMediaSource, VODMediaSource,\
+    RadioMediaSource, MediaSourceActivity, MediaContentActivity, MediaAggregate,\
+    MediaAggregateType, Amenity, AmenityExtension, AmenityExtensionCollection,\
+    RetailExtension, SpecialInterestExtension, SpecialityClinicExtension,\
+    EmergencyServiceExtension, OPDServiceExtension, PlayingAracadeExtension,\
+    StayingExtension, Sensor, SensorActivity, Venue, DoctorExtension,\
+    PharmacyExtension, HelpdeskExtension, MultiplexExtension, OnlineMediaSource,\
+    FloatingMediaSource, WiFi, Beacon, BrandExtension, FNBExtension, FacilityExtension,\
+    AdventureSportExtension
 
 
 class MediaDashboardSerializer(serializers.DocumentSerializer):
@@ -682,13 +692,13 @@ class WiFiSerializer(serializers.DocumentSerializer):
 class SensorSerializer(serializers.DocumentSerializer):
 
     # Owner details
-    verified_by = UserSerializer(required=False, read_only=True)
+#     verified_by = UserSerializer(required=False, read_only=True)
+#     operated_by = UserSerializer(required=False, read_only=True)
     owner = UserSerializer(required=False, read_only=True)
-    operated_by = UserSerializer(required=False, read_only=True)
 
     class Meta:
         model = Sensor
-        # exclude = ('venue',)
+        exclude = ('venue', 'verified_by', 'operated_by')
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
@@ -700,6 +710,7 @@ class SensorSerializer(serializers.DocumentSerializer):
 class VenueSerializer(serializers.DocumentSerializer):
 
     source = MediaSourceSerializer(required=False, read_only=True)
+    sensors = SensorSerializer(required=False, read_only=True, many=True)
 
     class Meta:
         model = Venue

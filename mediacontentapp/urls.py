@@ -93,7 +93,11 @@ urlpatterns = [
         sourceviews.VenueViewSet.as_view()),
     url(r'^mediasource/venue/',
         sourceviews.VenueViewSet.as_view()),
-    # sensor activity
+    # sensor
     url(r'^mediasource/sensor/(?P<id>[0-9a-zA-Z]+)/activity/$',
         sourceviews.SensorActivityViewSet.as_view()),
+    url(r'^mediasource/sensor/(?P<id>[0-9a-zA-Z]+)/',
+        sourceviews.SensorViewSet.as_view()),
+    url(r'^mediasource/sensor/',
+        sourceviews.SensorViewSet.as_view()),
 ]

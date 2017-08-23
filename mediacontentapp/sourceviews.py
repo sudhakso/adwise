@@ -1,14 +1,7 @@
 import json
 from userapp.JSONFormatter import JSONResponse
 from rest_framework.views import APIView
-from mediacontentapp.models import MediaSource, OOHMediaSource, BrandExtension
-from mediacontentapp.models import DigitalMediaSource, VODMediaSource,\
-        RadioMediaSource
-from mediacontentapp.models import Playing
-from mediacontentapp.models import MediaAggregate, MediaAggregateType
-from mediacontentapp.models import MediaDashboard, MediaSourceActivity,\
-        SourceTag, AmenityExtension, BrandExtension, RetailExtension,\
-        FNBExtension, AmenityExtensionCollection
+from mediacontentapp.models import *
 from mediacontentapp.sourceserializers import *
 from mediacontentapp.serializers import JpegImageContentSerializer,\
  PlayingSerializer
@@ -526,7 +519,7 @@ class SensorPlayingViewSet(APIView):
             auth_manager.do_auth(request)
             params = request.query_params
             if 'id' in params:
-                sensor = Sensor.objects.get(beacon_uuid=params['id'])
+                sensor = Sensor.objects.get(id=params['id'])
                 plays = Playing.objects.filter(
                                         primary_media_source=sensor,
                                         end_date__gte=datetime.now)
@@ -1097,9 +1090,6 @@ class MediaSourceViewSet(APIView):
 class OOHNearByViewSet(APIView):
     """ OOH NearBy resource """
 
-    serializer_class = AmenitySerializer
-    model = Amenity
-
     def _discover_amenity_mediasource(self, ooh_instance):
         ooh = OOHMediaSourceIndexSerializer(ooh_instance, many=False)
         data = {'lat': ooh.data['point'][0], 'lon': ooh.data['point'][1]}
@@ -1122,7 +1112,7 @@ class OOHNearByViewSet(APIView):
     def get(self, request, id):
         """ Returns a list of nearby amenities for media source
          ---
-         response_serializer: AmenitySerialzer
+         response_serializer: AmenitySerializer
         """
         # Request Get, all users
         ooh = OOHMediaSource.objects.get(id=id)
@@ -1138,7 +1128,7 @@ class OOHNearByViewSet(APIView):
     def post(self, request, id):
         """ Returns a list of nearby amenities for media source
          ---
-         response_serializer: AmenitySerialzer
+         response_serializer: AmenitySerializer
         """
         # Request Post
         ooh = OOHMediaSource.objects.get(id=id)
@@ -1807,7 +1797,7 @@ class VenueActivityViewSet(APIView):
 
     def get(self, request, id):
 
-        """ Returns venue activity by its id.
+        """ Returns sensor details by its id.
          ---
          response_serializer: SensorActivitySerializer
         """
@@ -1821,6 +1811,37 @@ class VenueActivityViewSet(APIView):
                                             sensor__in=set(all_sensors)),
                                             many=True)
             return JSONResponse(actser.data)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class SensorViewSet(APIView):
+    """ Sensor views """
+
+    def get(self, request, id=None):
+
+        """ Returns sensor by id.
+         ---
+         response_serializer: SensorSerializer
+        """
+        try:
+            auth_manager.do_auth(request)
+            if id is not None:
+                sensor = Sensor.objects.get(id=id)
+                # Serialize
+                serializer = SensorSerializer(sensor, many=False)
+                return JSONResponse(serializer.data)
+            else:
+                sensors = Sensor.objects.all()
+                # Serialize
+                serializer = SensorSerializer(sensors, many=True)
+                return JSONResponse(serializer.data)
         except DoesNotExist as e:
             print e
             return JSONResponse(str(e),

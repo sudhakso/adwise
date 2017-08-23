@@ -461,10 +461,11 @@ def venue_summary(venuedata):
 #     ]
     venueRecords = []
     for venue in venuedata:
+        sensors = venue['sensors']
         _rec = [venue['venue_name'], venue['id'],
                 {"queue-url": AMQP_URL,
                  "queue-id": [venue['venue_name'], venue['venue_name']+"_control"]},
-                {"sensors": venue['sensors']}]
+                {"sensors": [(sensor["id"], sensor["mac_address"], sensor["display_name"]) for sensor in sensors]}]
         venueRecords.append(_rec)
 
     print_table(venueRecords,
