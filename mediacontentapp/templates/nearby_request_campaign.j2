@@ -4,13 +4,13 @@
     "header": [{% for elem in headers %}{{elem}}{% if loop.index < (range(headers) | length) %}},{% else %}}{% endif %}{% endfor %}],
     "venueName": "{{venue.venue_name}}",
     "auth": {
-        "user": {{user}},
-        "password": {{password}}
+        "user": "{{user}}",
+        "password": "{{password}}"
     }
-    "requestDate": {{requestDate}},
-    "beginDate": {{beginDate}},
-    "endDate": {{endDate}},
-    "ackQueueName": {{venueResponseBus}},
-    "url": {{ url }},
+    "requestDate": "{{requestDate}}",
+    "beginDate": "{{beginDate}}",
+    "endDate": "{{endDate}}",
+    "ackQueueName": "{{venueResponseBus}}",
+    "url": "{{ url }}",
     "sensors": [{% for sensor in sensors %}{ "sensorId": "{{ sensor.id }}", "macAddr": "{{ sensor.mac_address }}", "url": "{{ url }}"{% if loop.index < (sensors | length) %}},{% else %}}{% endif %}{% endfor %}]
 }
