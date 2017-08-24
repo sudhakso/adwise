@@ -14,7 +14,7 @@ import pika
 import time
 from optparse import OptionParser
 
-ADWISE_URL = "http://127.0.0.1:8000"
+ADWISE_URL = "http://ec2-18-220-212-64.us-east-2.compute.amazonaws.com:8000"
 AMQP_URL = "amqp://mrafhtxb:HuPwIQDIAxoC3HQTuyHluZPULpR6uReS@white-mynah-bird.rmq.cloudamqp.com/mrafhtxb"
 NIKAZA_URL = "https://nikaza.io/"
 

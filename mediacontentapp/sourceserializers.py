@@ -655,40 +655,6 @@ class FloatingMediaSourceSerializer(serializers.DocumentSerializer):
         return self.get_field_names(*args, **kwargs)
 
 
-class BeaconSerializer(serializers.DocumentSerializer):
-
-    # Owner details
-    verified_by = UserSerializer(required=False, read_only=True)
-    owner = UserSerializer(required=False, read_only=True)
-    operated_by = UserSerializer(required=False, read_only=True)
-
-    class Meta:
-        model = Beacon
-
-    def _include_additional_options(self, *args, **kwargs):
-        return self.get_extra_kwargs()
-
-    def _get_default_field_names(self, *args, **kwargs):
-        return self.get_field_names(*args, **kwargs)
-
-
-class WiFiSerializer(serializers.DocumentSerializer):
-
-    # Owner details
-    verified_by = UserSerializer(required=False, read_only=True)
-    owner = UserSerializer(required=False, read_only=True)
-    operated_by = UserSerializer(required=False, read_only=True)
-
-    class Meta:
-        model = WiFi
-
-    def _include_additional_options(self, *args, **kwargs):
-        return self.get_extra_kwargs()
-
-    def _get_default_field_names(self, *args, **kwargs):
-        return self.get_field_names(*args, **kwargs)
-
-
 class SensorSerializer(serializers.DocumentSerializer):
 
     # Owner details
@@ -714,6 +680,41 @@ class VenueSerializer(serializers.DocumentSerializer):
 
     class Meta:
         model = Venue
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class BeaconSerializer(serializers.DocumentSerializer):
+
+    # Owner details
+    verified_by = UserSerializer(required=False, read_only=True)
+    owner = UserSerializer(required=False, read_only=True)
+    operated_by = UserSerializer(required=False, read_only=True)
+    venue = VenueSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = Beacon
+
+    def _include_additional_options(self, *args, **kwargs):
+        return self.get_extra_kwargs()
+
+    def _get_default_field_names(self, *args, **kwargs):
+        return self.get_field_names(*args, **kwargs)
+
+
+class WiFiSerializer(serializers.DocumentSerializer):
+
+    # Owner details
+    verified_by = UserSerializer(required=False, read_only=True)
+    owner = UserSerializer(required=False, read_only=True)
+    operated_by = UserSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = WiFi
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
