@@ -14,6 +14,7 @@ import pika
 import time
 from optparse import OptionParser
 
+#ADWISE_URL = "http://127.0.0.1:8000"
 ADWISE_URL = "http://ec2-18-220-212-64.us-east-2.compute.amazonaws.com:8000"
 AMQP_URL = "amqp://mrafhtxb:HuPwIQDIAxoC3HQTuyHluZPULpR6uReS@white-mynah-bird.rmq.cloudamqp.com/mrafhtxb"
 NIKAZA_URL = "https://nikaza.io/"
@@ -131,8 +132,8 @@ class NikazaConnection(object):
                     zone = device["zone"]
                     zoneId = device["zoneId"]
                     zoneObjectId = device['zoneObjectId']
-                    lat = device["lat"]
-                    lon = device["lon"]
+                    lat = float(device["lat"])
+                    lon = float(device["lon"])
 
                     sensor_data = {"name": zone,
                                    "display_name": zone,
@@ -414,6 +415,22 @@ class AdwiseHttpConnection(object):
                                  data=data_str)
         return response
 
+    def enable_campaign(self, venueId, campId):
+        api_endpoint = self._endpoint + (
+                        "/mediacontent/mediasource/venue/%s/?action=resumecontent&id=%s" % (venueId, campId))
+        data = {}
+        data_str = json.dumps(data)
+        headers = {"Content-type": "application/json",
+                   "accept": "application/json",
+                   "username": self._user,
+                   "password": self._passwd,
+                   "email": self._user}
+
+        response = requests.post(url=api_endpoint,
+                                 headers=headers,
+                                 data=data_str)
+        return response
+
 
 def load_sensors(options, endpointtype, venuename, venueid, save=False):
     types = endpointtype.split(',')
@@ -464,8 +481,9 @@ def venue_summary(venuedata):
         sensors = venue['sensors']
         _rec = [venue['venue_name'], venue['id'],
                 {"queue-url": AMQP_URL,
-                 "queue-id": [venue['venue_name'], venue['venue_name']+"_control"]},
-                {"sensors": [(sensor["id"], sensor["mac_address"], sensor["display_name"]) for sensor in sensors]}]
+                 "queue-id": [venue['venue_name'], venue['venue_name']+"_control"],
+                 "venue-meta": venue['venue_meta']},
+                {"sensors": [(sensor["id"], sensor["mac_address"], sensor["display_name"], sensor["sensor_meta"]) for sensor in sensors]}]
         venueRecords.append(_rec)
 
     print_table(venueRecords,
@@ -508,6 +526,11 @@ def prep_campaign(user, passwd, name, url):
 def play_campaign(user, passwd, venueId, campId, playstart, playend):
     connection = AdwiseHttpConnection(ADWISE_URL, user, passwd)
     return connection.play_campaign(venueId, campId, playstart, playend)
+
+
+def enable_campaign(user, passwd, venueId, campId):
+    connection = AdwiseHttpConnection(ADWISE_URL, user, passwd)
+    return connection.enable_campaign(venueId, campId)
 
 
 def main(argv):
@@ -600,7 +623,16 @@ def main(argv):
             print "Error in playing campaign"
             return -1
         else:
-            print "Playing started"
+            # Enabling campaign
+            resp = enable_campaign(options.adwiseuser,
+                                   options.adwisepasswd,
+                                   options.venueid,
+                                   options.campid)
+            if resp.ok:
+                print "Playing started"
+            else:
+                print "Error in setting the playing status to Active"
+                return -1
         return 0
     elif options.load:
         # load sensor
