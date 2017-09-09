@@ -18,7 +18,7 @@ from mediacontentapp.models import Campaign, Playing, Venue, MediaAggregate
 from mediacontentapp.serializers import PlayingSerializer
 from mediacontentapp.sourceserializers import SensorSerializer, BeaconSerializer,\
     WiFiSerializer, VenueSerializer
-from urlutils import TinyUrlDriver
+from urlutils import TinyUrlDriver, Series5UrlDriver
 
 
 class VenueController():
@@ -595,7 +595,22 @@ class IndexingService():
 
 class CampaignManager():
 
-    driver = TinyUrlDriver()
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        param = {
+            'default_ini': '%s%s' % (settings.MEDIAAPP_DIR, 'mediaconfig.ini'),
+            'default_value_map': {}
+            }
+
+        self.cfg = Config.config(**param)
+        self.type = self.cfg.get_config(
+                                        'campaign.tracking', 'driver')
+        if self.type == 'tinyurl':
+            self.driver = TinyUrlDriver()
+        else:
+            self.driver = Series5UrlDriver()
 
     def _valid_geo(self, param):
         if isinstance(param, GeoPointField):
@@ -613,7 +628,9 @@ class CampaignManager():
     def update_nearby_fields(self, camp):
         near_by_args = {"short_url": camp.home_url}
         if camp:
-            tiny_url = self.driver.get_URL(camp.home_url)
+            tiny_url = self.driver.get_URL(
+                                    camp.home_url,
+                                    urlmeta={'campaignId': camp.id})
             near_by_args["short_url"] = tiny_url
         return near_by_args
 
