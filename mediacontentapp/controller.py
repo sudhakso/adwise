@@ -50,11 +50,10 @@ class VenueController():
                                    pub_source_id=str(sensor.id),
                                    pub_detail=json.dumps(ps.data),
                                    ignore_failures=True)
-        if rc.ready():
-            if rc.state == "SUCCESS":
+        if rc.get(timeout=120):
                 # put the meta returned by the vendor into play
                 # attributes.
-                if rc.get() is not None:
+                if rc.state == "SUCCESS":
                     vendor_meta = rc.get()
                     play.playing_vendor_attributes = eval(vendor_meta)
                     play.save()
@@ -63,9 +62,9 @@ class VenueController():
                 else:
                     print "Posted campaign publish task: Failed. Unknown error"
                     return -1
-            else:
-                print "Posted campaign publish task: Celery task framework failed."
-                return -1
+        else:
+            print "Posted campaign publish task: Failed. Unknown error"
+            return -1
 
     def _update_campaign_to_sensors(self, play, sensor, campaign):
         print "Update campaign not implemented"
@@ -84,17 +83,18 @@ class VenueController():
                                 pub_detail=json.dumps(ps.data),
                                 update=update,
                                 ignore_failures=True)
-        if rc.ready():
-            if rc.state == "SUCCESS":
-                if rc.get() is not None:
-                    print "Post of udpate campaign task: OK. Response %s" % rc.get()
+        if rc.get(timeout=120):
+                # put the meta returned by the vendor into play
+                # attributes.
+                if rc.state == "SUCCESS":
+                    print "Update of campaign publish task: OK. Response %s" % vendor_meta
                     return 0
                 else:
-                    print "Post of udpate campaign task: Failed. Response Unknown Error"
+                    print "Update campaign publish task: Failed. Unknown error"
                     return -1
-            else:
-                print "Post of update campaign publish task: Failed."
-                return -1
+        else:
+            print "Posted campaign publish task: Failed. Unknown error"
+            return -1
 
     def handle_update(self, inst, *args, **kwargs):
         pass
