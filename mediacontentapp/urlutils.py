@@ -35,6 +35,6 @@ class Series5UrlDriver(URLDriver):
         # Workaround Fix: Forming campaign URL is temporary heer.
         BASE_URL = "https://series-5.com"
         campaignId = urlmeta['campaignId'] if 'campaignId' in urlmeta else None
-        trackurl = "%s/%s" % (
+        trackurl = "%s/%s/" % (
                     BASE_URL, campaignId) if campaignId else "%s/" % (BASE_URL)
         return trackurl
