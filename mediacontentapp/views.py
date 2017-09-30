@@ -6,12 +6,12 @@ from mediacontentapp.serializers import AdSerializer, TextAdSerializer,\
     ImageContentSerializer, JpegImageContentSerializer, CampaignSpecSerializer,\
     CampaignTrackingSerializer, AdExtensionSerializer, OfferExtensionSerializer,\
     CampaignIndexSerializer, SocialMediaExtensionSerializer, T_C_ExtensionSerializer,\
-    PlayingSerializer
+    PlayingSerializer, PlayListSerializer
 from mediacontentapp.sourceserializers import MediaDashboardSerializer
 from userapp.models import MediaUser
 from mediacontentapp.models import Ad, TextAd, CallOnlyAd, ImageAd, Campaign,\
     ImageContent, JpegImageContent, MediaDashboard, CampaignTracking,\
-    OfferExtension, Playing
+    OfferExtension, Playing, Sensor, PlayList
 from mediacontentapp.tasks import CampaignIndexingTask
 from mediacontentapp.controller import CampaignManager
 from mediacontentapp.IdentityService import IdentityManager
@@ -291,12 +291,49 @@ class CampaignViewSet(APIView):
                             status=HTTP_400_BAD_REQUEST)
 
 
+class CampaignPlaylistViewSet(APIView):
+
+    def get(self, request, id):
+
+        """ Returns playing objects for the campaigns
+         ---
+         response_serializer: PlayListSerializer
+        """
+        try:
+            # valid user
+            auth_manager.do_auth(request)
+
+            camp = Campaign.objects.get(id=id)
+            plays = Playing.objects.filter(playing_content=camp)
+            venues = []
+            for play in plays:
+                if play.source_type.lower() == 'sensor':
+                    # Venues are masked for sensor media
+                    # so reveal them and return to the caller.
+                    source = play.primary_media_source
+                    venues.append(source.venue)
+                else:
+                    # Venues remains empty
+                    pass
+            pls = PlayList(playing_content=camp, venues=venues, plays=plays)
+            serializer = PlayListSerializer(pls)
+            return JSONResponse(serializer.data)
+        except DoesNotExist as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_404_NOT_FOUND)
+        except UserNotAuthorizedException as e:
+            print e
+            return JSONResponse(str(e),
+                                status=HTTP_401_UNAUTHORIZED)
+
+
 class CampaignPlayingViewSet(APIView):
     serializer_class = PlayingSerializer
     model = Playing
 
     def get(self, request, id):
-
+ 
         """ Returns playing objects for the campaigns
          ---
          response_serializer: PlayingSerializer

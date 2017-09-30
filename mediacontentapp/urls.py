@@ -67,6 +67,8 @@ urlpatterns = [
         views.CampaignTrackingViewSet.as_view()),
     url(r'^campaign/playing/(?P<id>[0-9a-zA-Z]+)',
         views.CampaignPlayingViewSet.as_view()),
+    url(r'^campaign/playlist/(?P<id>[0-9a-zA-Z]+)',
+        views.CampaignPlaylistViewSet.as_view()),
     url(r'^campaign/(?P<camp_id>[0-9a-zA-Z]+)/$',
         views.CampaignViewSet.as_view()),
     url(r'^campaign/',
