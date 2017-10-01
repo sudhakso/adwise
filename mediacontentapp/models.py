@@ -538,24 +538,6 @@ class NearBy(Document):
     deletion_date = DateTimeField()
 
 
-class PlayList(Document):
-    """
-    At a given time, a campaign is played at sensor. Sensor
-    objects are typically grouped under business object Venue.
-    And there is not direct API to get playlist of the Campaign.
-
-    This model is not stored, but is used to serialize and
-    de-serialize the venue to campaign relationship.
-    """
-    # for e.g. Mall's default source
-    playing_content = ReferenceField('Campaign', required=True)
-    venues = ListField(ReferenceField('Venue'), default=[])
-    plays = ListField(ReferenceField('Playing'), default=[])
-
-    def get_absolute_url(self):
-        return "/mediacontent/playing/%i/" % self.id
-
-
 class Playing(Document):
     """
     At a given time, a media source could play multiple Campaigns.

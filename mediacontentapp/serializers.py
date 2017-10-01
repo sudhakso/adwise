@@ -1,6 +1,6 @@
 from mediacontentapp.models import Ad, TextAd, ProductAd, DynamicSearchAd,\
     Campaign, ImageContent, JpegImageContent, CampaignSpec, CampaignTracking,\
-    MediaAggregate, DigitalMediaSource, PlayList
+    MediaAggregate, DigitalMediaSource
 from mediacontentapp.models import CallOnlyAd, ImageAd
 from mediacontentapp.models import AdExtension,\
     LocationExtension, BusinessHoursExtension,\
@@ -328,22 +328,6 @@ class PlayingSerializer(serializers.DocumentSerializer):
     class Meta:
         model = Playing
         exclude = ('primary_media_source',)
-
-    def _include_additional_options(self, *args, **kwargs):
-        return self.get_extra_kwargs()
-
-    def _get_default_field_names(self, *args, **kwargs):
-        return self.get_field_names(*args, **kwargs)
-
-
-class PlayListSerializer(serializers.DocumentSerializer):
-
-    playing_content = CampaignSerializer(required=False, read_only=True)
-    venues = VenueSerializer(required=False, read_only=True, many=True)
-    plays = PlayingSerializer(required=False, read_only=True, many=True)
-
-    class Meta:
-        model = PlayList
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()

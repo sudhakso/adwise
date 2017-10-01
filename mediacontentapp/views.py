@@ -6,12 +6,13 @@ from mediacontentapp.serializers import AdSerializer, TextAdSerializer,\
     ImageContentSerializer, JpegImageContentSerializer, CampaignSpecSerializer,\
     CampaignTrackingSerializer, AdExtensionSerializer, OfferExtensionSerializer,\
     CampaignIndexSerializer, SocialMediaExtensionSerializer, T_C_ExtensionSerializer,\
-    PlayingSerializer, PlayListSerializer
-from mediacontentapp.sourceserializers import MediaDashboardSerializer
+    PlayingSerializer
+from mediacontentapp.sourceserializers import MediaDashboardSerializer,\
+    VenueSerializer
 from userapp.models import MediaUser
 from mediacontentapp.models import Ad, TextAd, CallOnlyAd, ImageAd, Campaign,\
     ImageContent, JpegImageContent, MediaDashboard, CampaignTracking,\
-    OfferExtension, Playing, Sensor, PlayList
+    OfferExtension, Playing, Sensor
 from mediacontentapp.tasks import CampaignIndexingTask
 from mediacontentapp.controller import CampaignManager
 from mediacontentapp.IdentityService import IdentityManager
@@ -295,9 +296,10 @@ class CampaignPlaylistViewSet(APIView):
 
     def get(self, request, id):
 
-        """ Returns playing objects for the campaigns
+        """ Returns venues where the campaigns
+            are playing
          ---
-         response_serializer: PlayListSerializer
+         response_serializer: VenueSerializer
         """
         try:
             # valid user
@@ -315,8 +317,7 @@ class CampaignPlaylistViewSet(APIView):
                 else:
                     # Venues remains empty
                     pass
-            pls = PlayList(playing_content=camp, venues=venues, plays=plays)
-            serializer = PlayListSerializer(pls)
+            serializer = VenueSerializer(venues, many=True)
             return JSONResponse(serializer.data)
         except DoesNotExist as e:
             print e
