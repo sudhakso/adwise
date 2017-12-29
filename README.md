@@ -45,11 +45,26 @@ Python dependencies are the following
 
 OS System components are 
 
-* MONGODB  
-* sudo apt-get install libjpeg8-dev zlib1g-dev
+* sudo apt-get install mongdb
+* sudo apt-get install libjpeg-dev zlib1g-dev
+* sudo apt-get install python-dev
+* sudo apt-get install gcc
+* git clone https://sudhakso@bitbucket.org/adwise-m/adwise-userprofile-mgr.git
+* pip install -r requirements.txt
+* pip uninstall django-rest-framework-mongoengine
+* pip uninstall django-rest-framework-mongoengine==3.3.0
 * sudo apt-get install rabbitmq-server
-* Download and install elastic search from http://www.elastic.co/downloads
-* Install celery
+* Install JAVA
+	sudo add-apt-repository ppa:openjdk-r/ppa  
+	sudo apt-get update   
+	sudo apt-get install openjdk-7-jdk 
+* Get elasticsearch
+	mkdir /home/ubuntu/tools
+	cd /home/ubuntu/tools
+	wget https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.3.1/elasticsearch-2.3.1.tar.gz
+	tar -xvf elasticsearch-2.3.1.tar.gz
+* Modify the $ADWISE_REPO/tools/startall.sh to adjust to your paths and run.
+	
 
 * Database configuration
 This project uses MONGODB.
