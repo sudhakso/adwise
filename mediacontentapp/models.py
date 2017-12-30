@@ -364,7 +364,8 @@ class MediaAggregate(Document):
     owner = ReferenceField('MediaUser', required=False)
     created_time = DateTimeField(default=datetime.now())
     updated_time = DateTimeField(required=False)
-
+    # Control
+    enabled = BooleanField(required=False, default=False)
     # geo-enabled properties
     location = GeoPointField()
     poi_marker_data = DictField(required=False)

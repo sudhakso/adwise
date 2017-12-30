@@ -223,8 +223,8 @@ class DigitalMediaSourceSerializer(serializers.DocumentSerializer):
     verified_by = UserSerializer(required=False, read_only=True)
     owner = UserSerializer(required=False, read_only=True)
     operated_by = UserSerializer(required=False, read_only=True)
-
-    class Meta:
+    
+    class Meta(MediaSourceSerializer.Meta):
         model = DigitalMediaSource
 
     def _include_additional_options(self, *args, **kwargs):

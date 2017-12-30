@@ -58,7 +58,7 @@ class CampaignQuerySearchTask(Task):
         print 'Search returned following campaigns %s ...' % ids
 
         # Get all campaing objects
-        camps = Campaign.objects.filter(id__in=set(ids))
+        camps = Campaign.objects.filter(id__in=set(ids), enabled=True)
         end = datetime.datetime.now()
         elapsed_time = end - start
         _rr = ResearchResult(campaigns=camps,
@@ -141,7 +141,7 @@ class MediaAggregateQuerySearchTask(Task):
         print 'Search returned following aggregates %s ...' % ids
 
         # Get all campaing objects
-        mas = MediaAggregate.objects.filter(id__in=set(ids))
+        mas = MediaAggregate.objects.filter(id__in=set(ids), enabled=True)
         end = datetime.datetime.now()
         elapsed_time = end - start
         _rr = ResearchResult(mediaaggregates=mas,
@@ -152,16 +152,6 @@ class MediaAggregateQuerySearchTask(Task):
         _srjson = json.dumps(ser.data, encoding='utf-8')
         print _srjson
         return _srjson
-#         _rr = MediaAggregateResearchResult(
-#                     aggregates=mas,
-#                     query_runtime_duration=elapsed_time.total_seconds(
-#                                         ))
-#         rr = _rr.save()
-#         ser = MediaAggregateResearchResultSerializer(rr, many=False)
-#         _srjson = json.dumps(ser.data, encoding='utf-8')
-#         print _srjson
-#         return _srjson
-
 
 class MediaAggregateSQLTask(Task):
     # TBD (create the end-point through the controller)
@@ -192,7 +182,7 @@ class MediaAggregateSQLTask(Task):
             ids = [r['id'] for r in resultset]
             print 'Search returned following aggregates %s ...' % ids
             # Get all campaing objects
-            mas = MediaAggregate.objects.filter(id__in=set(ids))
+            mas = MediaAggregate.objects.filter(id__in=set(ids), enabled=True)
             end = datetime.datetime.now()
             elapsed_time = end - start
             _rr = ResearchResult(mediaaggregates=mas,
@@ -299,7 +289,7 @@ class CampaignSQLTask(Task):
             ids = [r['id'] for r in resultset]
             print 'Search returned following aggregates %s ...' % ids
             # Get all campaign objects
-            mas = MediaAggregate.objects.filter(id__in=set(ids))
+            mas = MediaAggregate.objects.filter(id__in=set(ids), enabled=True)
             # Collect the campaigns playing in media aggregate
             mediasources = [ms.inhouse_source for ms in mas]
             oohs = MediaSource.objects.filter(id__in=set(ids))
