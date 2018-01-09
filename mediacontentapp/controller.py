@@ -14,7 +14,7 @@ from pyes import ES
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK,\
  HTTP_500_INTERNAL_SERVER_ERROR, HTTP_204_NO_CONTENT
 from userapp.JSONFormatter import JSONResponse
-from mediacontentapp.models import Campaign, Playing, Venue, MediaAggregate
+from mediacontentapp.models import Campaign, Playing, Venue, MediaAggregate, Sensor
 from mediacontentapp.serializers import PlayingSerializer
 from mediacontentapp.sourceserializers import SensorSerializer, BeaconSerializer,\
     WiFiSerializer, VenueSerializer
@@ -87,7 +87,7 @@ class VenueController():
                 # put the meta returned by the vendor into play
                 # attributes.
                 if rc.state == "SUCCESS":
-                    print "Update of campaign publish task: OK. Response %s" % vendor_meta
+                    print "Update of campaign publish task: OK."
                     return 0
                 else:
                     print "Update campaign publish task: Failed. Unknown error"
@@ -113,7 +113,18 @@ class VenueController():
                                     status=HTTP_400_BAD_REQUEST)
             # prepare the sensor based on type
             if sensortype.lower() == 'beacon':
+                # Serialize the input
                 ser = BeaconSerializer(data=sensordata)
+                # Check if sensor exists
+                uuid = sensordata['uuid'] if 'uuid' in sensordata else None
+                _queryset = Sensor.objects.filter(uuid=uuid)
+                if len(_queryset):
+                    _sensor = _queryset[0]
+                    # Check the venue
+                    if _sensor.venue != venue:
+                        _sensor.venue = venue
+                        venue.sensors.append(_sensor)
+                    return JSONResponse("Sensor already added", status=HTTP_200_OK)
             elif sensortype.lower() == 'wifi':
                 ser = WiFiSerializer(data=sensordata)
             else:
@@ -121,6 +132,7 @@ class VenueController():
                                     status=HTTP_400_BAD_REQUEST)
             # Save the venue
             if ser.is_valid(raise_exception=True):
+                # sensor is detached from other sensor automatically.
                 sensor = ser.save()
                 # Save the venue information for use in sensor
                 # e.g. publishing campaign needs venue Id with

@@ -94,7 +94,7 @@ class NearbyDriver(SensorDriverBase):
 
     def control_campaign(self, sensor, venue, campaign_data, tracking_data,
                          pub_data, update):
-        return 0
+        return "Not Implemented"
 
     def get_campaign(self):
         pass
