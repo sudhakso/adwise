@@ -14,8 +14,8 @@ import pika
 import time
 from optparse import OptionParser
 
-ADWISE_URL = "http://127.0.0.1:8000"
-#ADWISE_URL = "http://ec2-18-220-212-64.us-east-2.compute.amazonaws.com:8000"
+#ADWISE_URL = "http://127.0.0.1:8000"
+ADWISE_URL = "http://ec2-18-221-71-42.us-east-2.compute.amazonaws.com:8000"
 AMQP_URL = "amqp://mrafhtxb:HuPwIQDIAxoC3HQTuyHluZPULpR6uReS@white-mynah-bird.rmq.cloudamqp.com/mrafhtxb"
 NIKAZA_URL = "https://nikaza.io/"
 
@@ -362,7 +362,6 @@ class AdwiseHttpConnection(object):
                     camptrack[camp['id']] = json.loads(trackresp.text)
                 # get playing information
                 playing = self._get_campaing_playing(camp['id'])
-                print playing.text
                 if playing.ok:
                     campplay[camp['id']] = json.loads(playing.text)
             return (campresp, camptrack, campplay)
@@ -520,10 +519,9 @@ def campaign_summary(campaigndata, campaigntrack=None, campaignplaying=None):
         campId = campaign['id']
         short_url = campaigntrack[campId]['short_url'] if campaigntrack and campId in campaigntrack.keys() else ""
         plays = campaignplaying[campId] if campaignplaying and campId in campaignplaying.keys() else ""
-        print plays
         _rec = [campaign['name'], campaign['id'],
                 {"short_url": short_url},
-                {"playing_result": [{"sensor": play['playing_vendor_attributes'],
+                {"playing_result": [{"sensor_name": play['primary_media_source']['display_name'], 
                                      "start_date": play['start_date'],
                                      "end_date": play['end_date']} for play in plays ]}]
         campaignRecords.append(_rec)

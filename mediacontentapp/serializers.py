@@ -323,11 +323,11 @@ class PeriodSerializer(serializers.DocumentSerializer):
 class PlayingSerializer(serializers.DocumentSerializer):
 
     playing_content = CampaignSerializer(required=False, read_only=True)
-#     primary_media_source = MediaSourceSerializer(required=False, read_only=True)
+    primary_media_source = MediaSourceSerializer(required=False, read_only=True)
 
     class Meta:
         model = Playing
-        exclude = ('primary_media_source',)
+#         exclude = ('primary_media_source',)
 
     def _include_additional_options(self, *args, **kwargs):
         return self.get_extra_kwargs()
