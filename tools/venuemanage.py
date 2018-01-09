@@ -519,16 +519,15 @@ def campaign_summary(campaigndata, campaigntrack=None, campaignplaying=None):
         campId = campaign['id']
         short_url = campaigntrack[campId]['short_url'] if campaigntrack and campId in campaigntrack.keys() else ""
         plays = campaignplaying[campId] if campaignplaying and campId in campaignplaying.keys() else ""
+        sensors = [(play['primary_media_source']['display_name'])
+                            for play in plays ]
         _rec = [campaign['name'], campaign['id'],
-                {"short_url": short_url},
-                {"playing_result": [{"sensor_name": play['primary_media_source']['display_name'], 
-                                     "start_date": play['start_date'],
-                                     "end_date": play['end_date']} for play in plays ]}]
+                {"Playing": sensors},{"url":short_url}]
         campaignRecords.append(_rec)
 
     print_table(campaignRecords,
-                header=[ "Campaign Name", "Campaign Id", "URL", "Playing"],
-                wrap=True, max_col_width=50, wrap_style='wrap',
+                header=[ "Campaign Name", "Campaign Id", "Playing", "URL"],
+                wrap=True, max_col_width=33, wrap_style='wrap',
                 row_line=True, fix_col_width=False,)
 
 
