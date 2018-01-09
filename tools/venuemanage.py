@@ -14,8 +14,8 @@ import pika
 import time
 from optparse import OptionParser
 
-#ADWISE_URL = "http://127.0.0.1:8000"
-ADWISE_URL = "http://ec2-18-220-212-64.us-east-2.compute.amazonaws.com:8000"
+ADWISE_URL = "http://127.0.0.1:8000"
+#ADWISE_URL = "http://ec2-18-220-212-64.us-east-2.compute.amazonaws.com:8000"
 AMQP_URL = "amqp://mrafhtxb:HuPwIQDIAxoC3HQTuyHluZPULpR6uReS@white-mynah-bird.rmq.cloudamqp.com/mrafhtxb"
 NIKAZA_URL = "https://nikaza.io/"
 
@@ -315,6 +315,19 @@ class AdwiseHttpConnection(object):
         else:
             return None
 
+    def _get_campaing_playing(self, campId):
+        api_endpoint = self._endpoint + (
+                                "/mediacontent/campaign/playing/%s" % (campId))
+        headers = {"Content-type": "application/json",
+                   "accept": "application/json",
+                   "username": self._user,
+                   "password": self._passwd,
+                   "email": self._user}
+
+        response = requests.get(url=api_endpoint,
+                                headers=headers)
+        return response
+
     def _get_campaign_tracking(self, campId):
         api_endpoint = self._endpoint + (
                                 "/mediacontent/campaign/%s/track/" % (campId))
@@ -343,11 +356,15 @@ class AdwiseHttpConnection(object):
             camptrack = {}
             campplay = {}
             for camp in campresp:
+                # get track information
                 trackresp = self._get_campaign_tracking(camp['id'])
                 if trackresp.ok:
                     camptrack[camp['id']] = json.loads(trackresp.text)
-                else:
-                    continue
+                # get playing information
+                playing = self._get_campaing_playing(camp['id'])
+                print playing.text
+                if playing.ok:
+                    campplay[camp['id']] = json.loads(playing.text)
             return (campresp, camptrack, campplay)
         else:
             return (None, None, None)
@@ -502,9 +519,13 @@ def campaign_summary(campaigndata, campaigntrack=None, campaignplaying=None):
     for campaign in campaigndata:
         campId = campaign['id']
         short_url = campaigntrack[campId]['short_url'] if campaigntrack and campId in campaigntrack.keys() else ""
+        plays = campaignplaying[campId] if campaignplaying and campId in campaignplaying.keys() else ""
+        print plays
         _rec = [campaign['name'], campaign['id'],
                 {"short_url": short_url},
-                {"playing_time": campaignplaying[campaign['id']] if campaignplaying else ""}]
+                {"playing_result": [{"sensor": play['playing_vendor_attributes'],
+                                     "start_date": play['start_date'],
+                                     "end_date": play['end_date']} for play in plays ]}]
         campaignRecords.append(_rec)
 
     print_table(campaignRecords,
