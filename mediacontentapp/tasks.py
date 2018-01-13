@@ -7,27 +7,29 @@ Created on April 1, 2016
 from __future__ import absolute_import
 
 import datetime
+from json import loads
 import json
-from celery import shared_task
-from celery import Task
-from mediacontentapp.models import Campaign, OfferExtension, CampaignTracking,\
- Sensor
-from mediaresearchapp.models import SearchQuery, ResearchResult
+
 from celery import Celery
-from mediaresearchapp.serializers import ResearchResultSerializer
-from rest_framework.renderers import JSONRenderer
+from celery import Task
+from celery import shared_task
 from django.core import serializers
-from mediacontentapp.serializers import CampaignSerializer,\
-    CampaignIndexSerializer
-from mediacontentapp.controller import IndexingService
-from mediacontentapp.sensormanager import SensorManager
 from mongoengine.errors import DoesNotExist
+from rest_framework.renderers import JSONRenderer
+
+from mediacontentapp.controller import IndexingService, URLRedirectService
+from mediacontentapp.models import Campaign, OfferExtension, CampaignTracking, \
+ Sensor
+from mediacontentapp.sensormanager import SensorManager
+from mediacontentapp.serializers import CampaignSerializer, \
+    CampaignIndexSerializer
+from mediaresearchapp.models import SearchQuery, ResearchResult
+from mediaresearchapp.serializers import ResearchResultSerializer
+
 
 # Initialize the service
 # indexing_service = IndexingService()
 #sensor_manager = SensorManager()
-
-
 class BasicSearchTask(Task):
     ignore_errors = True
 
@@ -330,6 +332,43 @@ class OOHMediaSourceIndexingTask(Task):
                                     kwargs['instancename'])
             print "Exception : %s" % str(e)
 
+
+class CampaignRedirectRuleSetupTask(Task):
+    ignore_errors = True
+    _rulebroker = None
+
+    @property
+    def rulebroker(self):
+        if self._rulebroker is None:
+            self._rulebroker = URLRedirectService()
+        return self._rulebroker
+
+    # instancename=, object=
+    def run(self, *args, **kwargs):
+        start = datetime.datetime.now()
+        print 'Setting up 302 redirect rules for campaign tracking Id : %s ...' % (
+                                kwargs['instancename'])
+        data = loads(kwargs['campaigntracker'])
+        print data
+        try:
+            tracks = CampaignTracking.objects.filter(id=data['id'])
+            # Find the campaign id
+            if len(tracks):
+                source = tracks[0].campaign.id
+                target = tracks[0].campaign.home_url
+                # Add the URLs to redirect server
+                res = self.rulebroker.addRule(source, target)
+                if res:
+                    print "Successfully created redirect rule for campaign : %s" % (
+                                        source)
+                    print "Applying rule to the server..."
+                    self.rulebroker.SIGUSR1()
+                    return "SUCCESS"
+        except Exception as e:
+            print "Failed creating redirect rule for campaign tracking: %s" % (
+                                    kwargs['instancename'])
+            print "Exception : %s" % str(e)
+            return "FAILED"
 
 @shared_task
 def test(param):
