@@ -3,22 +3,29 @@ Created on Dec 12, 2015
 
 @author: sonu
 '''
-from jinja2 import Template
 import json
+import os.path
+import shutil
+from subprocess import PIPE, STDOUT
+
 from django.conf import settings
-from mediacontentapp import Config
-from mediacontentapp import urlutils
-from mediacontentapp.models import OOHMediaSource
+import filelock
+from jinja2 import Template
 from mongoengine.fields import GeoPointField
 from pyes import ES
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK,\
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK, \
  HTTP_500_INTERNAL_SERVER_ERROR, HTTP_204_NO_CONTENT
-from userapp.JSONFormatter import JSONResponse
+
+from mediacontentapp import Config
+from mediacontentapp import urlutils
 from mediacontentapp.models import Campaign, Playing, Venue, MediaAggregate, Sensor
+from mediacontentapp.models import OOHMediaSource
 from mediacontentapp.serializers import PlayingSerializer
-from mediacontentapp.sourceserializers import SensorSerializer, BeaconSerializer,\
+from mediacontentapp.sourceserializers import SensorSerializer, BeaconSerializer, \
     WiFiSerializer, VenueSerializer
+import nginxsiteutil
 from urlutils import TinyUrlDriver, Series5UrlDriver
+from userapp.JSONFormatter import JSONResponse
 
 
 class VenueController():
@@ -553,6 +560,87 @@ class ESMapper():
                 _data = json.loads(str(j2_template.render()))
                 return _data
         return None
+
+class URLRedirectService():
+    # Redirect service init
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        param = {
+            'default_ini': '%s%s' % (settings.MEDIAAPP_DIR, 'mediaconfig.ini'),
+            'default_value_map': {}
+            }
+
+        self.indexcfg = Config.config(**param)
+        self.serviceType = self.indexcfg.get_config(
+                                        'campaign.302redirect', 'backend')
+        self.configFile = self.indexcfg.get_config(
+                                        'campaign.302redirect', 'serviceconfig')
+        self.lock = self.indexcfg.get_config(
+                                        'campaign.302redirect', 'lockfile')
+        self.reload_cmd = self.indexcfg.get_config(
+                                        'campaign.302redirect', 'reload_cmd').split()
+        self.TMP_DIR = "/tmp/"
+        # Validate
+        if not os.path.exists(self.lock):
+            open(self.lock, 'w').close()
+        self.validate_site(self.configFile)
+
+    def validate_site(self, file):
+        print "Validating file %s : Ok" % file
+        pass
+
+    @property
+    def configFile(self):
+        return self.configFile
+
+    def _createbackupFile(self, uuid):
+        # copy the content for the campaign
+        shutil.copy2(self.configFile, self.TMP_DIR + str(uuid))
+        return self.TMP_DIR + str(uuid)
+
+    def SIGUSR1(self):
+        import subprocess
+        # run reload command configuration
+        print "Refreshing backend configuration"
+        print "Refresh Command : sudo %s" % self.reload_cmd
+        p = subprocess.Popen(self.reload_cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+        print p.stdout.read()
+
+    def addRule(self, source, target):
+        from filelock import FileLock
+        lock = filelock.FileLock(self.lock)
+        with lock.acquire(timeout = 10):
+            # work with the file as it is now locked
+            print "addRule: URLRedirectService lock acquired."
+            print "addRule: URLRedirectService %s => %s." % (source, target)
+            # Conf object
+            print "addRule: URLRedirectService Operating on %s" % self.configFile
+            c = nginxsiteutil.loadf(self.configFile)
+            # Add the rules, Pick the server block
+            print c.as_dict
+            server = c.server
+            if server:
+                print "addRule: URLRedirectService rewrite ^/%s/$ %s redirect" % (source, target)
+                server.add(nginxsiteutil.Key('rewrite', "^/%s/$ %s redirect" % (source, target)))
+                # dump the content
+                nginxsiteutil.dumpf(c, self.configFile)
+                # Success
+                return 1
+            #Failure
+            return -1
+
+    def removeRule(self, source):
+        from filelock import FileLock
+        with FileLock(self.configFile):
+            # work with the file as it is now locked
+            print("removeRule: URLRedirectService Lock acquired.")
+            print("removeRule: URLRedirectService %s" % (source))
+            pass
+
+    def updateRule(self, source, newtarget):
+        pass
 
 
 class IndexingService():

@@ -4,20 +4,22 @@ Created on Dec 25, 2015
 @author: sonu
 '''
 import json
-from mediacontentapp.models import OOHAnalyticalAttributes,\
-    Campaign, OfferExtension, ImageAd, MediaAggregate, OOHMediaSource,\
-    Playing
+
 from mongoengine import signals
-from mediacontentapp.tasks import CampaignIndexingTask, OfferIndexingTask,\
-    AdIndexingTask, OOHyticsIndexingTask, MediaAggregateIndexingTask,\
-    OOHMediaSourceIndexingTask
-from mediacontentapp.serializers import CampaignIndexSerializer,\
-    ImageAdIndexSerializer, OfferIndexSerializer,\
-    MediaAggregateIndexSerializer
+
 from mediacontentapp.controller import IndexingService
-from mediacontentapp.sourceserializers import OOHAnalyticalAttributesSerializer,\
+from mediacontentapp.models import OOHAnalyticalAttributes, \
+    Campaign, OfferExtension, ImageAd, MediaAggregate, OOHMediaSource, \
+    Playing, CampaignTracking
+from mediacontentapp.serializers import CampaignIndexSerializer, \
+    ImageAdIndexSerializer, OfferIndexSerializer, \
+    MediaAggregateIndexSerializer, CampaignTrackingSerializer
+from mediacontentapp.sourceserializers import OOHAnalyticalAttributesSerializer, \
  OOHMediaSourceIndexSerializer
- 
+from mediacontentapp.tasks import CampaignIndexingTask, OfferIndexingTask, \
+    AdIndexingTask, OOHyticsIndexingTask, MediaAggregateIndexingTask, \
+    OOHMediaSourceIndexingTask, CampaignRedirectRuleSetupTask
+
 
 def index_oohanalytics(sender, document, created):
     print "Placeholder for source analytics"
@@ -127,6 +129,21 @@ def index_oohmediasource(sender, document, created):
             print "index_oohmediasource: task status: Unchanged OK."
 
 
+def set_302redirect_rules(sender, document, created):
+    print "Placeholder for setting 302 redirect rules in nginx"
+    # 302 redirect
+    ctser = CampaignTrackingSerializer(document, many=False)
+    task = CampaignRedirectRuleSetupTask()
+    rc = task.delay(args=[],
+                    instancename=str(document.id),
+                    campaigntracker=json.dumps(ctser.data),
+                    ignore_failures=False)
+    if rc.state == "SUCCESS":
+        print "redirect rule for %s task status: OK." % str(document.id)
+    else:
+        print "redirect rule for %s task status: Not OK." % str(document.id)
+
+
 # Register all model handlers
 signals.post_save.connect(index_oohanalytics, OOHAnalyticalAttributes)
 signals.post_save.connect(index_campaign, Campaign)
@@ -134,4 +151,5 @@ signals.post_save.connect(index_offer, OfferExtension)
 signals.post_save.connect(index_ad, ImageAd)
 signals.post_save.connect(index_mediaaggregate, MediaAggregate)
 signals.post_save.connect(index_oohmediasource, OOHMediaSource)
+signals.post_save.connect(set_302redirect_rules, CampaignTracking)
 
