@@ -14,9 +14,9 @@ import pika
 import time
 from optparse import OptionParser
 
-ADWISE_MEDIA_URL = "http://127.0.0.1:8000"
+#ADWISE_MEDIA_URL = "http://127.0.0.1:8000"
 ADWISE_ANALYTICS_URL = "http://127.0.0.1:8001"
-#ADWISE_MEDIA_URL = "http://ec2-18-221-71-42.us-east-2.compute.amazonaws.com:8000"
+ADWISE_MEDIA_URL = "http://ec2-18-221-71-42.us-east-2.compute.amazonaws.com:8000"
 AMQP_URL = "amqp://mrafhtxb:HuPwIQDIAxoC3HQTuyHluZPULpR6uReS@white-mynah-bird.rmq.cloudamqp.com/mrafhtxb"
 NIKAZA_URL = "https://nikaza.io/"
 
@@ -240,7 +240,7 @@ def campaign_stat_summary(campid, statresp):
         stat_table.append(_data)
         
         print_table(stat_table,
-                    header=[ "Campaign Id", "Total Clicks", "Android Users", "Apple Users", "Windows Users"],
+                    header=[ "Campaign Id", "Total Clicks", "Android Users", "Apple Users", "Windows/Linux Users"],
                     wrap=True, max_col_width=33, wrap_style='wrap',
                     row_line=True, fix_col_width=False,)
     else:
