@@ -15,7 +15,8 @@ import pika
 import time
 from optparse import OptionParser
 
-ADWISE_URL = "http://ec2-18-221-71-42.us-east-2.compute.amazonaws.com:8000"
+ADWISE_URL = "http://127.0.0.1:8000"
+#ADWISE_URL = "http://ec2-18-221-71-42.us-east-2.compute.amazonaws.com:8000"
 AMQP_URL = "amqp://mrafhtxb:HuPwIQDIAxoC3HQTuyHluZPULpR6uReS@white-mynah-bird.rmq.cloudamqp.com/mrafhtxb"
 NIKAZA_URL = "https://nikaza.io/"
 
@@ -315,6 +316,19 @@ class AdwiseHttpConnection(object):
         else:
             return None
 
+    def _get_campaing_playing(self, campId):
+        api_endpoint = self._endpoint + (
+                                "/mediacontent/campaign/playing/%s" % (campId))
+        headers = {"Content-type": "application/json",
+                   "accept": "application/json",
+                   "username": self._user,
+                   "password": self._passwd,
+                   "email": self._user}
+
+        response = requests.get(url=api_endpoint,
+                                headers=headers)
+        return response
+
     def _get_campaign_tracking(self, campId):
         api_endpoint = self._endpoint + (
                                 "/mediacontent/campaign/%s/track/" % (campId))
@@ -343,11 +357,14 @@ class AdwiseHttpConnection(object):
             camptrack = {}
             campplay = {}
             for camp in campresp:
+                # get track information
                 trackresp = self._get_campaign_tracking(camp['id'])
                 if trackresp.ok:
                     camptrack[camp['id']] = json.loads(trackresp.text)
-                else:
-                    continue
+                # get playing information
+                playing = self._get_campaing_playing(camp['id'])
+                if playing.ok:
+                    campplay[camp['id']] = json.loads(playing.text)
             return (campresp, camptrack, campplay)
         else:
             return (None, None, None)
@@ -415,6 +432,22 @@ class AdwiseHttpConnection(object):
                                  data=data_str)
         return response
 
+    def enable_campaign(self, venueId, campId):
+        api_endpoint = self._endpoint + (
+                        "/mediacontent/mediasource/venue/%s/?action=resumecontent&id=%s" % (venueId, campId))
+        data = {}
+        data_str = json.dumps(data)
+        headers = {"Content-type": "application/json",
+                   "accept": "application/json",
+                   "username": self._user,
+                   "password": self._passwd,
+                   "email": self._user}
+
+        response = requests.post(url=api_endpoint,
+                                 headers=headers,
+                                 data=data_str)
+        return response
+
 
 def load_sensors(options, endpointtype, venuename, venueid, save=False):
     types = endpointtype.split(',')
@@ -462,10 +495,12 @@ def venue_summary(venuedata):
 #     ]
     venueRecords = []
     for venue in venuedata:
+        sensors = venue['sensors']
         _rec = [venue['venue_name'], venue['id'],
                 {"queue-url": AMQP_URL,
-                 "queue-id": [venue['venue_name'], venue['venue_name']+"_control"]},
-                {"sensors": venue['sensors']}]
+                 "queue-id": [venue['venue_name'], venue['venue_name']+"_control"],
+                 "venue-meta": venue['venue_meta']},
+                {"sensors": [(sensor["id"], sensor["mac_address"], sensor["display_name"], sensor["sensor_meta"]) for sensor in sensors]}]
         venueRecords.append(_rec)
 
     print_table(venueRecords,
@@ -484,14 +519,16 @@ def campaign_summary(campaigndata, campaigntrack=None, campaignplaying=None):
     for campaign in campaigndata:
         campId = campaign['id']
         short_url = campaigntrack[campId]['short_url'] if campaigntrack and campId in campaigntrack.keys() else ""
+        plays = campaignplaying[campId] if campaignplaying and campId in campaignplaying.keys() else ""
+        sensors = [(play['primary_media_source']['display_name'])
+                            for play in plays ]
         _rec = [campaign['name'], campaign['id'],
-                {"short_url": short_url},
-                {"playing_time": campaignplaying[campaign['id']] if campaignplaying else ""}]
+                {"Playing": sensors},{"url":short_url}]
         campaignRecords.append(_rec)
 
     print_table(campaignRecords,
-                header=[ "Campaign Name", "Campaign Id", "URL", "Playing"],
-                wrap=True, max_col_width=50, wrap_style='wrap',
+                header=[ "Campaign Name", "Campaign Id", "Playing", "URL"],
+                wrap=True, max_col_width=33, wrap_style='wrap',
                 row_line=True, fix_col_width=False,)
 
 
@@ -508,6 +545,11 @@ def prep_campaign(user, passwd, name, url):
 def play_campaign(user, passwd, venueId, campId, playstart, playend):
     connection = AdwiseHttpConnection(ADWISE_URL, user, passwd)
     return connection.play_campaign(venueId, campId, playstart, playend)
+
+
+def enable_campaign(user, passwd, venueId, campId):
+    connection = AdwiseHttpConnection(ADWISE_URL, user, passwd)
+    return connection.enable_campaign(venueId, campId)
 
 
 def main(argv):
@@ -600,7 +642,16 @@ def main(argv):
             print "Error in playing campaign"
             return -1
         else:
-            print "Playing started"
+            # Enabling campaign
+            resp = enable_campaign(options.adwiseuser,
+                                   options.adwisepasswd,
+                                   options.venueid,
+                                   options.campid)
+            if resp.ok:
+                print "Playing started"
+            else:
+                print "Error in setting the playing status to Active"
+                return -1
         return 0
     elif options.load:
         # load sensor
