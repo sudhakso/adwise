@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Created on Feb 7, 2016
 
@@ -9,13 +10,12 @@ from datetime import datetime, timedelta
 import json
 import requests
 import re
-import pika
 
 import time
 from optparse import OptionParser
 
 #ADWISE_MEDIA_URL = "http://127.0.0.1:8000"
-ADWISE_ANALYTICS_URL = "http://127.0.0.1:8001"
+ADWISE_ANALYTICS_URL = "http://ec2-18-221-71-42.us-east-2.compute.amazonaws.com:8001"
 ADWISE_MEDIA_URL = "http://ec2-18-221-71-42.us-east-2.compute.amazonaws.com:8000"
 AMQP_URL = "amqp://mrafhtxb:HuPwIQDIAxoC3HQTuyHluZPULpR6uReS@white-mynah-bird.rmq.cloudamqp.com/mrafhtxb"
 NIKAZA_URL = "https://nikaza.io/"
