@@ -2,7 +2,7 @@ git+https://github.com/django-nonrel/django.git
 Babel==2.3.4
 Jinja2==2.8
 MarkupSafe==0.23
-Pillow==3.0.0
+Pillow==8.3.2
 PyYAML==3.11
 amqp==1.4.8
 anyjson==0.3.3
