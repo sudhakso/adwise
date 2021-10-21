@@ -1,5 +1,5 @@
 git+https://github.com/django-nonrel/django.git
-Babel==2.3.4
+Babel==2.9.1
 Jinja2==2.8
 MarkupSafe==0.23
 Pillow==3.0.0
