@@ -9,7 +9,7 @@ anyjson==0.3.3
 argparse==1.2.1
 billiard==3.3.0.22
 blinker==1.4
-celery==3.1.19
+celery==5.2.2
 debtcollector==1.4.0
 django-mongodb-engine==0.6.0
 git+https://github.com/umutbozkurt/django-rest-framework-mongoengine.git
